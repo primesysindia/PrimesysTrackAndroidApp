@@ -348,7 +348,7 @@ public class Home extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 if (drawer.isDrawerVisible(GravityCompat.START)) {
-                    drawer.closeDrawer(GravityCompat.START);
+                    drawer.   closeDrawer(GravityCompat.START);
                 } else {
                     drawer.openDrawer(GravityCompat.START);
                 }
