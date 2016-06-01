@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/build/intermediates/res/merged/release/drawable-hdpi-v4/ic_launcher.png",
+        "source": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/src/main/res/drawable-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/build/intermediates/res/merged/release/drawable-hdpi-v4/selection_divider.9.png",
+        "source": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/src/main/res/drawable-hdpi/selection_divider.9.png"
+    }
+]

@@ -1,0 +1,91 @@
+<resources>
+    <string name="appllication_name">Primesys Track</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_show_map">Map</string>
+    <string name="title_activity_login">LoginActivity</string>
+
+
+    <!--For Google puls loin-->
+
+    <!-- Sign-in status messages -->
+    <string name="signed_in_fmt">Signed in as: %s</string>
+    <string name="signed_in">Signed in</string>
+    <string name="signing_in">Signing inâ€¦</string>
+    <string name="signed_out">Signed out</string>
+    <string name="signed_in_err">"Error: please check logs."</string>
+    <string name="error_null_person">
+        Error: Plus.PeopleApi.getCurrentPerson returned null. Ensure that the Google+ API is
+        enabled for your project, you have a properly configured google-services.json file
+        and that your device has an internet connection.
+    </string>
+    <string name="loading">Loading Wait..</string>
+    <string name="auth_code_fmt">Auth Code: %s</string>
+    <string name="id_token_fmt">ID Token: %s</string>
+
+    <!-- Google Play Services error for Toast -->
+    <string name="play_services_error_fmt">Google Play Services Error: %i</string>
+
+    <!-- Button labels -->
+    <string name="sign_out">Sign Out</string>
+    <string name="disconnect">Disconnect</string>
+
+    <!-- Content Description for images -->
+    <string name="desc_google_icon">Google Logo</string>
+
+    <!-- Rationale for asking for Contacts -->
+    <string name="contacts_permission_rationale">Contacts access is needed in order to retrieve your email address.</string>
+    <!-- Activity Names and Descriptions -->
+    <string name="name_sign_in_activity">SignInActivity</string>
+    <string name="desc_sign_in_activity">Signing in, signing out, and revoking access.</string>
+    <string name="desc_sign_in_activity_scopes">Signing in, signing out, and revoking access with Google Drive permissions.</string>
+    <string name="name_id_token_activity">IdTokenActivity</string>
+    <string name="desc_id_token_activity">Retrieving an ID Token for the user.</string>
+    <string name="desc_auth_code_activity">Demonstrate retrieving an auth code for authorizing your server.</string>
+    <string name="name_auth_code_activity">ServerAuthCodeActivity</string>
+    <!-- TODO(user): replace with your real server client ID -->
+    <!-- Server Client ID.  This should be a valid Web OAuth 2.0 Client ID obtained
+         from https://console.developers.google.com/ -->
+    <!--
+
+    <string name="server_client_id">682508923854-3k6td8q69qqr8fskvddofrg9hsl4qs09.apps.googleusercontent.com</string>
+-->
+
+    <string name="title_activity_item_list_with_refine">ItemListWIthRefine</string>
+
+    <string name="facebook_app_id">238971723123983</string>
+
+
+    <string name="google_app_id">AIzaSyCsUL2QWb_jiO2DhXcq1iTWk9ErLOrmyro</string>
+
+    <string name="toolbar_name"></string>
+    <string name="title_activity_add_new_friend">AddNewFriend</string>
+    <string name="name">Name</string>
+    <string name="mobno">Mobile Number</string>
+    <string name="email">Email</string>
+    <string name="title_activity_new_request">NewRequest</string>
+    <string name="title_activity_block_tracking">BlockTracking</string>
+    <string name="sharemessaage">Get the VTS app.Click on : https://play.google.com/store/apps/details?id=com.primesys.flocator.</string>
+    <string name="title_activity_track_switch">TrackSwitch</string>
+    <string name="server_error">Server Error Occure</string>
+    <string name="heading_name">Locator</string>
+
+    !--For map -->
+
+    <string name="str_rb_normal">Normal</string>
+    <string name="str_rb_satellite">Satellite</string>
+    <string name="str_rb_terrain">Terrain</string>
+
+    <!--Toast msg  -->
+    <string name="str_make_reachage">Please Reachage your device.</string>
+    <string name="str_wait">Please wait...</string>
+    <string name="str_conn_error">Please turn on Intenet connection</string>
+    <string name="title_activity_smap">Map</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="str_rb_pt">By PT</string>
+    <string name="str_rb_vts">By VTS</string>
+
+</resources>

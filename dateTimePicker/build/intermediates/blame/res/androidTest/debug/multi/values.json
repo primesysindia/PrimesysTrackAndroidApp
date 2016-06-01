@@ -1,0 +1,106 @@
+[
+    {
+        "outputFile": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/build/intermediates/res/merged/androidTest/debug/values/values.xml",
+        "map": [
+            {
+                "to": {
+                    "startLine": 2,
+                    "startColumn": 4,
+                    "startOffset": 55,
+                    "endColumn": 61,
+                    "endOffset": 112
+                },
+                "from": {
+                    "file": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/build/intermediates/bundles/debug/res/values/values.xml",
+                    "position": {
+                        "startLine": 2,
+                        "startColumn": 4,
+                        "startOffset": 55,
+                        "endColumn": 61,
+                        "endOffset": 112
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 3,
+                    "startColumn": 4,
+                    "startOffset": 117,
+                    "endColumn": 62,
+                    "endOffset": 175
+                },
+                "from": {
+                    "file": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/build/intermediates/bundles/debug/res/values/values.xml",
+                    "position": {
+                        "startLine": 3,
+                        "startColumn": 4,
+                        "startOffset": 117,
+                        "endColumn": 62,
+                        "endOffset": 175
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 4,
+                    "startColumn": 4,
+                    "startOffset": 180,
+                    "endColumn": 45,
+                    "endOffset": 221
+                },
+                "from": {
+                    "file": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/build/intermediates/bundles/debug/res/values/values.xml",
+                    "position": {
+                        "startLine": 4,
+                        "startColumn": 4,
+                        "startOffset": 180,
+                        "endColumn": 45,
+                        "endOffset": 221
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 5,
+                    "startColumn": 4,
+                    "startOffset": 226,
+                    "endLine": 11,
+                    "endColumn": 12,
+                    "endOffset": 512
+                },
+                "from": {
+                    "file": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/build/intermediates/bundles/debug/res/values/values.xml",
+                    "position": {
+                        "startLine": 5,
+                        "startColumn": 4,
+                        "startOffset": 226,
+                        "endLine": 11,
+                        "endColumn": 12,
+                        "endOffset": 512
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 12,
+                    "startColumn": 4,
+                    "startOffset": 517,
+                    "endLine": 14,
+                    "endColumn": 12,
+                    "endOffset": 672
+                },
+                "from": {
+                    "file": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/build/intermediates/bundles/debug/res/values/values.xml",
+                    "position": {
+                        "startLine": 12,
+                        "startColumn": 4,
+                        "startOffset": 517,
+                        "endLine": 14,
+                        "endColumn": 12,
+                        "endOffset": 672
+                    }
+                }
+            }
+        ]
+    }
+]

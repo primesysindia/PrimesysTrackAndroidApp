@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+         android:background="@color/card_color"  >
+        
+      
+    
+       
+          <!--  <Button
+                android:id="@+id/track"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginTop="50dp"
+                        android:padding="@dimen/padding_normal"
+            
+                 android:background="@color/button_color"
+                android:text="Track"
+                android:textColor="@android:color/white" />
+         -->
+
+            <Button
+                android:id="@+id/block"
+                style="@style/DashboardButton"
+                android:layout_alignParentRight="true"
+                android:gravity="center_vertical"
+                android:layout_centerVertical="true"
+                android:drawableTop="@drawable/block"
+                android:text="Block" />
+
+            <TextView
+                android:id="@+id/tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/image_pro"
+                android:padding="@dimen/padding_normal"
+                android:text="Name"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv"
+                android:layout_toRightOf="@+id/image_pro"
+                android:padding="@dimen/padding_normal"
+                android:text="Mob no"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_sts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/tv3"
+                android:layout_below="@+id/tv3"
+                android:padding="@dimen/padding_normal"
+                android:text="Status"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtphone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/txtname"
+                android:layout_below="@+id/txtname"
+                android:layout_alignTop="@+id/tv3"
+                android:layout_weight="0.02"
+                android:gravity="right"
+                android:padding="@dimen/padding_normal"
+                android:text="10fgfgfgfg" />
+
+            <TextView
+                android:id="@+id/tv_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/txtphone"
+                android:layout_alignTop="@+id/tv_sts"
+                android:layout_weight="0.02"
+                android:gravity="right"
+                android:padding="@dimen/padding_normal"
+                android:text="aaassssssaa"
+                android:textStyle="bold" />
+
+            <com.primesys.VehicalTracking.Utility.CircularNetworkImageView
+                android:id="@+id/image_pro"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+               android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:padding="@dimen/padding_normal" />
+
+            <TextView
+                android:id="@+id/txtname"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/tv3"
+                android:padding="@dimen/padding_normal"
+                android:text="Rupesh" />
+
+</RelativeLayout>

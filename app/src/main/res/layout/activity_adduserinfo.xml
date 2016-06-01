@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@color/card_color"
+    android:layout_margin="2dp"
+    >
+
+    <TextView
+        android:id="@+id/studentame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:layout_toLeftOf="@+id/city"
+        android:background="@null"
+        android:gravity="center_vertical"
+        android:text="name"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/city"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/studentame"
+        android:layout_alignBottom="@+id/studentame"
+        android:layout_alignParentRight="true"
+        android:text="name" />
+
+</RelativeLayout>

@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/build/intermediates/res/merged/release/layout/fragment_time.xml",
+        "source": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/src/main/res/layout/fragment_time.xml"
+    },
+    {
+        "merged": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/build/intermediates/res/merged/release/layout/custom_tab.xml",
+        "source": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/src/main/res/layout/custom_tab.xml"
+    },
+    {
+        "merged": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/build/intermediates/res/merged/release/layout/fragment_date.xml",
+        "source": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/src/main/res/layout/fragment_date.xml"
+    },
+    {
+        "merged": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/build/intermediates/res/merged/release/layout/slide_date_time_picker.xml",
+        "source": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/src/main/res/layout/slide_date_time_picker.xml"
+    }
+]

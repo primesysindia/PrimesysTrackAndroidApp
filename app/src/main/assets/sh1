@@ -1,0 +1,134 @@
+
+----------------------------------------------------------------------------------------
+
+DEBGogle MAp SH1 Key For VTS
+primesys002@primesys002:~/Software/jdk1.7.0_71/bin$ keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
+Alias name: androiddebugkey
+Creation date: 18 Oct, 2014
+Entry type: PrivateKeyEntry
+Certificate chain length: 1
+Certificate[1]:
+Owner: CN=Android Debug, O=Android, C=US
+Issuer: CN=Android Debug, O=Android, C=US
+Serial number: 6a492330
+Valid from: Sat Oct 18 18:41:03 IST 2014 until: Mon Oct 10 18:41:03 IST 2044
+Certificate fingerprints:
+	 MD5:  A8:8B:10:20:F8:23:66:0E:48:41:15:F0:86:24:68:67
+	 SHA1: 3E:4B:E8:D5:D3:D7:31:EF:C0:9F:37:56:E7:2F:8A:B8:9C:B7:04:80
+	 SHA256: 9B:60:4E:DB:67:23:63:CA:10:EA:2F:2D:0E:EA:6E:41:C8:6E:CC:23:43:C4:BD:85:1B:F7:E1:16:E1:2A:84:51
+	 Signature algorithm name: SHA256withRSA
+	 Version: 3
+
+Extensions:
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: 9D 66 F5 E0 8C 6B CE 66   08 C0 77 F0 C7 F7 0E B4  .f...k.f..w.....
+0010: A6 14 A6 56                                        ...V
+]
+]
+
+primesys002@primesys002:~/Software/jdk1.7.0_71/bin$
+
+-------------------------------------------------------------------------------------------------------------
+
+Google map keydebug of VTS Working
+
+From Google map Api.xml FIle URl
+    https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=B5:3C:D5:AD:C0:BA:25:F1:61:65:89:75:D4:A8:E3:1B:0D:54:76:2F%3Bcom.primesys.VehicalTracking
+
+Out Put Key =AIzaSyCsUL2QWb_jiO2DhXcq1iTWk9ErLOrmyro
+
+-----------------------------------------------------------------------------------------------------------------------
+
+Gogle Map Key Sh1 For Relese versiob Of VTS
+
+
+^[[A/usr/lib/jvm/jdk1.7.0/bin
+primesys002@primesys002:~$ cd ~/Software/jdk1.7.0_71/binprimesys002@primesys002:~/Software/jdk1.7.0_71/bin$  keytool -exportcert -list -v \-alias VTS -keystore /home/primesys002/Android/VTS.jks
+Enter keystore password:
+Alias name: VTS
+Creation date: 8 Apr, 2016
+Entry type: PrivateKeyEntry
+Certificate chain length: 1
+Certificate[1]:
+Owner: CN=Primesys Technologies, OU=Android Development, O=Primesys Technologies LLP, L=Pune, ST=Maharashtra, C=91
+Issuer: CN=Primesys Technologies, OU=Android Development, O=Primesys Technologies LLP, L=Pune, ST=Maharashtra, C=91
+Serial number: 2c0b0d40
+Valid from: Fri Apr 08 13:34:36 IST 2016 until: Sun Mar 15 13:34:36 IST 2116
+Certificate fingerprints:
+	 MD5:  0B:B7:59:A7:7F:B7:8B:01:BD:1C:B6:F3:EF:9E:47:F4
+	 SHA1: F3:99:98:2E:5A:8F:52:04:02:88:CB:8F:54:27:1B:4F:F3:96:37:E0
+	 SHA256: AF:25:4C:E6:C7:04:7C:86:87:2B:BF:15:4C:19:E4:B3:A2:6A:04:92:66:55:CE:63:E2:33:5D:E0:AB:6B:85:6A
+	 Signature algorithm name: SHA256withRSA
+	 Version: 3
+
+Extensions:
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: FF F5 21 C8 97 B4 AA 90   55 30 3B 78 D4 C0 36 25  ..!.....U0;x..6%
+0010: D6 B6 FB 68                                        ...h
+]
+]
+
+primesys002@primesys002:~/Software/jdk1.7.0_71/bin$
+
+
+Out Put KEy =====AIzaSyAyPQ7h3-MBB3IAOAMACNJJmhKl2LvtpkY
+-------------------------------------------------------------------------------------------
+Relese G+ For VTS
+/usr/lib/jvm/jdk1.7.0/bin
+primesys002@primesys002:~$ cd ~/Software/jdk1.7.0_71/bin
+primesys002@primesys002:~/Software/jdk1.7.0_71/bin$ keytool -exportcert -list -v \-alias VTS -keystore /home/primesys002/Android/VTS.jks
+Enter keystore password:
+Alias name: VTS
+Creation date: 8 Apr, 2016
+Entry type: PrivateKeyEntry
+Certificate chain length: 1
+Certificate[1]:
+Owner: CN=Primesys Technologies, OU=Android Development, O=Primesys Technologies LLP, L=Pune, ST=Maharashtra, C=91
+Issuer: CN=Primesys Technologies, OU=Android Development, O=Primesys Technologies LLP, L=Pune, ST=Maharashtra, C=91
+Serial number: 2c0b0d40
+Valid from: Fri Apr 08 13:34:36 IST 2016 until: Sun Mar 15 13:34:36 IST 2116
+Certificate fingerprints:
+	 MD5:  0B:B7:59:A7:7F:B7:8B:01:BD:1C:B6:F3:EF:9E:47:F4
+	 SHA1: F3:99:98:2E:5A:8F:52:04:02:88:CB:8F:54:27:1B:4F:F3:96:37:E0
+	 SHA256: AF:25:4C:E6:C7:04:7C:86:87:2B:BF:15:4C:19:E4:B3:A2:6A:04:92:66:55:CE:63:E2:33:5D:E0:AB:6B:85:6A
+	 Signature algorithm name: SHA256withRSA
+	 Version: 3
+
+Extensions:
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: FF F5 21 C8 97 B4 AA 90   55 30 3B 78 D4 C0 36 25  ..!.....U0;x..6%
+0010: D6 B6 FB 68                                        ...h
+]
+]
+
+primesys002@primesys002:~/Software/jdk1.7.0_71/bin$
+
+------------------------------------------------------------------------------------------------------
+FB Login DEBUg for VTS
+
+/usr/lib/jvm/jdk1.7.0/bin
+primesys002@primesys002:~$ cd /Software/jdk1.7.0_71/binbash: cd: /Software/jdk1.7.0_71/bin: No such file or directory
+primesys002@primesys002:~$ cd ~/Software/jdk1.7.0_71/binprimesys002@primesys002:~/Software/jdk1.7.0_71/bin$  keytool -exportcert -alias androiddebugkey -keystore ~/.android/debug.keystore | openssl sha1 -binary | openssl base64
+Enter keystore password:  pthakare
+ga0RGNYHvNM5d0SLGQfpQWAPGJ8=
+primesys002@primesys002:~/Software/jdk1.7.0_71/bin$
+
+
+--------------------------------------------------------------------------------------------------------------------------
+
+FB Login Relese Version Key for VTS
+
+primesys002@primesys002:~/Software/jdk1.7.0_71/bin$ keytool -exportcert -alias VTS -keystore /home/primesys002/Android/VTS.jks| openssl sha1 -binary | openssl base64
+Enter keystore password:  pthakare
+85mYLlqPUgQCiMuPVCcbT/OWN+A=
+primesys002@primesys002:~/Software/jdk1.7.0_71/bin$
+

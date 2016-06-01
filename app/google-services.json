@@ -1,0 +1,101 @@
+{
+  "project_info": {
+    "project_id": "default-demo-app-71173",
+    "project_number": "210941390350",
+    "name": "Vehicle Tracking sys"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:210941390350:android:27d689d63f1b7a06",
+        "client_id": "android:com.google.samples.quickstart.signin",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "com.google.samples.quickstart.signin",
+          "certificate_hash": []
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "210941390350-edmkh1p74o7r06jhqidi78soum0r0n2i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.google.samples.quickstart.signin",
+            "certificate_hash": "F4704C00BC554D09060C4A71016A0F787EBB8186"
+          }
+        },
+        {
+          "client_id": "210941390350-jejdep6bje5vsdas1sdt6c9vj55oemsk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 1,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 2
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:210941390350:android:f23564540082e604",
+        "client_id": "android:com.primesys.VehicalTracking",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "com.primesys.VehicalTracking",
+          "certificate_hash": []
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "210941390350-pbc6khgtdk3dofkp1ieocq6aso5msepk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.primesys.VehicalTracking",
+            "certificate_hash": "F399982E5A8F52040288CB8F54271B4FF39637E0"
+          }
+        },
+        {
+          "client_id": "210941390350-jejdep6bje5vsdas1sdt6c9vj55oemsk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 1,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 2
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "client_info": [],
+  "ARTIFACT_VERSION": "1"
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:src="@drawable/ic_car"
+         />
+    <!-- com.android.volley.toolbox.Network -->
+   <!-- <ImageView
+        android:id="@+id/child_icon"
+        android:layout_width="53dp"
+        android:layout_height="53dp"
+        android:layout_margin="8dp"
+        android:gravity="center"
+        android:src="@drawable/student"
+        />
+    android:src="@drawable/marker_circle"
+-->
+</FrameLayout>
