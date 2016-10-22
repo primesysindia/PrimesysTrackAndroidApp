@@ -1,9 +1,10 @@
 package com.primesys.VehicalTracking.VTSFragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -19,7 +20,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -55,14 +58,14 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.primesys.VehicalTracking.Activity.LoginActivity;
 import com.primesys.VehicalTracking.Db.DBHelper;
 import com.primesys.VehicalTracking.Dto.GmapDetais;
 import com.primesys.VehicalTracking.Dto.LocationDTO;
 import com.primesys.VehicalTracking.Dto.persondetail;
-import com.primesys.VehicalTracking.LoginActivity;
 import com.primesys.VehicalTracking.MyAdpter.ShowMapAdapter;
 import com.primesys.VehicalTracking.R;
-import com.primesys.VehicalTracking.ShowMap;
 import com.primesys.VehicalTracking.Utility.CircularNetworkImageView;
 import com.primesys.VehicalTracking.Utility.Common;
 import com.primesys.VehicalTracking.Utility.GPSEnableSetting;
@@ -85,9 +88,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -104,9 +104,12 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 public class ShowMapFragment extends Fragment implements RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener,
         OnMapReadyCallback, LocationListener, GoogleApiClient.OnConnectionFailedListener {
 
+    private static final int TAG_CODE_PERMISSION_LOCATION = 100;
     public static int StudentId;
     public static String Photo;
     public static GoogleMap mMap;
+    private static float bearing;
+    private static PolylineOptions polylineOptions;
     MapView mapView;
 
     public static Bitmap bmp1;
@@ -120,7 +123,7 @@ public class ShowMapFragment extends Fragment implements RapidFloatingActionCont
     String latval = null, lanval;
     static Marker mark;
     static RequestQueue RecordSyncQueue;
-    Context contextMap ;
+    Context contextMap;
     long freeSize = 0L;
     long totalSize = 0L;
     long usedSize = -1L;
@@ -139,7 +142,7 @@ public class ShowMapFragment extends Fragment implements RapidFloatingActionCont
     private Toolbar toolbar;
     ListView personlist;
     final String TAG = "REquest";
-    public  static ArrayList<GmapDetais>  tracklist = new ArrayList<GmapDetais>();
+    public static ArrayList<GmapDetais> tracklist = new ArrayList<GmapDetais>();
     ArrayList<persondetail> tracklistcopy = new ArrayList<persondetail>();
     public SharedPreferences sharedPreferences;
     private final String key_IS = "IS_FIRST";
@@ -170,9 +173,9 @@ public class ShowMapFragment extends Fragment implements RapidFloatingActionCont
     private android.support.v4.app.FragmentManager mSupportMapFragment;
     private GoogleApiClient client;
 
- // @AIView(R.id.label_list_sample_rfal)
+    // @AIView(R.id.label_list_sample_rfal)
     private RapidFloatingActionLayout rfaLayout;
- //   @AIView(R.id.label_list_sample_rfab)
+    //   @AIView(R.id.label_list_sample_rfab)
     private RapidFloatingActionButton rfaButton;
 
     private RapidFloatingActionHelper rfabHelper;
@@ -196,8 +199,8 @@ public class ShowMapFragment extends Fragment implements RapidFloatingActionCont
         // Gets the MapView from the XML layout and creates it
         mapView = (MapView) rootView.findViewById(R.id.mapview);
         mapView.onCreate(savedInstanceState);
-        rfaLayout= (RapidFloatingActionLayout) rootView.findViewById(R.id.label_list_sample_rfal);
-        rfaButton= (RapidFloatingActionButton) rootView.findViewById(R.id.label_list_sample_rfab);
+        rfaLayout = (RapidFloatingActionLayout) rootView.findViewById(R.id.label_list_sample_rfal);
+        rfaButton = (RapidFloatingActionButton) rootView.findViewById(R.id.label_list_sample_rfab);
         rfaContent = new RapidFloatingActionContentLabelList(trackContext);
         //Fab Button listner
         rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
@@ -206,10 +209,44 @@ public class ShowMapFragment extends Fragment implements RapidFloatingActionCont
 
         EnableLocationProvider();
 
-        if (Common.getConnectivityStatus(trackContext)) {
 
-            GetAllTrackperson();
+
+        if (Common.getConnectivityStatus(trackContext)&& helper.Show_Device_list().size()==0) {
+            // Call Api to get track information
+            try {
+                    GetAllTrackperson();
+
+                } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }else {
+
+            if (tracklist.size()>0)
+            {
+                tracklist.clear();
+                if(myAdapter!=null)
+                    myAdapter.clear();
+            }
+            tracklist=helper.Show_Device_list();
+
+
+            if (tracklist.size() > 0) {
+                myAdapter = new ShowMapAdapter(trackContext, R.layout.fragment_mapsidebar, tracklist, imageLoader);
+                personlist.setAdapter(myAdapter);
+
+                personlist.requestFocusFromTouch();
+                personlist.setSelection(0);
+                personlist.performItemClick(personlist.getAdapter().getView(0, null, null), 0, 0);
+                cnt++;
+            } else {
+                Common.showToast("No User Information", trackContext);
+            }
+
+
+
         }
+
+
         personlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -223,21 +260,21 @@ public class ShowMapFragment extends Fragment implements RapidFloatingActionCont
 
                 try {
 
-                    URL url = new URL(Common.Relative_URL + user.getPath().replaceAll(" ", "%20"));
+                 /*   URL url = new URL(Common.Relative_URL + user.getPath().replaceAll(" ", "%20"));
                     HttpURLConnection connection = null;
                     connection = (HttpURLConnection) url.openConnection();
                     connection.setDoInput(true);
                     connection.connect();
                     InputStream input = connection.getInputStream();
                     Bitmap myBitmap = BitmapFactory.decodeStream(input);
-                    ShowMap.bmp1 = Common.getRoundedShape(myBitmap);
+                    ShowMap.bmp1 = Common.getRoundedShape(myBitmap);*/
 
 
                     LoginActivity.mClient.sendMessage(StopTracKEvent());
                     LoginActivity.mClient.sendMessage(makeJSON(user.getId()));
 
 
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
@@ -248,7 +285,6 @@ public class ShowMapFragment extends Fragment implements RapidFloatingActionCont
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this.getActivity()).addApi(AppIndex.API).build();
-
 
 
         return rootView;
@@ -270,31 +306,30 @@ public class ShowMapFragment extends Fragment implements RapidFloatingActionCont
                     .show();
             //      this.finish();
         }
-        personlist = (ListView)rootView.findViewById(R.id.User_list);
+        personlist = (ListView) rootView.findViewById(R.id.User_list);
 
 
         // Gets to GoogleMap from the MapView and does initialization stuff
       /*  mMap = mapView.getMap();*/
-        if (mMap == null) {
-            mMap = ((MapView) rootView.findViewById(R.id.mapview)).getMap();
-        }
-        Log.e("NAP VIE***********************",mMap.toString()+"----------------------");
-        mMap.getUiSettings().setMyLocationButtonEnabled(false);
-        mMap.setMyLocationEnabled(true);
-        mapView.getMapAsync(this);
-        Log.e("NAP VIE***********************",mMap.toString()+"----------------------");
+        if (ContextCompat.checkSelfPermission(trackContext, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(trackContext, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                        PackageManager.PERMISSION_GRANTED) {
+            if (mMap == null) {
+                mMap = ((MapView) rootView.findViewById(R.id.mapview)).getMap();
+            }
+            mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
-       /* // Needs to call MapsInitializer before doing any CameraUpdateFactory calls
-        try {
-            MapsInitializer.initialize(this.getActivity());
-        } catch (GooglePlayServicesNotAvailableException e) {
-            e.printStackTrace();
+            mapView.getMapAsync(this);
+            Log.e("NAP VIE***********************", mMap.toString() + "----------------------");
         }
-
-        // Updates the location and zoom of the MapView
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(43.1, -87.9), 10);
-        map.animateCamera(cameraUpdate);
-*/
+     else {
+        ActivityCompat.requestPermissions(this.getActivity(), new String[] {
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION },
+                TAG_CODE_PERMISSION_LOCATION);
+    }
 
             //////FOr Fab Button
 
@@ -499,6 +534,8 @@ public class ShowMapFragment extends Fragment implements RapidFloatingActionCont
 
                 dmDetails.setPath(joObject.getString("Photo").replaceAll("~", "").trim());
                 dmDetails.setType(joObject.getString("Type"));
+               dmDetails.setImei_no(joObject.getString("DeviceID"));
+
                 tracklist.add(dmDetails);
             }
 
@@ -601,11 +638,11 @@ public class ShowMapFragment extends Fragment implements RapidFloatingActionCont
             Bitmap bmpDefaulr = BitmapFactory.decodeResource(trackContext.getResources(), R.drawable.default_marker);
 
             LatLng current = new LatLng(Double.parseDouble(lat), Double.parseDouble(lan));
-         /*   if(flag==0)  //when the first update comes, we have no previous points,hence this
+           if(flag==0)  //when the first update comes, we have no previous points,hence this
             {
 
                 try {
-                    //	mMap.clear();
+                    	mMap.clear();
                     prev=current;
                     flag=1;
                     cntMap=1;
@@ -617,64 +654,85 @@ public class ShowMapFragment extends Fragment implements RapidFloatingActionCont
                     mark=mMap.addMarker(mp);
                     mark.showInfoWindow();
 
-                    // Call Api to get track information
-                  *//*  try{
-                        if(PostLocationflag)
-                            PostLocation_Report(lat,lan);
 
                     }catch(Exception ex)
                     {
                         System.out.println("Error in post loc");
                         ex.printStackTrace();
 
-                    }*//*
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                    }
+
+             //   mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(lat), Double.parseDouble(lan)),18 ));
+
+
             }
             else
-            {*/
+            {
             try {
-                if (cntMap == 1) {
-                   /* mark = mMap.addMarker(mp);
-                    cntMap++;*/
-                } else {
+                /*if (cntMap == 1) {
+                   *//* mark = mMap.addMarker(mp);
+                    cntMap++;*//*
+                } else {*/
                     try {
-                        //   mark.setIcon(BitmapDescriptorFactory.fromBitmap(bmpDefaulr));
-                          /*  mMap.addPolyline((new PolylineOptions())
+                          /* mark.setIcon(BitmapDescriptorFactory.fromBitmap(bmpDefaulr));
+                            mMap.addPolyline((new PolylineOptions())
                                     .add(prev, current).width(6).color(Color.CYAN)
                                     .visible(true));*/
-                        prev = current;
-                        mp = new MarkerOptions();
-                        Bitmap bmp = BitmapFactory.decodeResource(trackContext.getResources(), R.drawable.custom_marker);
-                        mp.position(current).icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(trackContext, customMarker())));
+                        Location Prevloc = null, Currloc = null;
+                        if (prev != null && current != null) {
+                            Prevloc = new Location(LocationManager.GPS_PROVIDER);
+                            Prevloc.setLatitude(prev.latitude);
+                            Prevloc.setLongitude(prev.longitude);
+                            Currloc = new Location(LocationManager.GPS_PROVIDER);
+                            Currloc.setLatitude(current.latitude);
+                            Currloc.setLongitude(current.longitude);
+                        }
 
+
+                        if (Currloc != null && Prevloc != null) {
+                            // mMap.clear();
+                            bearing = Prevloc.bearingTo(Currloc);
+                            polylineOptions = new PolylineOptions();
+                            polylineOptions.width(5);
+                            polylineOptions.geodesic(true);
+                            polylineOptions.color(trackContext.getResources().getColor(R.color.colorPrimaryDark));
+                            polylineOptions.add(prev, current);
+
+                            mMap.addPolyline(polylineOptions);
+                        }
+                        Log.e("Bearing-------------------------", "------------" + bearing);
+
+                        prev = current;
+                       mark.remove();
+                        mp = new MarkerOptions();
+                        mp.position(current).icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(trackContext, customMarker())));
+                        mp.rotation(bearing);
                         mp.snippet("Latitude : " + String.format("%.6f", current.latitude) + "\t" + "Longitude : " + String.format("%.6f", current.longitude));
                         mp.title("Speed : " + speed + " km/h" + "\t" + "Date : " + date + "\n" + "");
-                       Log.e("Map Frgment in matrker----------------",mMap+"***");
+                        Log.e("Map Frgment in matrker----------------", mMap + "***");
                         if (mMap == null) {
                             mMap = ((MapView) rootView.findViewById(R.id.mapview)).getMap();
                         }
 
                         mark = mMap.addMarker(mp);
-
-                        mark.showInfoWindow();
+                     //   mark.showInfoWindow();
                         current = null;
+                        Currloc=null;
                     } catch (Exception e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
 
-                }
+
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+        }
 
 
-            //}
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(lat), Double.parseDouble(lan)), 15));
+            Float zoomlevel=mMap.getCameraPosition().zoom;
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(lat), Double.parseDouble(lan)), (float) 16.5));
 
         } catch (Exception ex) {
 
@@ -755,12 +813,6 @@ public class ShowMapFragment extends Fragment implements RapidFloatingActionCont
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        // Add a marker in Sydney and move the camera
-   /*     LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-*/
         try {
 
             getUsedMemorySize();
@@ -779,15 +831,40 @@ public class ShowMapFragment extends Fragment implements RapidFloatingActionCont
                 StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
 
 
-                // Call Api to get track information
-                try {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                        new TrackInfrmation().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void) null);
-                    } else {
-                        new TrackInfrmation().execute();
+
+                if (Common.getConnectivityStatus(trackContext)&& helper.Show_Device_list().size()==0) {
+                    // Call Api to get track information
+                    try {
+                        GetAllTrackperson();
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                }else {
+
+                    if (tracklist.size()>0)
+                    {
+                        tracklist.clear();
+                        if(myAdapter!=null)
+                            myAdapter.clear();
+                    }
+                    tracklist=helper.Show_Device_list();
+
+
+                    if (tracklist.size() > 0) {
+                        myAdapter = new ShowMapAdapter(trackContext, R.layout.fragment_mapsidebar, tracklist, imageLoader);
+                        personlist.setAdapter(myAdapter);
+
+                        personlist.requestFocusFromTouch();
+                        personlist.setSelection(0);
+                        personlist.performItemClick(personlist.getAdapter().getView(0, null, null), 0, 0);
+                        cnt++;
+                    } else {
+                        Common.showToast("No User Information", trackContext);
+                    }
+
+
+
                 }
 
                 if (mMap == null) {
@@ -831,87 +908,6 @@ public class ShowMapFragment extends Fragment implements RapidFloatingActionCont
     }
 
 
-    //Track Informatiion
-    class TrackInfrmation extends AsyncTask<Void, String, String> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            pDialog = new SweetAlertDialog(trackContext, SweetAlertDialog.PROGRESS_TYPE);
-            pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
-            pDialog.setTitleText("Loading");
-            pDialog.setCancelable(false);
-            pDialog.show();
-        }
-
-        @Override
-        protected String doInBackground(Void... params) {
-            String result = "";
-            try {
-                HttpClient httpclient = new DefaultHttpClient();
-                HttpPost httpost = new HttpPost(Common.URL + "UserServiceAPI/GetTrackInfo");
-                List<NameValuePair> param = new ArrayList<NameValuePair>(1);
-                param.add(new BasicNameValuePair("InvitedId", InvitedId));
-                Log.e("Loc Req ", "" + InvitedId);
-
-                httpost.setEntity(new UrlEncodedFormEntity(param));
-                HttpResponse response = httpclient.execute(httpost);
-                result = EntityUtils.toString(response.getEntity());
-                Log.e("response", "" + result);
-            } catch (Exception e) {
-                result = e.getMessage();
-            }
-
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            parsingTrackInfo(result);
-            pDialog.hide();
-
-        }
-    }
-
-
-    public void parsingTrackInfo(String result) {
-        try {
-
-            JSONObject joObject = new JSONObject(result);
-            LocationDTO dmDetails = new LocationDTO();
-            if (joObject.has("Lat") && joObject.has("Lang") && joObject.has("Time")) {
-                dmDetails.setLat(joObject.getString("Lat"));
-                dmDetails.setLang(joObject.getString("Lang"));
-
-                dmDetails.setTime(joObject.getString("Time"));
-                // LocatonDate=Common.getDateCurrentTimeZone(1455962478);
-
-                Date date = new Date(Long.parseLong(dmDetails.getTime())); // *1000 is to convert seconds to milliseconds
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss aa");
-                LocatonDate = sdf.format(date);
-                System.out.println("dmfnj/////////////***********" + LocatonDate);
-
-                SetSales_person_location(dmDetails);
-            } else {
-                SweetAlertDialog pDialog1 = new SweetAlertDialog(trackContext, SweetAlertDialog.SUCCESS_TYPE);
-                pDialog1.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
-                pDialog1.setTitleText("Location Data Not Found");
-                pDialog1.setCancelable(true);
-                pDialog1.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                    @Override
-                    public void onClick(SweetAlertDialog sDialog) {
-                        //trackContext.finish();
-                    }
-                });
-                pDialog1.show();
-            }
-
-
-        } catch (Exception e) {
-            Log.e("Exception", "" + e);
-        }
-
-    }
 
 
     @Override
@@ -979,39 +975,6 @@ public class ShowMapFragment extends Fragment implements RapidFloatingActionCont
 
     }
 
-    private void SetSales_person_location(LocationDTO dmDetails) {
-        // TOD
-
-        LatLng current = new LatLng(Double.parseDouble(dmDetails.getLat()), Double.parseDouble(dmDetails.getLang()));
-
-
-      /*  ArrayList<String> Address=getAddress(current.latitude,current.longitude);
-        mMap.addMarker(new MarkerOptions().position(sydney).title(Address.get(0)+" "+Address.get(1)).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_circle)));*/
-        //  mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-
-        try {
-
-      //      Bitmap bmpDefaulr = BitmapFactory.decodeResource(trackContext.getResources(), R.drawable.student);
-
-
-            mp = new MarkerOptions();
-            //Bitmap bmp=BitmapFactory.decodeResource(trackContext.getResources(), R.drawable.custom_marker);
-            mp.position(current).icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(trackContext, customMarker())));
-            ArrayList<String> address = getAddress(current.latitude, current.longitude);
-            mp.title(address.get(0));
-            mp.snippet(address.get(1) + " " + LocatonDate);
-            mMap.addMarker(mp);
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
-
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(current, 15));
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-
-    }
 
 
     public ArrayList<String> getAddress(double lat, double lng) {

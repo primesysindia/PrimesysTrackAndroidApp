@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
+    android:padding="1dp">
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:text="Vehicle Name : "
+            android:textColor="@color/white"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/tv_name"
+            android:textSize="12sp"
+            android:text=""
+
+            android:textColor="@color/white"
+            android:textStyle="bold"/>
+    <TextView
+        android:id="@+id/tv_alarm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+
+        android:layout_below="@id/tv_name"
+        android:text="Alarm Type : "
+        android:textColor="@color/white"
+        />
+    <TextView
+        android:id="@+id/alarmtype"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/tv_alarm"
+        android:textSize="10sp"
+        android:layout_below="@+id/name"
+
+        android:text=""
+
+        android:textColor="@color/white"
+ />
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+        android:layout_below="@id/tv_alarm"
+        android:text="Alarm Time : "
+        android:textColor="@color/white"
+        />
+    <TextView
+        android:id="@+id/alarmtime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/tv_time"
+        android:layout_below="@+id/alarmtype"
+        android:textSize="10sp"
+        android:text=""
+
+        android:textColor="@color/white"
+        />
+    </RelativeLayout>
+

@@ -23,8 +23,6 @@ import android.support.v4.app.Fragment;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -40,6 +38,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.primesys.VehicalTracking.Activity.Home;
 import com.primesys.VehicalTracking.Db.DBHelper;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.CircularNetworkImageView;
@@ -146,7 +145,7 @@ public class InfoFragment extends Fragment {
         pDialog.setCancelable(true);
         pDialog.show();*/
         //JSon object request for reading the json data
-        stringRequest = new StringRequest(Request.Method.POST,Common.URL+"ParentAPI.asmx/GetProfileInformation",new Response.Listener<String>() {
+        stringRequest = new StringRequest(Request.Method.POST, Common.URL+"ParentAPI.asmx/GetProfileInformation",new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
@@ -175,7 +174,7 @@ public class InfoFragment extends Fragment {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("UserId",Common.userid+"");
+                params.put("UserId", Common.userid+"");
                 Log.e("Userprofile Req----", params+"");
 
 
@@ -213,6 +212,7 @@ public class InfoFragment extends Fragment {
                     bitmap = DBHelper.getInstance(proContext).getBitMap(Common.userid + "");
                     if (bitmap != null) {
                         profile_pic.setImageBitmap(getRoundedShape(bitmap));
+                        Home.profile_pic.setImageBitmap(getRoundedShape(bitmap));
                     } else {
 
                         if (Photo.equalsIgnoreCase("No Photo")) {
@@ -454,7 +454,7 @@ public class InfoFragment extends Fragment {
         pDialog.show();
         //JSon object request for reading the json data
 
-        stringRequest1 = new StringRequest(Request.Method.POST,Common.URL+"ParentAPI.asmx/UpdteProfileInformation",new Response.Listener<String>() {
+        stringRequest1 = new StringRequest(Request.Method.POST, Common.URL+"ParentAPI.asmx/UpdteProfileInformation",new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
@@ -602,7 +602,7 @@ public class InfoFragment extends Fragment {
         pDialog.setCancelable(true);
         pDialog.show();
         //JSon object request for reading the json data
-        stringRequest = new StringRequest(Request.Method.POST,Common.URL+"ParentAPI.asmx/UploadParentPhoto",new Response.Listener<String>() {
+        stringRequest = new StringRequest(Request.Method.POST, Common.URL+"ParentAPI.asmx/UploadParentPhoto",new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {

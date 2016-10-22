@@ -1,0 +1,74 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+ 	android:layout_margin="3dp"
+    android:background="@color/card_color">
+
+     <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/card_color"
+            android:orientation="vertical" >
+   <EditText
+                android:id="@+id/text_startdate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/five_margin"
+                android:hint="Select start time"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white"
+                
+                android:editable="false">
+            </EditText>
+   <EditText
+                android:id="@+id/text_enddate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/five_margin"
+                android:hint="Select end time"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white"
+                android:editable="false">
+            </EditText>
+            
+
+          
+            <Button
+        android:id="@+id/btn_submit"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/capsulshapebutton"
+        android:text="@string/Submit" />
+            
+            <TextView
+                android:id="@+id/text_total"
+                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Total distance :: 0.0"
+                android:textColor="@color/white"
+                android:textSize="20dp"
+                android:layout_margin="3dp"
+                />
+            
+          <FrameLayout
+            android:id="@+id/fragmentdismap"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="4" >
+
+            <fragment
+                android:id="@+id/gmap"
+                class="com.google.android.gms.maps.MapFragment"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent" />
+
+            
+
+      
+       </FrameLayout>
+          </LinearLayout>
+</RelativeLayout>

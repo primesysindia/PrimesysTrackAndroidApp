@@ -1,0 +1,30 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+  android:padding="@dimen/padding_medium"
+    >
+
+    <EditText android:id="@+id/edit_no"
+        android:hint="Enter device sim no.."
+        android:layout_width="match_parent"
+        android:maxLength="10"
+        android:inputType="number"
+        android:gravity="center"
+        android:layout_height="wrap_content"/> 
+      
+     <Button
+         android:id="@+id/vsnosubmit"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_below="@+id/edit_no"
+         android:layout_marginTop="14dp"
+         android:background="@drawable/capsulshapebutton"
+         android:gravity="center"
+         android:text="@string/Submit"
+         android:textColor="@color/white" />
+
+   
+     
+   
+</RelativeLayout>

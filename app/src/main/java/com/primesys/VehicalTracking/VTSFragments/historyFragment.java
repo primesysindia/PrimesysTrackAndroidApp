@@ -1,26 +1,25 @@
 package com.primesys.VehicalTracking.VTSFragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -32,15 +31,10 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -48,13 +42,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.primesys.VehicalTracking.DateTimeActivity;
+import com.primesys.VehicalTracking.Activity.DateTimeActivity;
+import com.primesys.VehicalTracking.Activity.LoginActivity;
 import com.primesys.VehicalTracking.Db.DBHelper;
 import com.primesys.VehicalTracking.Dto.GmapDetais;
 import com.primesys.VehicalTracking.Dto.LocationData;
-import com.primesys.VehicalTracking.LoginActivity;
 import com.primesys.VehicalTracking.MyAdpter.HistoryMapAdapter;
-import com.primesys.VehicalTracking.MyAdpter.ShowMapAdapter;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.Common;
 import com.wangjie.androidbucket.utils.ABTextUtil;
@@ -86,6 +79,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
 
 
     private static final String TAG ="Request" ;
+    private static final int TAG_CODE_PERMISSION_LOCATION = 200;
     public static int StudentId;
     android.support.v4.app.FragmentManager myFragmentManager;
     SupportMapFragment mySupportMapFragment;
@@ -111,7 +105,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
     static RequestQueue RecordSyncQueue;
     HistoryMapAdapter myAdapter;
     Handler handle =new Handler();
-    private static DBHelper helper=DBHelper.getInstance(historyContext);
+    private static DBHelper helper= DBHelper.getInstance(historyContext);
     private MapView mapViewhistory;
     private View rootView;
 
@@ -138,7 +132,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // TODO Auto-generated method stub
-         rootView = inflater.inflate(R.layout.activity_history, container, false);
+        rootView = inflater.inflate(R.layout.activity_history, container, false);
         historyContext=this.getActivity();
         if (!isGooglePlayServicesAvailable()) {
             Common.showToast("Google Play services not available !", historyContext);
@@ -148,46 +142,71 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
 
         findviewbyid();
 
-        if (Common.getConnectivityStatus(historyContext)) {
+        if (Common.getConnectivityStatus(historyContext)&& helper.Show_Device_list().size()==0) {
+            // Call Api to get track information
+            try {
+                GetAllTrackperson();
 
-            GetAllTrackperson();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }else {
+
+            if (tracklist.size() > 0) {
+                tracklist.clear();
+                if (myAdapter != null)
+                    myAdapter.clear();
+            }
+            tracklist = helper.Show_Device_list();
+
+            if (tracklist.size() > 0) {
+                myAdapter = new HistoryMapAdapter(historyContext, R.layout.fragment_mapsidebar, tracklist, imageLoader);
+                personlist.setAdapter(myAdapter);
+
+                personlist.requestFocusFromTouch();
+                personlist.setSelection(0);
+                personlist.performItemClick(personlist.getAdapter().getView(0, null, null), 0, 0);
+                cnt++;
+            } else {
+                Common.showToast("No User Information", historyContext);
+            }
+
         }
-
         //Fab Button listner
         rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
 
         try {
             // Loading map
             initilizeMap();
-           if (Common.Location_getting)
-            addDefaultLocations();
+            if (Common.Location_getting)
+                addDefaultLocations();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-                personlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        try {
-                            //	ShowMapFragment gmap=new ShowMapFragment();
-                            //	gmap.flag=0;
-                            DateTimeActivity.selStatus = true;
-                            GmapDetais user1 = tracklist.get(position);
-                            historyFragment.StudentId = Integer.parseInt(user1.getId());
-                            Log.e("History studid---------", historyFragment.StudentId + "----"+position);
+        personlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                try {
+                    //	ShowMapFragment gmap=new ShowMapFragment();
+                    //	gmap.flag=0;
+                    DateTimeActivity.selStatus = true;
+                    GmapDetais user1 = tracklist.get(position);
+                    historyFragment.StudentId = Integer.parseInt(user1.getId());
+                    Log.e("History studid---------", historyFragment.StudentId + "----"+position);
 
-                            ShowMapFragment.Updatestatus = true;
+                    ShowMapFragment.Updatestatus = true;
 
-                            final String formattedDate = new SimpleDateFormat("dd MMM yyyy hh:mm:ss").format(new Date());
+                    final String formattedDate = new SimpleDateFormat("dd MMM yyyy hh:mm:ss").format(new Date());
 
-                            LoginActivity.mClient.sendMessage(makeJSONHistoryChild(formattedDate,historyFragment.StudentId+""));
+                    LoginActivity.mClient.sendMessage(makeJSONHistoryChild(formattedDate, historyFragment.StudentId+""));
 
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-                    }
-                });
+            }
+        });
 
 
 
@@ -197,9 +216,9 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
                 Intent i=new Intent(historyContext,DateTimeActivity.class);
                 //	Log.e("History studid  menu---------", ShowGmapClient.StudentId+"  "+HistoryMapAdapter.user1.getType());
 
-                i.putExtra("StudentId",historyFragment.StudentId);
+                i.putExtra("StudentId", historyFragment.StudentId);
                 if (HistoryMapAdapter.user1!=null)
-                    i.putExtra("Type",HistoryMapAdapter.user1.getType());
+                    i.putExtra("Type", HistoryMapAdapter.user1.getType());
                 else
                     i.putExtra("Type","demo_student");
 
@@ -208,7 +227,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
         });
 
 
-                        return rootView;
+        return rootView;
     }
 
     @Override
@@ -223,7 +242,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
     //History Child
     String makeJSONHistoryChild(String date,String Id)
     {
-        DBHelper helper=DBHelper.getInstance(historyContext);
+        DBHelper helper= DBHelper.getInstance(historyContext);
         helper.truncateTables("db_history");
         String trackSTring="{}";
         try{
@@ -233,7 +252,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
                 jo.put("student_id","demo_student");
             else
                 jo.put("student_id",Integer.parseInt(Id));
-            jo.put("timestamp",Common.convertToLong(date));
+            jo.put("timestamp", Common.convertToLong(date));
             trackSTring=jo.toString();
         }
         catch(Exception e)
@@ -250,7 +269,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
         rfaLayout= (RapidFloatingActionLayout) rootView.findViewById(R.id.label_list_sample_rfal);
         rfaButton= (RapidFloatingActionButton) rootView.findViewById(R.id.label_list_sample_rfab);
         rfaContent = new RapidFloatingActionContentLabelList(historyContext);
-       // googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        // googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         personlist = (ListView)rootView.findViewById(R.id.User_list);
 
         fab_date= (FloatingActionButton)rootView.findViewById(R.id.fab_date);
@@ -308,19 +327,33 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
 
         try
         {
-            if (googleMap == null) {
-                // Gets to GoogleMap from the MapView and does initialization stuff
-                googleMap = ((MapView) rootView.findViewById(R.id.gmaphistoty)).getMap();
+
+
+            if (ContextCompat.checkSelfPermission(historyContext, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+                    PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(historyContext, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                            PackageManager.PERMISSION_GRANTED) {
+                if (googleMap == null) {
+                    // Gets to GoogleMap from the MapView and does initialization stuff
+                    googleMap = ((MapView) rootView.findViewById(R.id.gmaphistoty)).getMap();
                 }
-                    googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+                googleMap.getUiSettings().setMyLocationButtonEnabled(true);
                 googleMap.setMyLocationEnabled(true);
-             //  mapView.getMapAsync(this);
+                //  mapView.getMapAsync(this);
 
                 if (googleMap == null) {
                     Toast.makeText(getActivity().getApplicationContext(),
                             "Sorry! unable to create maps", Toast.LENGTH_SHORT)
                             .show();
                 }
+
+            }
+            else {
+                ActivityCompat.requestPermissions(this.getActivity(), new String[] {
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION },
+                        TAG_CODE_PERMISSION_LOCATION);
+            }
 
 
 
@@ -425,9 +458,13 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
     }
     //add Default Location
     public static void addDefaultLocations() {
-       clearMarkers();
+
+
+
+
+        clearMarkers();
         list=new ArrayList<LocationData>();
-        DBHelper dbH=DBHelper.getInstance(historyContext);
+        DBHelper dbH= DBHelper.getInstance(historyContext);
         list=dbH.showDetails();
         totalCount=list.size();
         Log.e("-----addDefaultLocations-------","addDefaultLocations"+"--------"+list.size());
@@ -435,14 +472,14 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
 	/*	if(totalCount==0)
 			Common.showToast(getResources().getString(R.string.history_msg), historyContext);*/
         for (int i = 0; i < totalCount; i++) {
-         //   Log.e("-----addMarkerToMap-------","addMarkerToMap"+"--------"+i );
+            //   Log.e("-----addMarkerToMap-------","addMarkerToMap"+"--------"+i );
 
             addMarkerToMap(list.get(i),i);
 
         }
 
         int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-    //    Log.e("-----markers-------","markers"+"--------"+markers.size());
+        //    Log.e("-----markers-------","markers"+"--------"+markers.size());
 
         if (currentapiVersion >= android.os.Build.VERSION_CODES.LOLLIPOP){
             // Do something for lollipop and above versions
@@ -712,6 +749,8 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
 
                 dmDetails.setPath(joObject.getString("Photo").replaceAll("~", "").trim());
                 dmDetails.setType(joObject.getString("Type"));
+                dmDetails.setImei_no(joObject.getString("DeviceID"));
+
                 tracklist.add(dmDetails);
             }
 

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.wangjie.androidbucket.support.cardview.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimaryDark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/colorPrimaryDark">
+    <TextView
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ddd"
+        android:textSize="25sp"
+        android:padding="2dp"
+        android:textColor="@color/white"
+        android:layout_margin="2dp"
+        android:id="@+id/titlesms"
+        android:gravity="start|left"
+        android:password="false"
+        android:phoneNumber="false"
+        android:paddingStart="5dp" />
+<!--
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/white"/>-->
+    </LinearLayout>
+</com.wangjie.androidbucket.support.cardview.CardView>

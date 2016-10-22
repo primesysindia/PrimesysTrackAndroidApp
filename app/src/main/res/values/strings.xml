@@ -87,5 +87,17 @@
     <string name="title_activity_maps">Map</string>
     <string name="str_rb_pt">By PT</string>
     <string name="str_rb_vts">By VTS</string>
+    <!-- VTs Report -->
+    <string name="r_distance">Mileage</string>
+    <string name="r_speed">Speed Alert</string>
+    <string name="r_stop">Stop Engine</string>
+    <string name="r_start">Start Engine</string>
+    <string name="vtsdisablemsg">VTS service is not subscribed for you. Please contact to contact@mykiddytracker.com</string>
+    <string name="passwordnotmatch">Invalid Engine Pin.If you not remember use forget engine pin.</string>
+    <string name="Submit">Submit</string>
+    <string name="cancel">Cancel</string>
 
+    <string name="stop_engine_ensure"> Please ensure,\n - Speed less than 20Km/hr. \n - Engine is running. \n - Message pack is available. \n - Device is ON. \n - Availability of network services. \n - Relay is properly connected."</string>
+    <string name="start_engine_ensure">Please ensure,\n - Message pack is available. \n - Device is ON. \n - Availability of network services. \n - Relay is properly connected."</string>
+    <string name="common_error_sms">Please ensure,\n - Message pack is available. \n - Device is ON. \n - Availability of network services. \n - Relay is properly connected."</string>
 </resources>

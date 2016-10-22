@@ -1,21 +1,11 @@
 package com.primesys.VehicalTracking.MyAdpter;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Path;
-import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,13 +19,10 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 
 import com.primesys.VehicalTracking.Dto.GmapDetais;
-import com.primesys.VehicalTracking.LoginActivity;
 import com.primesys.VehicalTracking.R;
-import com.primesys.VehicalTracking.ShowMap;
 import com.primesys.VehicalTracking.Utility.CircleTransform;
 import com.primesys.VehicalTracking.Utility.CircularNetworkImageView;
 import com.primesys.VehicalTracking.Utility.Common;
-import com.primesys.VehicalTracking.VTSFragments.ShowMapFragment;
 import com.squareup.picasso.Picasso;
 
 public class ShowMapAdapter  extends ArrayAdapter<GmapDetais> {

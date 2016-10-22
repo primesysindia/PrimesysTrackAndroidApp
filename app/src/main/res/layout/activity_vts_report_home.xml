@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/color_background"
+>
+
+    
+    
+    
+    
+    <ScrollView
+        android:id="@+id/scrollview"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true" >
+
+       <com.primesys.VehicalTracking.Activity.DashboardLayout
+           android:layout_width="match_parent"
+            android:layout_height="wrap_content" >-->
+
+   
+
+                <Button
+                    android:id="@+id/image_distance"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight=".5"
+                    android:background="@null"
+                    android:drawablePadding="2dp"
+                    android:drawableTop="@mipmap/ic_launcherapp"
+                    android:gravity="center_horizontal"
+                    android:text="@string/r_distance"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp" />
+	
+                <Button
+                android:id="@+id/image_speed"
+                style="@style/DashboardButton"
+                android:drawableTop="@mipmap/ic_launcherapp"
+                android:text="@string/r_speed" 
+                android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight=".5"
+                    android:background="@null"
+                    android:drawablePadding="2dp"
+                    android:gravity="center_horizontal"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp" />
+                
+                
+                 <Button
+                    android:id="@+id/image_stop"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight=".5"
+                    android:background="@null"
+                    android:drawablePadding="2dp"
+                    android:drawableTop="@mipmap/ic_launcherapp"
+                    android:gravity="center_horizontal"
+                    android:text="@string/r_stop"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp" />
+                <Button
+                    android:id="@+id/image_start"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight=".5"
+                    android:background="@null"
+                    android:drawablePadding="2dp"
+                    android:drawableTop="@mipmap/ic_launcherapp"
+                    android:gravity="center_horizontal"
+                    android:text="@string/r_start"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp" />
+         
+        </com.primesys.VehicalTracking.Activity.DashboardLayout>
+    </ScrollView>
+    
+
+
+</RelativeLayout>
