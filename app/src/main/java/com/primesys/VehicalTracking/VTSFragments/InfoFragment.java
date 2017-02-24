@@ -152,7 +152,7 @@ public class InfoFragment extends Fragment {
                 parseProfileJSON(response);
                 Log.e("Userprofile Responce----", response);
 
-              //  pDialog.hide();
+              //  pDialog.dismiss();
             }
 
         },
@@ -161,7 +161,7 @@ public class InfoFragment extends Fragment {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                   //     pDialog.hide();
+                   //     pDialog.dismiss();
                         if(error.networkResponse != null && error.networkResponse.data != null){
                             VolleyError er = new VolleyError(new String(error.networkResponse.data));
                             error = er;
@@ -459,13 +459,13 @@ public class InfoFragment extends Fragment {
             @Override
             public void onResponse(String response) {
                 parseUpdateProfileJSON(response);
-                pDialog.hide();
+                pDialog.dismiss();
             }
         },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        pDialog.hide();
+                        pDialog.dismiss();
                         if(error.networkResponse != null && error.networkResponse.data != null){
                             VolleyError er = new VolleyError(new String(error.networkResponse.data));
                             error = er;
@@ -609,13 +609,13 @@ public class InfoFragment extends Fragment {
                 System.out.println(response);
 
 
-                pDialog.hide();
+                pDialog.dismiss();
             }
         },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        pDialog.hide();
+                        pDialog.dismiss();
                         if(error.networkResponse != null && error.networkResponse.data != null){
                             VolleyError er = new VolleyError(new String(error.networkResponse.data));
                             error = er;

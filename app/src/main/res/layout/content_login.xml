@@ -54,6 +54,26 @@
                     android:inputType="textPassword"
                     android:hint="Password"/>
             </android.support.design.widget.TextInputLayout>
+            <CheckBox
+                android:id="@+id/check_accept"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/padding_medium"
+                android:layout_marginTop="@dimen/padding_normal"
+                android:text="@string/read_accept"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/lbl_terms"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/padding_medium"
+                android:paddingLeft="5dp"
+                android:text="@string/terms"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
             <RadioGroup
                 android:id="@+id/rg_type"
                 android:orientation="horizontal"
@@ -132,11 +152,13 @@
                 android:text=""
                 android:padding="10dp"
                 android:layout_marginBottom="30dp" />
+<!--
 
             <Spinner
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/spinner" />
+-->
 
             <!-- <Button
                  android:id="@+id/btn_sign_out"

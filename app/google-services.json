@@ -1,18 +1,16 @@
 {
   "project_info": {
-    "project_id": "default-demo-app-71173",
     "project_number": "210941390350",
-    "name": "Vehicle Tracking sys"
+    "firebase_url": "https://default-demo-app-71173.firebaseio.com",
+    "project_id": "default-demo-app-71173",
+    "storage_bucket": "default-demo-app-71173.appspot.com"
   },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:210941390350:android:27d689d63f1b7a06",
-        "client_id": "android:com.google.samples.quickstart.signin",
-        "client_type": 1,
         "android_client_info": {
-          "package_name": "com.google.samples.quickstart.signin",
-          "certificate_hash": []
+          "package_name": "com.google.samples.quickstart.signin"
         }
       },
       "oauth_client": [
@@ -21,81 +19,97 @@
           "client_type": 1,
           "android_info": {
             "package_name": "com.google.samples.quickstart.signin",
-            "certificate_hash": "F4704C00BC554D09060C4A71016A0F787EBB8186"
+            "certificate_hash": "f4704c00bc554d09060c4a71016a0f787ebb8186"
           }
+        },
+        {
+          "client_id": "210941390350-agm27usn4iot2ibetjkv7jr3utsl1hv6.apps.googleusercontent.com",
+          "client_type": 3
         },
         {
           "client_id": "210941390350-jejdep6bje5vsdas1sdt6c9vj55oemsk.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
-      "api_key": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkiypXgPwRutDLs_pSICZK1JyOd4QgTxg"
+        }
+      ],
       "services": {
         "analytics_service": {
           "status": 1
         },
-        "cloud_messaging_service": {
-          "status": 1,
-          "apns_config": []
-        },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "google_signin_service": {
-          "status": 2
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "210941390350-agm27usn4iot2ibetjkv7jr3utsl1hv6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     },
     {
       "client_info": {
         "mobilesdk_app_id": "1:210941390350:android:f23564540082e604",
-        "client_id": "android:com.primesys.VehicalTracking",
-        "client_type": 1,
         "android_client_info": {
-          "package_name": "com.primesys.VehicalTracking",
-          "certificate_hash": []
+          "package_name": "com.primesys.VehicalTracking"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "210941390350-5kdjdr9oitut30mqkjbpmit63861icn9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.primesys.VehicalTracking",
+            "certificate_hash": "cee2d20d5b007dab77954c811601849f7fdab27a"
+          }
+        },
         {
           "client_id": "210941390350-pbc6khgtdk3dofkp1ieocq6aso5msepk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.primesys.VehicalTracking",
-            "certificate_hash": "F399982E5A8F52040288CB8F54271B4FF39637E0"
+            "certificate_hash": "f399982e5a8f52040288cb8f54271b4ff39637e0"
           }
+        },
+        {
+          "client_id": "210941390350-agm27usn4iot2ibetjkv7jr3utsl1hv6.apps.googleusercontent.com",
+          "client_type": 3
         },
         {
           "client_id": "210941390350-jejdep6bje5vsdas1sdt6c9vj55oemsk.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
-      "api_key": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkiypXgPwRutDLs_pSICZK1JyOd4QgTxg"
+        }
+      ],
       "services": {
         "analytics_service": {
           "status": 1
         },
-        "cloud_messaging_service": {
-          "status": 1,
-          "apns_config": []
-        },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "google_signin_service": {
-          "status": 2
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "210941390350-agm27usn4iot2ibetjkv7jr3utsl1hv6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }
   ],
-  "client_info": [],
-  "ARTIFACT_VERSION": "1"
+  "configuration_version": "1"
 }

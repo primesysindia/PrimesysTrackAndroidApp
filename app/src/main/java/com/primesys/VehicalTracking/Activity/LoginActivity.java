@@ -2,10 +2,12 @@ package com.primesys.VehicalTracking.Activity;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -14,7 +16,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +29,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.crashlytics.android.Crashlytics;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -56,7 +61,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
-
+import io.fabric.sdk.android.Fabric;
 
 public class LoginActivity extends AppCompatActivity {
     private static final int REQUEST_SIGNUP = 0;
@@ -75,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
     public static ArrayList<String> arrayParent = new ArrayList<String>();
 
     boolean isfirst;
-    TextView forget_password,register;
+    TextView forget_password,register,lblTerms;
     Context login_context=LoginActivity.this;
     String username,password;
     private StringRequest stringRequest;
@@ -103,6 +108,7 @@ public class LoginActivity extends AppCompatActivity {
     private String phpurl="http://www.mykiddytracker.com/php/getAppId.php";
     private RadioGroup rgType;
     private String key_url_type="Url_Type";
+    private CheckBox termAndCondition;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -112,16 +118,18 @@ public class LoginActivity extends AppCompatActivity {
         // Initialize Facebook
         FacebookSdk.sdkInitialize(getApplicationContext());
 
-
         sharedPreferences=login_context.getSharedPreferences("User_data",Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
         editor.commit();
         deviceid = getDeviceID();
         emailid = getRegisteredID();
+        Fabric.with(this, new Crashlytics());
+
         if(!sharedPreferences.contains(key_IS))
             isfirst = sharedPreferences.getBoolean(key_IS, true);
 
         if (!isfirst) {
+            setContentView(R.layout.screen_off_show);
 
             username = sharedPreferences.getString(key_USER,"");
             password = sharedPreferences.getString(key_PASS,"");
@@ -130,7 +138,8 @@ public class LoginActivity extends AppCompatActivity {
             System.err.println(" Inside is not first====="+username + " " + password);
             if(Common.getConnectivityStatus(login_context))
             {
-                try{  postLoginRequest();
+                try{
+                    postLoginRequest();
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -163,8 +172,25 @@ public class LoginActivity extends AppCompatActivity {
                         password = text_password.getText().toString().trim();
 
                         if (Common.getConnectivityStatus(login_context)) {
-                            if (validate())
-                                postLoginRequest();
+                            if (validate()){
+
+                                if (username.length() == 0) {
+                                    text_username.setError("Please User ID!");
+                                    text_username.requestFocus();
+                                } else if (password.length() == 0) {
+                                    text_password.setError("Please Password!");
+                                    text_password.requestFocus();
+                                } else if (termAndCondition.isChecked()) {
+                                    postLoginRequest();
+
+                                }
+                                else {
+                                    Common.showToast("Please Accept Terms and Conditions",login_context);
+
+                                }
+                            }
+
+
 
                         } else {
                             Common.ShowSweetAlert(login_context, "Turn on Internet Connection!");
@@ -306,53 +332,49 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
 
-               /* GraphRequest request = GraphRequest.newMeRequest(
-                        loginResult.getAccessToken(),
-                        new GraphRequest.GraphJSONObjectCallback() {
-                            @Override
-                            public void onCompleted(JSONObject object,GraphResponse response) {
-                                JSONObject json;
-                                // Application code
 
-                                try {
-                                     json=new JSONObject(String.valueOf(response));
-                                   JSONObject jo= json.getJSONObject("graphObject");
-                                    Log.e("Facebook Respo=======",jo.getString("email")+jo.getString("name"));
-                                  //  PostFacebookReq(response);
+            lblTerms.setOnClickListener(new View.OnClickListener() {
 
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
+                @Override
+                public void onClick(View v) {
+                    final Dialog dialog = new Dialog(login_context);
+                    dialog.setContentView(R.layout.maindialog);
+                    dialog.setTitle("Agreement & Terms");
+                    dialog.setCancelable(true);
 
+                    dialog.getWindow().setLayout(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT);
 
+                    // set up text
+                    TextView text = (TextView) dialog
+                            .findViewById(R.id.TextView01);
+                    Typeface custom_font = Typeface.createFromAsset(getAssets(), "Roboto-Regular.ttf");
+                    text.setTypeface(custom_font);
+                    text.setText(R.string.lots_of_text);
+                    text.setPadding(5, 5, 5, 5);
+                    Button buttoncancel = (Button) dialog
+                            .findViewById(R.id.button1);
+                    buttoncancel.setBackgroundColor(getResources().getColor(
+                            R.color.colorPrimaryDark));
+                    buttoncancel.setTextColor(getResources().getColor(
+                            android.R.color.white));
+                    buttoncancel.setOnClickListener(new View.OnClickListener() {
 
-                            //    Log.v("LoginActivity----------", response.toString());
-                            }
-                        });
-                Bundle parameters = new Bundle();
-                parameters.putString("fields", "id,name,email");
-                request.setParameters(parameters);
-                request.executeAsync();
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                        }
+                    });
+                    dialog.show();
 
+                }
+            });
 
-            }
-
-            @Override
-            public void onCancel() {
-                // App code
-                Log.v("LoginActivity", "cancel");
-            }
-
-            @Override
-            public void onError(FacebookException exception) {
-                // App code
-                Log.v("LoginActivity", exception.getCause().toString());
-            }
-        });
-
-*/
         }
+
+
+
     }
+
 
 
 
@@ -379,7 +401,8 @@ public class LoginActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-
+        termAndCondition = (CheckBox) findViewById(R.id.check_accept);
+        lblTerms = (TextView) findViewById(R.id.lbl_terms);
         fbloginButton = (LoginButton) findViewById(R.id.fb_login_button);
          helper = DBHelper.getInstance(login_context);
 
@@ -394,7 +417,9 @@ public class LoginActivity extends AppCompatActivity {
         pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
         pDialog.setTitleText("Login Wait");
         pDialog.setCancelable(false);
-        pDialog.show();
+        if (isfirst)
+            pDialog.show();
+
         //JSon object request for reading the json data
         stringRequest = new StringRequest(Request.Method.POST, Common.URL+"LoginServiceAPI.asmx/GetLoginDetails",new Response.Listener<String>() {
 
@@ -418,8 +443,8 @@ public class LoginActivity extends AppCompatActivity {
                     editor.commit();
                     parseJSON(response);
                 }
-
-                pDialog.dismiss();
+                if (pDialog.isShowing())
+                    pDialog.dismiss();
 
 
             }
@@ -427,7 +452,9 @@ public class LoginActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        pDialog.hide();
+                        if (pDialog.isShowing())
+                            pDialog.dismiss();
+
                         if(error.networkResponse != null && error.networkResponse.data != null){
                             VolleyError er = new VolleyError(new String(error.networkResponse.data));
                             System.out.println(error.toString());
@@ -469,12 +496,35 @@ public class LoginActivity extends AppCompatActivity {
             Common.userid = jo.getString("UserID");
             Common.username = jo.getString("userName");
             Common.Student_Count = jo.getInt("Student_Count");
+            Common.TrackDay=Integer.parseInt(jo.getString("daysr"));
+            Common.SERVERIP = jo.getString("SocketUrl");
+            Common.PORT=Integer.parseInt(jo.getString("SocketPort"));
+
            if (jo.getString("VtsFuncAllow").equals("0"))
             Common.VtsFuncAllow =true;
             if (jo.getString("VtsSmsAllow").equals("0"))
             Common.VtsSmsAllow = true;
 
-          //  Common.TrackDay=Integer.parseInt(jo.getString("daysr"));
+           if (jo.getString("ACCReportAllow").equals("0"))
+                    Common.AccReportAllow=true;
+            if (jo.getString("ACCSqliteEnable").equals("0"))
+                Common.ACCSqliteEnable=true;
+            Common.ACCSmsDeleteCheckCount=Integer.parseInt(jo.getString("ACCSmsDeleteCheckCount"));
+            Common.ACCSMSDeleteNo=Integer.parseInt(jo.getString("ACCSMSDeleteNo"));
+            if (result.contains("MarkerTimeDiff"))
+            Common.MarkerTimeDiff=Integer.parseInt(jo.getString("MarkerTimeDiff"));
+            if (result.contains("TrackReqTimeout"))
+                Common.TrackReqTimeout=Integer.parseInt(jo.getString("TrackReqTimeout"));
+
+            if (result.contains("PolylineDistLimit"))
+                Common.PolylineDistLimit=Integer.parseInt(jo.getString("PolylineDistLimit"));
+
+            if (result.contains("WrongwayTolerance"))
+                Common.WrongWay_tolerance=Double.parseDouble(jo.getString("WrongwayTolerance"));
+
+            if (result.contains("DeviceStatusReqTime"))
+                Common.DeviceStatusReq_Time=Integer.parseInt(jo.getString("DeviceStatusReqTime"));
+                //  Common.TrackDay=Integer.parseInt(jo.getString("daysr"));
        //     System.out.println("TrackDay----" + Common.TrackDay);
 
             editor = sharedPreferences.edit();
@@ -781,8 +831,29 @@ public class LoginActivity extends AppCompatActivity {
             for (int i = 0; i < array.length(); i++) {
                 JSONObject jo = array.getJSONObject(i);
                 LocationData l = new LocationData();
-                l.setLat(jo.getDouble("lat"));
-                l.setLan(jo.getDouble("lan"));
+
+                if (jo.getString("lat_direction").equalsIgnoreCase("N")&&jo.getString("lan_direction").equalsIgnoreCase("E")) {
+
+                    l.setLat(jo.getDouble("lat"));
+                    l.setLan(jo.getDouble("lan"));
+
+                }else if (jo.getString("lat_direction").equalsIgnoreCase("N")&&jo.getString("lan_direction").equalsIgnoreCase("W")) {
+
+                    l.setLat(jo.getDouble("lat"));
+                    l.setLan(-jo.getDouble("lan"));
+
+                }
+                else if (jo.getString("lat_direction").equalsIgnoreCase("S")&&jo.getString("lan_direction").equalsIgnoreCase("E")) {
+
+                    l.setLat(-jo.getDouble("lat"));
+                    l.setLan(jo.getDouble("lan"));
+
+                }else if (jo.getString("lat_direction").equalsIgnoreCase("S")&&jo.getString("lan_direction").equalsIgnoreCase("W")) {
+
+                    l.setLat(-jo.getDouble("lat"));
+                    l.setLan(-jo.getDouble("lan"));
+
+                }
                 l.setSpeed(jo.getInt("speed"));
                 l.setTimestamp(jo.getLong("timestamp"));
                 list.add(l);
@@ -873,8 +944,15 @@ public class LoginActivity extends AppCompatActivity {
             text_username.setError(null);
         }*/
 
-        if (password.isEmpty() || password.length() < 3 || password.length() > 20) {
+        /*if (password.isEmpty() || password.length() < 3 || password.length() > 20) {
             text_password.setError("between 4 and 10 alphanumeric characters");
+            valid = false;
+        } else {
+            text_password.setError(null);
+        }
+*/
+        if (password.isEmpty()) {
+            text_password.setError("Please enter valid password.");
             valid = false;
         } else {
             text_password.setError(null);

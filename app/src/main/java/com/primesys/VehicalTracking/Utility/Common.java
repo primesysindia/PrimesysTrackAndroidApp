@@ -8,6 +8,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Path;
 import android.graphics.Rect;
+import android.location.Address;
+import android.location.Geocoder;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
@@ -25,9 +27,12 @@ import android.widget.Toast;
 
 import com.primesys.VehicalTracking.R;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -38,11 +43,15 @@ public class Common {
 
 
 	//Live Url
+
 	public static String URL="http://mykidtracker.in:81/API/";
 	public static String MONGOURL="http://192.168.1.103/TrackingApplication/API/";
 	public static String SQLURL="http://114.143.99.170:8080/TrackingAppDB/TrackingAPP/";
 	public static String TrackURL="http://114.143.99.170:8080/TrackingAppDB/TrackingAPP/";
+//	public static String TrackURL="http://123.252.246.214:8080/TrackingAppDB/TrackingAPP/";
+
 	static public String Relative_URL="http://www.mykidtracker.in:81";
+
 
 	//Local URL
 	//public static String URL="http://mykidtracker.in:81/API/";
@@ -55,11 +64,13 @@ public class Common {
 
 	//LIve socket
 	public static String SERVERIP ="www.mykidtracker.in";//"www.mykiddytracker.com mykidtracker
-	public static int PORT = 5555;
+	public static int PORT = 4545;
 
 	//LOcalsocket
 	/*public static String SERVERIP ="123.252.246.214";//"www.mykiddytracker.com mykidtracker
 	public static int PORT = 5555;*/
+
+
 
 	//	LIve Url
 	public static final String PayU_surl = "https://www.payumoney.com/mobileapp/payumoney/success.php";
@@ -123,7 +134,16 @@ public class Common {
 	public static Boolean VtsFuncAllow=false;
 	public static Boolean VtsSmsAllow=false;
 
-
+	public static Boolean AccReportAllow=false;
+	public static Boolean ACCSqliteEnable=true;
+	public static int AccsmscentralSyncronoise =20 ;
+	public static int ACCSmsDeleteCheckCount =500;
+	public static int ACCSMSDeleteNo =300;
+	public static int MarkerTimeDiff =300;
+	public static int PolylineDistLimit=200;
+	public static int TrackReqTimeout=20;
+	public static double WrongWay_tolerance=15.0;
+	public static int DeviceStatusReq_Time=60;
 	//convert date to timestamp
 	public static long convertToLong(String date)
 	{
@@ -171,7 +191,7 @@ public class Common {
 
 	public static void ShowSweetSucess(Context context,String message){
 		final SweetAlertDialog pDialog = new SweetAlertDialog(context, SweetAlertDialog.SUCCESS_TYPE);
-		pDialog.setTitleText("Sucess");
+		pDialog.setTitleText("Success");
 		pDialog.setContentText(message);
 		pDialog.setCancelable(true);
 		pDialog.show();
@@ -288,7 +308,7 @@ public class Common {
 					}*/
 
 					/*ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
-Log.e("RUpesh Conn",ConnectionClassManager.getInstance().getDownloadKBitsPerSecond()+"");*/
+						Log.e("RUpesh Conn",ConnectionClassManager.getInstance().getDownloadKBitsPerSecond()+"");*/
 				return true;
 
 			}
@@ -335,4 +355,47 @@ Log.e("RUpesh Conn",ConnectionClassManager.getInstance().getDownloadKBitsPerSeco
 		Ringtone r = RingtoneManager.getRingtone(context, notification);
 		r.play();
 	}
+
+
+
+	public static ArrayList<String> getAddress(Context context, double lat, double lng) {
+		String   add = null;String postal=null;
+		ArrayList<String>   addlist = new ArrayList<String>();
+
+		Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+		try {
+
+
+			List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+			Address obj = addresses.get(0);
+			add = obj.getAddressLine(0);
+			String  currentAddress = obj.getSubAdminArea() + "," + obj.getAdminArea();
+			double   latitude = obj.getLatitude();
+			double longitude = obj.getLongitude();
+			String currentCity= obj.getSubAdminArea();
+			String currentState= obj.getAdminArea();
+			add = add + "\t" + obj.getLocality()+",";
+			add = add + "\t" + obj.getSubAdminArea();
+
+			addlist.add(add.replace("null", ""));
+			postal="\t"+ obj.getAdminArea()+",";
+			postal=postal+"\t"+ obj.getCountryName()+",";
+			postal=postal+"\t"+ obj.getPostalCode()+"";
+			addlist.add(postal.replace("null",""));
+
+
+
+			//Log.e("Commom ", "Address------" + add);
+			// Toast.makeText(this, "Address=>" + add,
+			// Toast.LENGTH_SHORT).show();
+
+			// TennisAppActivity.showDialog(add);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			//    Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+		}
+		return addlist;
+	}
+
 }

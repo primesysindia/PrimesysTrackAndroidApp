@@ -8,6 +8,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -90,6 +91,11 @@ public class UserProfileActivity extends Activity {
 	String Upload_filename;
 
 	byte[] bFileConversion;
+	private DBHelper helper;
+	private SharedPreferences sharedPreferences;
+	private SharedPreferences.Editor editor;
+	private String key_UserPic="UserPic";
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -99,7 +105,8 @@ public class UserProfileActivity extends Activity {
 	//profile_pic.setImageBitmap(getRoundedShape(bm));
 	
 		GetProfileInfo();
-		 
+		 helper= DBHelper.getInstance(proContext);
+
 
 		edit.setOnClickListener(new OnClickListener() {
 
@@ -139,6 +146,9 @@ public class UserProfileActivity extends Activity {
 		txt_gender=(EditText)findViewById(R.id.txt_gender);
 		profile_pic=(CircularNetworkImageView)findViewById(R.id.profile_pic);
 		edit=(ImageView)findViewById(R.id.edit);
+		sharedPreferences = proContext.getSharedPreferences("User_data", Context.MODE_PRIVATE);
+
+
 	}
 	/*TextWatcher watcher = new TextWatcher(){
 
@@ -176,7 +186,7 @@ public class UserProfileActivity extends Activity {
 				parseProfileJSON(response);
 				Log.e("Userprofile Responce----", response);
 
-				pDialog.hide();
+				pDialog.dismiss();
 			}
 
 		},
@@ -185,7 +195,7 @@ public class UserProfileActivity extends Activity {
 
 			@Override
 			public void onErrorResponse(VolleyError error) {
-				pDialog.hide();
+				pDialog.dismiss();
 				if(error.networkResponse != null && error.networkResponse.data != null){
 					VolleyError er = new VolleyError(new String(error.networkResponse.data));
 					error = er;
@@ -331,7 +341,6 @@ public class UserProfileActivity extends Activity {
 
 		try
 		{
-			System.out.println("Profile Respo11111----"+result);
 			JSONArray joarray=new JSONArray(result);
 			for (int i = 0; i < joarray.length(); i++) {
 				JSONObject jo= joarray.getJSONObject(i);
@@ -366,9 +375,13 @@ public class UserProfileActivity extends Activity {
 				String Photo=jo.getString("Photo").trim();
 
 				Bitmap bitmap=null;
-				bitmap= DBHelper.getInstance(proContext).getBitMap(Common.userid+"");
+				bitmap= helper.getBitMap(Common.userid+"");
 				if (bitmap != null) {
-					profile_pic.setImageBitmap(getRoundedShape(bitmap));
+					{
+						profile_pic.setImageBitmap(getRoundedShape(bitmap));
+						Log.e("bitmap- from offile--",bitmap.toString());
+
+					}
 				}else{
 
 					if(Photo.equalsIgnoreCase("No Photo")){
@@ -377,16 +390,25 @@ public class UserProfileActivity extends Activity {
 						Bitmap anImage      = ((BitmapDrawable) myDrawable).getBitmap();
 						profile_pic.setImageBitmap(anImage);
 					}else{
+
 						Bitmap bmp = Common.bytebitmapconversion(Photo);
-						profile_pic.setImageBitmap(getRoundedShape(bmp));}
+						profile_pic.setImageBitmap(getRoundedShape(bmp));
+						Home.profile_pic.setImageBitmap(getRoundedShape(bmp));
+						editor = sharedPreferences.edit();
+						editor.putString(key_UserPic,Photo);
+
+
+						editor.commit();
+						helper.insertPhoto(bmp,Common.userid);
+					}
 				}
 			}
 
 
 		}	catch(Exception e)
 		{
-			Log.e(TAG, ""+e);
-		}
+
+e.printStackTrace();		}
 
 	}
 
@@ -580,6 +602,8 @@ public class UserProfileActivity extends Activity {
 			if (!UploadFile.equals("")) {
 				if (Common.conectionStatus)
 					FileUploadAsync();
+				editor = sharedPreferences.edit();
+				editor.putString(key_UserPic,UploadFile);
 			}
 		}catch (Exception e){
 			e.printStackTrace();

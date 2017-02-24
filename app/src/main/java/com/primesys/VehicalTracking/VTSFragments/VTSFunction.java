@@ -10,10 +10,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -30,6 +32,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.primesys.VehicalTracking.Activity.Distance_calulate;
+import com.primesys.VehicalTracking.Activity.Home;
 import com.primesys.VehicalTracking.Activity.LoginActivity;
 import com.primesys.VehicalTracking.Db.DBHelper;
 import com.primesys.VehicalTracking.Dto.GmapDetais;
@@ -55,7 +58,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -135,6 +137,13 @@ public class VTSFunction extends Fragment {
 
             }
         });
+        try {
+            ShowMapFragment.CDT.cancel();
+            Home.tabLayout.setVisibility(View.VISIBLE);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         return rootView;
     }
 
@@ -309,7 +318,7 @@ public class VTSFunction extends Fragment {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        pDialog1.hide();
+                        pDialog1.dismiss();
                         if(error.networkResponse != null && error.networkResponse.data != null){
                             VolleyError er = new VolleyError(new String(error.networkResponse.data));
                             error = er;
@@ -388,9 +397,13 @@ public class VTSFunction extends Fragment {
         // custom dialog
 
         final Dialog dialog = new Dialog(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
         dialog.setContentView(R.layout.dialog_studentlist);
+        dialog.getWindow().setLayout(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT);
+
+
         dialog.setCancelable(false);
-        dialog.setTitle("Select Student");
         listStudent=(ListView)dialog.findViewById(R.id.student_list);
 
 //		StudentId=Integer.parseInt(myAdapter.getItem(0).getId());
@@ -739,7 +752,7 @@ public class VTSFunction extends Fragment {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        pDialog1.hide();
+                        pDialog1.dismiss();
                         if(error.networkResponse != null && error.networkResponse.data != null){
                             VolleyError er = new VolleyError(new String(error.networkResponse.data));
                             error = er;
@@ -843,7 +856,7 @@ public class VTSFunction extends Fragment {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        pDialog1.hide();
+                        pDialog1.dismiss();
                         if(error.networkResponse != null && error.networkResponse.data != null){
                             VolleyError er = new VolleyError(new String(error.networkResponse.data));
                             error = er;

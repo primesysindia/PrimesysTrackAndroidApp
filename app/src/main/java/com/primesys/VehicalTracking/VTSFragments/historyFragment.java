@@ -3,23 +3,34 @@ package com.primesys.VehicalTracking.VTSFragments;
 import android.Manifest;
 import android.app.Activity;
 import android.app.FragmentManager;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -35,14 +46,14 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.primesys.VehicalTracking.Activity.DateTimeActivity;
+import com.primesys.VehicalTracking.Activity.Home;
 import com.primesys.VehicalTracking.Activity.LoginActivity;
 import com.primesys.VehicalTracking.Db.DBHelper;
 import com.primesys.VehicalTracking.Dto.GmapDetais;
@@ -77,26 +88,25 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 public class historyFragment extends Fragment implements RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener
 {
 
+    private static double HistoryDistance=0;
 
     private static final String TAG ="Request" ;
     private static final int TAG_CODE_PERMISSION_LOCATION = 200;
-    public static int StudentId;
-    android.support.v4.app.FragmentManager myFragmentManager;
-    SupportMapFragment mySupportMapFragment;
-
+    public static int StudentId=0;
+    private static Handler handler=new Handler();
     static Context historyContext;
     static GoogleMap googleMap ;
-    static ArrayList<LocationData> list;
+    static ArrayList<LocationData> LocationData_list;
+    private static double caldist;
+    private static Runnable RunnAnim;
     ArrayList<LatLng> arrayPoints=new ArrayList<LatLng>();
     public static Marker selectedMarker;
-    private PolylineOptions polylineOptions = new PolylineOptions();
-    Handler handler = new Handler();
+    private static PolylineOptions polylineOptions = new PolylineOptions();
     Random random = new Random();
     FragmentManager manager;
     private static final int REQ_DATETIME=1;
     private static List<Marker> markers = new ArrayList<Marker>();
     static int totalCount;
-    ListView gmapList;
     String defaultImage;
     public static Boolean Updatestatus=false;
     ArrayList<GmapDetais> arr=new ArrayList<GmapDetais>();
@@ -104,11 +114,10 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
     ImageLoader imageLoader;
     static RequestQueue RecordSyncQueue;
     HistoryMapAdapter myAdapter;
-    Handler handle =new Handler();
     private static DBHelper helper= DBHelper.getInstance(historyContext);
     private MapView mapViewhistory;
-    private View rootView;
-
+    private static View rootView;
+    public  static List<LatLng> directionPoint=new ArrayList<>();
     // @AIView(R.id.label_list_sample_rfal)
     private RapidFloatingActionLayout rfaLayout;
     //   @AIView(R.id.label_list_sample_rfab)
@@ -121,7 +130,15 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
     private RequestQueue reuestQueue;
     StringRequest stringRequest;
     private FloatingActionButton fab_date;
-
+    static int currentPt;
+    private static float bearing;
+    static Marker mark;
+    private KeyguardManager keyguardManager;
+    private  static KeyguardManager.KeyguardLock lock;
+    static Boolean ClearFlag=false;
+    static Button Pause,Resume;
+    public static TextView datetime,speed,distance;
+    public static int polycount=0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -132,7 +149,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // TODO Auto-generated method stub
-        rootView = inflater.inflate(R.layout.activity_history, container, false);
+         rootView = inflater.inflate(R.layout.activity_history, container, false);
         historyContext=this.getActivity();
         if (!isGooglePlayServicesAvailable()) {
             Common.showToast("Google Play services not available !", historyContext);
@@ -141,6 +158,13 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
         mapViewhistory.onCreate(savedInstanceState);
 
         findviewbyid();
+        try {
+            ShowMapFragment.CDT.cancel();
+            Home.tabLayout.setVisibility(View.VISIBLE);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
 
         if (Common.getConnectivityStatus(historyContext)&& helper.Show_Device_list().size()==0) {
             // Call Api to get track information
@@ -164,45 +188,73 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
                 personlist.setAdapter(myAdapter);
 
                 personlist.requestFocusFromTouch();
-                personlist.setSelection(0);
-                personlist.performItemClick(personlist.getAdapter().getView(0, null, null), 0, 0);
+              //  personlist.setSelection(0);
+              //  personlist.performItemClick(personlist.getAdapter().getView(0, null, null), 0, 0);
                 cnt++;
             } else {
                 Common.showToast("No User Information", historyContext);
             }
 
         }
-        //Fab Button listner
+            //Fab Button listner
         rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
 
         try {
             // Loading map
             initilizeMap();
-            if (Common.Location_getting)
-                addDefaultLocations();
+           if (Common.Location_getting)
+            addDefaultLocations();
+         /*   else
+               Common.ShowSweetAlert(historyContext,"Can't get location.Please try again.");*/
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        personlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                personlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        try {
+                            //	ShowMapFragment gmap=new ShowMapFragment();
+                            //	gmap.flag=0;
+                            DateTimeActivity.selStatus = true;
+                            GmapDetais user1 = tracklist.get(position);
+                            historyFragment.StudentId = Integer.parseInt(user1.getId());
+                            Log.e("History studid---------", historyFragment.StudentId + "----"+position);
+
+                            ShowMapFragment.Updatestatus = true;
+
+                            final String formattedDate = new SimpleDateFormat("dd MMM yyyy hh:mm:ss").format(new Date());
+                            clearHistoryData();
+
+                            LoginActivity.mClient.sendMessage(makeJSONHistoryChild(formattedDate, historyFragment.StudentId+""));
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                });
+
+
+
+        fab_date.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                try {
-                    //	ShowMapFragment gmap=new ShowMapFragment();
-                    //	gmap.flag=0;
-                    DateTimeActivity.selStatus = true;
-                    GmapDetais user1 = tracklist.get(position);
-                    historyFragment.StudentId = Integer.parseInt(user1.getId());
-                    Log.e("History studid---------", historyFragment.StudentId + "----"+position);
+            public void onClick(View v) {
 
-                    ShowMapFragment.Updatestatus = true;
+                if (historyFragment.StudentId!=0){
+                    clearHistoryData();
+                    Intent i=new Intent(historyContext,DateTimeActivity.class);
+                    //	Log.e("History studid  menu---------", ShowGmapClient.StudentId+"  "+HistoryMapAdapter.user1.getType());
 
-                    final String formattedDate = new SimpleDateFormat("dd MMM yyyy hh:mm:ss").format(new Date());
+                    i.putExtra("StudentId", historyFragment.StudentId);
+                    if (HistoryMapAdapter.user1!=null)
+                        i.putExtra("Type", HistoryMapAdapter.user1.getType());
+                    else
+                        i.putExtra("Type","demo_student");
 
-                    LoginActivity.mClient.sendMessage(makeJSONHistoryChild(formattedDate, historyFragment.StudentId+""));
-
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    startActivityForResult(i,REQ_DATETIME);
+                }else {
+                    Common.ShowSweetAlert(historyContext,"Please select your vehicle");
                 }
 
             }
@@ -210,19 +262,21 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
 
 
 
-        fab_date.setOnClickListener(new View.OnClickListener() {
+
+
+        Pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i=new Intent(historyContext,DateTimeActivity.class);
-                //	Log.e("History studid  menu---------", ShowGmapClient.StudentId+"  "+HistoryMapAdapter.user1.getType());
+                handler.removeCallbacks(RunnAnim);
+               /* IncomingSms sms=new IncomingSms();
+                sms.ParseACCONMsg(historyContext, "ACC  !!!IMEI:355488020822828");*/
+            }
+        });
 
-                i.putExtra("StudentId", historyFragment.StudentId);
-                if (HistoryMapAdapter.user1!=null)
-                    i.putExtra("Type", HistoryMapAdapter.user1.getType());
-                else
-                    i.putExtra("Type","demo_student");
-
-                startActivityForResult(i,REQ_DATETIME);
+        Resume.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handler.postDelayed(RunnAnim,100);
             }
         });
 
@@ -269,12 +323,16 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
         rfaLayout= (RapidFloatingActionLayout) rootView.findViewById(R.id.label_list_sample_rfal);
         rfaButton= (RapidFloatingActionButton) rootView.findViewById(R.id.label_list_sample_rfab);
         rfaContent = new RapidFloatingActionContentLabelList(historyContext);
-        // googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+       // googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         personlist = (ListView)rootView.findViewById(R.id.User_list);
 
         fab_date= (FloatingActionButton)rootView.findViewById(R.id.fab_date);
-        //////FOr Fab Button
+        datetime = (TextView) rootView.findViewById(R.id.datetime);
+        speed = (TextView) rootView.findViewById(R.id.historyspeed);
+        distance = (TextView) rootView.findViewById(R.id.distance);
 
+        Pause=(Button)rootView.findViewById(R.id.btn_pause);
+        Resume=(Button)rootView.findViewById(R.id.btn_resume);
         List<RFACLabelItem> items = new ArrayList<>();
         items.add(new RFACLabelItem<Integer>()
                 .setLabel("Normal View")
@@ -329,9 +387,9 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
         {
 
 
-            if (ContextCompat.checkSelfPermission(historyContext, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+            if (ContextCompat.checkSelfPermission(historyContext, Manifest.permission.ACCESS_FINE_LOCATION) ==
                     PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(historyContext, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                    ContextCompat.checkSelfPermission(historyContext, Manifest.permission.ACCESS_COARSE_LOCATION) ==
                             PackageManager.PERMISSION_GRANTED) {
                 if (googleMap == null) {
                     // Gets to GoogleMap from the MapView and does initialization stuff
@@ -460,36 +518,49 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
     public static void addDefaultLocations() {
 
 
-
+        if (googleMap == null) {
+            googleMap = ((MapView) rootView.findViewById(R.id.gmaphistoty)).getMap();
+        }
 
         clearMarkers();
-        list=new ArrayList<LocationData>();
+        LocationData_list=new ArrayList<LocationData>();
         DBHelper dbH= DBHelper.getInstance(historyContext);
-        list=dbH.showDetails();
-        totalCount=list.size();
-        Log.e("-----addDefaultLocations-------","addDefaultLocations"+"--------"+list.size());
+        LocationData_list=dbH.showDetails();
+        totalCount=LocationData_list.size();
+        Log.e("-----addDefaultLocations-------","addDefaultLocations"+"--------"+LocationData_list.size());
 
 	/*	if(totalCount==0)
 			Common.showToast(getResources().getString(R.string.history_msg), historyContext);*/
         for (int i = 0; i < totalCount; i++) {
-            //   Log.e("-----addMarkerToMap-------","addMarkerToMap"+"--------"+i );
+         //   Log.e("-----addMarkerToMap-------","addMarkerToMap"+"--------"+i );
 
-            addMarkerToMap(list.get(i),i);
+            addMarkerToMap(LocationData_list.get(i),i);
+            directionPoint.add(new LatLng(LocationData_list.get(i).getLat(),LocationData_list.get(i).getLan()));
 
         }
 
         int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-        //    Log.e("-----markers-------","markers"+"--------"+markers.size());
+    //    Log.e("-----markers-------","markers"+"--------"+markers.size());
 
-        if (currentapiVersion >= android.os.Build.VERSION_CODES.LOLLIPOP){
+        /*if (currentapiVersion >= android.os.Build.VERSION_CODES.LOLLIPOP){
             // Do something for lollipop and above versions
             if(markers.size()!=0)
                 ShowMapOnLolipop();
         } else{
             // do something for phones running an SDK before lollipop
+            currentPt = 0;
+
             if(markers.size()!=0)
-                startAnimation();
-        }
+            {
+               // startAnimation();
+                setAnimation(directionPoint);
+
+            }
+
+        }*/
+        ///Strat Animation for moving car
+        setAnimation(directionPoint);
+
 
     }
 
@@ -504,16 +575,16 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
             e.printStackTrace();
         }
     }
-    private static void startAnimation() {
+  /*  private static void startAnimation() {
         googleMap.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(markers.get(0).getPosition(), 15),
                 5000,
                 MyCancelableCallback);
 
-      /*  googleMap.animateCamera(
-                CameraUpdateFactory.newLatLngZoom(markers.get(0).getPosition(), 18));*/
+      *//*  googleMap.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(markers.get(0).getPosition(), 18));*//*
         currentPt = 0-1;
-    }
+    }*/
 
     private static Location convertLatLngToLocation(LatLng latLng) {
         Location loc = new Location("someLoc");
@@ -625,50 +696,235 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
     };
 */
 
-    static int currentPt;
-    static GoogleMap.CancelableCallback MyCancelableCallback =
-            new GoogleMap.CancelableCallback(){
 
-                @Override
-                public void onCancel() {
+
+
+
+    public static void setAnimation(final List<LatLng> directionPoint)
+    {
+
+
+        LatLng prev = null,current=null;
+         if(currentPt++ < directionPoint.size() ) {
+
+
+             Log.e("dgjjjdincar--------------","111111111111111111111111---------------------"+currentPt+"   directionPoint  --"+directionPoint.size());
+             current = directionPoint.get(currentPt);
+
+            /* if (currentPt>1)
+             prev = directionPoint.get(currentPt - 1);
+             current = directionPoint.get(currentPt);
+             Log.e("dgjjjdincar-------------------------------","888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888");
+
+             Location Prevloc = null, Currloc = null;
+             if (prev != null && current != null) {
+                 Prevloc = new Location(LocationManager.GPS_PROVIDER);
+                 Prevloc.setLatitude(prev.latitude);
+                 Prevloc.setLongitude(prev.longitude);
+                 Currloc = new Location(LocationManager.GPS_PROVIDER);
+                 Currloc.setLatitude(current.latitude);
+                 Currloc.setLongitude(current.longitude);
+             }
+
+
+             if (Currloc != null && Prevloc != null) {
+                 // mMap.clear();
+                 bearing = Prevloc.bearingTo(Currloc);
+                 polylineOptions = new PolylineOptions();
+                 polylineOptions.width(5);
+                 polylineOptions.geodesic(true);
+                 polylineOptions.color(R.color.colorPrimaryDark);
+                 polylineOptions.add(prev, current);
+
+                 googleMap.addPolyline(polylineOptions);
+             }
+*/
+             MarkerOptions mp = new MarkerOptions();
+             mp.position(current).icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(historyContext, customMarker())));
+             mp.rotation(bearing);
+             mp.snippet("Latitude : " + String.format("%.6f", current.latitude) + "\t" + "Longitude : " + String.format("%.6f", current.longitude));
+             //   mp.title("Speed : " + speed + " km/h" + "\t" + "Date : " + date + "\n" + "");
+             Log.e("Map Frgment in matrker----------------", googleMap + "***");
+             if (googleMap == null) {
+                 googleMap = ((MapView) rootView.findViewById(R.id.mapview)).getMap();
+             }
+
+             final Marker marker = googleMap.addMarker(mp);
+
+            // googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(directionPoint.get(0), 18));
+
+
+             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(directionPoint.get(0), 18), new GoogleMap.CancelableCallback() {
+
+                 @Override
+                 public void onFinish() {
+                     animateMarker(googleMap, marker, directionPoint);
+
+                 }
+
+                 @Override
+                 public void onCancel() {
+                 }
+             });
+
+
+
+
+         }
+
+    }
+
+
+    private static void animateMarker(final GoogleMap myMap, final Marker marker, final List<LatLng> directionPoint) {
+
+        Pause.setVisibility(View.VISIBLE);
+        Resume.setVisibility(View.VISIBLE);
+        final boolean hideMarker = true;
+        final long start = SystemClock.uptimeMillis();
+        Projection proj = myMap.getProjection();
+        final Random rand=new Random();
+        final float minX = 0.0f;
+        final float maxX = 360.0f;
+        final long duration = 1500*directionPoint.size();
+     //   final long duration = 30000;
+        ClearFlag=true;
+        Log.e("animateMarker--------------","---animateMarker------------------"+currentPt+" directionPoint--"+directionPoint.size());
+        googleMap.getUiSettings().setAllGesturesEnabled(false);
+
+        final Interpolator interpolator = new LinearInterpolator();
+
+        handler.post(RunnAnim=new Runnable() {
+            int i = 0;
+
+            @Override
+            public void run() {
+                long elapsed = SystemClock.uptimeMillis() - start;
+                float t = interpolator.getInterpolation((float) elapsed
+                        / duration);
+                if (i < directionPoint.size()) {
+
+                    marker.setPosition(directionPoint.get(i));
+
+
                 }
 
-                @Override
-                public void onFinish() {
 
-                    if(++currentPt < markers.size()){
+                if (t < 1.0) {
+                    // Post again 16ms later.
+                    handler.postDelayed(this, 1000);
+                    Location Prevloc=null;
+                    Location Currloc=null;
+                    try
+                    {
+                        if ((i > 0) && i<directionPoint.size()) {
 
-                        float targetBearing = bearingBetweenLatLngs( googleMap.getCameraPosition().target, markers.get(currentPt).getPosition());
-                        LatLng targetLatLng = markers.get(currentPt).getPosition();
-                        CameraPosition cameraPosition =
-                                new CameraPosition.Builder()
-                                        .target(targetLatLng)
-                                        .tilt(currentPt<markers.size()-1 ? 90 : 0)
-                                        .bearing(targetBearing)
-                                        .zoom(googleMap.getCameraPosition().zoom)
-                                        .build();
-                        googleMap.animateCamera(
-                                CameraUpdateFactory.newCameraPosition(cameraPosition),
-                                3000,
-                                currentPt==markers.size()-1 ? FinalCancelableCallback : MyCancelableCallback);
-                        highLightMarker(currentPt);
+
+                            Prevloc = new Location(LocationManager.GPS_PROVIDER);
+                            Prevloc.setLatitude((directionPoint.get(i).latitude));
+                            Prevloc.setLongitude((directionPoint.get(i).longitude));
+                            Currloc = new Location(LocationManager.GPS_PROVIDER);
+                            Currloc.setLatitude((directionPoint.get(i+1) .latitude));
+                            Currloc.setLongitude((directionPoint.get(i+1) .longitude));
+
+                            if (bearing!=0.0)
+                            marker.setRotation(bearing);
+                            else
+                            {
+                                marker.setRotation(rand.nextFloat() * (maxX - minX) + minX);
+                                Log.e("animateMarker--------------","----Inside 0.0 bearing000000000000000000-----------------"+bearing+"");
+
+                            }
+
+                            myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(directionPoint.get(i), 18));
+                            Log.e("animateMarker--------------","----bearing-----------------"+bearing+"");
+
+                            if (Currloc != null && Prevloc != null) {
+                                // mMap.clear();
+                                bearing = Prevloc.bearingTo(Currloc);
+                                double caldistdiff = distance(directionPoint.get(i).latitude, directionPoint.get(i).longitude, directionPoint.get(i + 1).latitude, directionPoint.get(i + 1).longitude, "K");
+                                Log.e("polylineOptions========",""+caldistdiff*1000);
+
+                                if (caldistdiff*1000<Common.PolylineDistLimit&&polycount!=1) {
+                                    polylineOptions = new PolylineOptions();
+                                    polylineOptions.width(5);
+                                    polylineOptions.geodesic(true);
+                                    polylineOptions.color(historyContext.getResources().getColor(R.color.colorPrimaryDark));
+
+                                    polylineOptions.add(directionPoint.get(i - 1), directionPoint.get(i));
+
+                                    googleMap.addPolyline(polylineOptions);
+                                }
+                                if (caldistdiff*1000>Common.PolylineDistLimit)
+                                {   polycount++;
+
+                                }
+                            }
+
+                            caldist = distance(directionPoint.get(i).latitude,directionPoint.get(i).longitude,directionPoint.get(i+1).latitude,directionPoint.get(i+1).longitude, "K");
+
+                        }
+
+
+
+
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
+
+
+                } else {
+                    if (hideMarker) {
+                        marker.setVisible(false);
+                    } else {
+                        marker.setVisible(true);
+                    }
+                    Log.e("animateMarker--------------","----------else-----------"+i+"");
+
                 }
-            };
-    static GoogleMap.CancelableCallback FinalCancelableCallback = new GoogleMap.CancelableCallback() {
 
-        @Override
-        public void onFinish() {
-            googleMap.animateCamera( CameraUpdateFactory.zoomTo( 17.0f ) );
+
+                HistoryDistance=HistoryDistance+caldist;
+
+             //   Log.e("animateMarker--------------",LocationData_list.get(i).getTimestamp()+"  - "+LocationData_list.get(i).getSpeed()+"  - "+HistoryDistance);
+
+                datetime.setText(Common.getDateCurrentTimeZone(LocationData_list.get(i).getTimestamp())+"");
+                speed.setText("Speed:"+LocationData_list.get(i).getSpeed()+" km/h");
+
+                distance.setText("Distance:"+String.format("%.2f",HistoryDistance)+" km");
+                i++;
+
+
+                if (i==directionPoint.size())
+                {
+                    handler.removeMessages(0);
+                    Pause.setVisibility(View.INVISIBLE);Resume.setVisibility(View.INVISIBLE);
+
+                }
+                Log.e("animateMarker--------------","----------run-----------"+i+"");
+
+            }
+        });
+        googleMap.getUiSettings().setAllGesturesEnabled(true);
+
+    }
+
+    public static void clearHistoryData(){
+
+        try {
+            if (ClearFlag)
+                handler.removeMessages(0);
+            directionPoint.clear();
+            datetime.setText("");
+            speed.setText("");
+            distance.setText("");
+            HistoryDistance=0.0;
+        }catch (Exception e)
+        {
+            e.printStackTrace();
         }
 
-        @Override
-        public void onCancel() {
 
-        }
-    };
-
-
+    }
 
     private void GetAllTrackperson() {
 
@@ -688,13 +944,13 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
                 parseData(response);
 
 
-                pDialog.hide();
+                pDialog.dismiss();
             }
         },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        pDialog.hide();
+                        pDialog.dismiss();
                         if (error.networkResponse != null && error.networkResponse.data != null) {
                             VolleyError er = new VolleyError(new String(error.networkResponse.data));
                             error = er;
@@ -763,9 +1019,9 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
                 myAdapter = new HistoryMapAdapter(historyContext, R.layout.fragment_mapsidebar, tracklist, imageLoader);
                 personlist.setAdapter(myAdapter);
 
-                personlist.requestFocusFromTouch();
-                personlist.setSelection(0);
-                personlist.performItemClick(personlist.getAdapter().getView(0, null, null), 0, 0);
+              //  personlist.requestFocusFromTouch();
+                //personlist.setSelection(0);
+             //   personlist.performItemClick(personlist.getAdapter().getView(0, null, null), 0, 0);
                 cnt++;
             } else {
                 Common.showToast("No User Information", historyContext);
@@ -827,6 +1083,58 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
         rfabHelper.toggleContent();
     }
 
+
+    public static Bitmap createDrawableFromView(Context context, View view) {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        view.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.WRAP_CONTENT, AbsListView.LayoutParams.WRAP_CONTENT));
+        view.measure(displayMetrics.widthPixels, displayMetrics.heightPixels);
+        view.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels);
+        view.buildDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(bitmap);
+        view.draw(canvas);
+
+        return bitmap;
+    }
+
+    //creating custom marker
+    static View customMarker() {
+        View marker = ((LayoutInflater) historyContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_marker, null);
+       /* ImageView childImage=(ImageView)marker.findViewById(R.id.child_icon);
+        childImage.setImageBitmap(bmp1);*/
+        return marker;
+    }
+
+
+
+
+    private static double distance(double lat1, double lon1, double lat2, double lon2, String unit) {
+        double theta = lon1 - lon2;
+        double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+        dist = Math.acos(dist);
+        dist = rad2deg(dist);
+        dist = dist * 60 * 1.1515;
+        if (unit.equals("K")) {
+            dist = dist * 1.609344;
+        } else if (unit.equals("N")) {
+            dist = dist * 0.8684;
+        }
+        return (dist);
+    }
+    /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+		/*::  This function converts decimal degrees to radians             :*/
+		/*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+    private static double deg2rad(double deg) {
+        return (deg * Math.PI / 180.0);
+    }
+    /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+		/*::  This function converts radians to decimal degrees             :*/
+		/*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+    private static double rad2deg(double rad) {
+        return (rad * 180.0 / Math.PI);
+    }
 
 
 }

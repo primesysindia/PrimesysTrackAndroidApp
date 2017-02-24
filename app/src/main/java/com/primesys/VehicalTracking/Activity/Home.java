@@ -1,7 +1,5 @@
 package com.primesys.VehicalTracking.Activity;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.os.Build;
@@ -28,11 +25,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -52,15 +48,13 @@ import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.CircularNetworkImageView;
 import com.primesys.VehicalTracking.Utility.Common;
 import com.primesys.VehicalTracking.Utility.GPSEnableSetting;
-import com.primesys.VehicalTracking.Utility.GraphicsUtil;
-import com.primesys.VehicalTracking.Utility.LruBitmapCache;
+import com.primesys.VehicalTracking.VTSFragments.ACCReport;
 import com.primesys.VehicalTracking.VTSFragments.SMSFuction;
 import com.primesys.VehicalTracking.VTSFragments.ShowMapFragment;
 import com.primesys.VehicalTracking.VTSFragments.VTSFunction;
 import com.primesys.VehicalTracking.VTSFragments.historyFragment;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -95,6 +89,7 @@ public class Home extends AppCompatActivity
     private final String key_fname = "Fname";
     private final String key_Login_Status = "LOGIN_STATUS";
     public  String key_Roll_id="Roll_id";
+    private String key_UserPic="UserPic";
 
     SharedPreferences.Editor editor ;
     private boolean isfirst;
@@ -107,16 +102,19 @@ public class Home extends AppCompatActivity
     private ShowMapAdapter myAdapter;
     public static Boolean trackInfo=false;
     private DBHelper helper= DBHelper.getInstance(Home.this);
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
+    public static TabLayout tabLayout;
+    public static ViewPager viewPager;
     private int[] tabIcons = {
             R.drawable.ic_map,
-            R.drawable.ic_info,
+            R.drawable.ic_history,
             R.drawable.ic_history,
             R.drawable.ic_vtsfuc,
-            R.drawable.ic_smsfuc
+            R.drawable.ic_smsfuc,
+            R.drawable.ic_report
 
     };
+    private Typeface typeFace;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -164,6 +162,19 @@ public class Home extends AppCompatActivity
 
         setupTabIcons();
 
+        ViewGroup vg = (ViewGroup) tabLayout.getChildAt(0);
+        int tabsCount = vg.getChildCount();
+        for (int j = 0; j < tabsCount; j++) {
+            ViewGroup vgTab = (ViewGroup) vg.getChildAt(j);
+            int tabChildsCount = vgTab.getChildCount();
+            for (int i = 0; i < tabChildsCount; i++) {
+                View tabViewChild = vgTab.getChildAt(i);
+                if (tabViewChild instanceof TextView) {
+                    ((TextView) tabViewChild).setTypeface(typeFace);
+                    ((TextView) tabViewChild).setTextSize(15);
+                }
+            }
+        }
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
             // This method will be invoked when a new page becomes selected.
@@ -174,10 +185,14 @@ public class Home extends AppCompatActivity
 
                 switch (position) {
                     case 0:
+                       // ShowMapFragment.StartUiCOuntDown();
+
+
                         break;
                     case 1:
                         break;
                     case 2:
+
                         if (Common.VtsFuncAllow){
                             VTSFunction vts=new VTSFunction();
                             vts.CheckStudent(context);
@@ -185,15 +200,49 @@ public class Home extends AppCompatActivity
                         {
                             SMSFuction smsf=new SMSFuction();
                             smsf.CheckStudent(context);
+                        }else if (Common.AccReportAllow){
+                            ACCReport acc=new ACCReport();
+                            acc.CheckStudent(context);
                         }
 
                         break;
                     case 3:
-                 if (Common.VtsSmsAllow) {
+                        /*if (Common.AccReportAllow){
+                            ACCReport acc=new ACCReport();
+                            acc.CheckStudent(context);
+                        }else if (Common.VtsSmsAllow) {
                      SMSFuction smsf = new SMSFuction();
                      smsf.CheckStudent(context);
-                 }
+                 }*/
+                        if (Common.VtsFuncAllow){
+                            VTSFunction vts=new VTSFunction();
+                            vts.CheckStudent(context);
+                        }else if (Common.AccReportAllow)
+                        { ACCReport acc=new ACCReport();
+                            acc.CheckStudent(context);
+
+
+                        }else if (Common.VtsSmsAllow){
+                            SMSFuction smsf=new SMSFuction();
+                            smsf.CheckStudent(context);
+                        }
+
                         break;
+
+                    case 4:
+
+                        if (Common.AccReportAllow){
+                            ACCReport acc=new ACCReport();
+                            acc.CheckStudent(context);
+
+                        }else if (Common.VtsSmsAllow)
+                        {
+                            SMSFuction smsf=new SMSFuction();
+                            smsf.CheckStudent(context);
+                        }
+
+                        break;
+
                 }
             }
 
@@ -230,13 +279,13 @@ public class Home extends AppCompatActivity
                 parseData(response);
 
 
-                pDialog.hide();
+                pDialog.dismiss();
             }
         },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        pDialog.hide();
+                        pDialog.dismiss();
                         if(error.networkResponse != null && error.networkResponse.data != null){
                             VolleyError er = new VolleyError(new String(error.networkResponse.data));
                             error = er;
@@ -330,6 +379,8 @@ public class Home extends AppCompatActivity
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        typeFace=Typeface.createFromAsset(context.getAssets(),"Times New Roman.ttf");
+
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         Drawable drawable = getResources().getDrawable(R.drawable.ic_home);
@@ -342,6 +393,7 @@ public class Home extends AppCompatActivity
                     drawer.   closeDrawer(GravityCompat.START);
                 } else {
                     drawer.openDrawer(GravityCompat.START);
+
                 }
             }
         });
@@ -365,22 +417,18 @@ public class Home extends AppCompatActivity
         txt_email = (TextView) header.findViewById(R.id.nav_email);
         profile_pic = (CircularNetworkImageView) header.findViewById(R.id.Proimage);
 
-        profile_pic.setImageResource(R.drawable.student);
-
-
         if (sharedPreferences.contains(key_id)) {
             Common.userid = sharedPreferences.getString(key_id, "");
             Common.roleid = sharedPreferences.getString(key_Roll_id, "");
 
         }
 
-    //    GetImage();
 
         if( sharedPreferences.contains(key_USER))
         {
             txt_email.setText(sharedPreferences.getString(key_USER,""));
             txt_name.setText(sharedPreferences.getString(key_fname,""));
-           // Picasso.with(context).load(Common.Relative_URL+Common.userid+"_"+Common.userid+".jpg").transform(new CircleTransform()).into(profile_pic);
+         //  Picasso.with(context).load(Common.Relative_URL+Common.userid+"_"+Common.userid+".jpg").transform(new CircleTransform()).into(profile_pic);
 
         }
         else{
@@ -388,96 +436,31 @@ public class Home extends AppCompatActivity
             txt_name.setText("");
 
         }
+
+        String Photo=sharedPreferences.getString(key_UserPic,"");
+
+        if (!Photo.equals(""))
+        {
+            Bitmap bmp = Common.bytebitmapconversion(Photo);
+            Home.profile_pic.setImageBitmap(Common.getRoundedShape(bmp));
+
+        }
+        else {
+            profile_pic.setImageResource(R.mipmap.ic_icon);
+        }
         Common.userid = sharedPreferences.getString(key_id, "");
 
         Typeface typeFace = Typeface.createFromAsset(getAssets(), Common.fontType1);
         txt_name.setTypeface(typeFace);
         txt_email.setTypeface(typeFace);
         viewPager = (android.support.v4.view.ViewPager) findViewById(R.id.viewpager);
-        viewPager.setOffscreenPageLimit(4);
 
+        viewPager.setOffscreenPageLimit(4);
         setupViewPager(viewPager);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
-
-
-    }
-
-  private void GetImage()
-    {
-
-
-            reuestQueue = Volley.newRequestQueue(context);
-
-
-            //JSon object request for reading the json data
-            stringRequest = new StringRequest(Request.Method.POST, Common.URL+"UserServiceAPI/Getimage",new Response.Listener<String>() {
-
-                @Override
-                public void onResponse(String response) {
-                    Log.e("-----------------", "Photo REspo--- " + response);
-                    JSONObject jo = null;
-                    try {
-                         jo=new JSONObject(response);
-                    //    Picasso.with(context).load(Common.Relative_URL+jo.getString("photo")).transform(new CircleTransform()).into(profile_pic);
-
-                        if(!"".equals(jo.getString("photo"))){
-                            Log.e("-----------------", "Photo REspo---111 " + response);
-
-                            ImageLoader.ImageCache imageCache = new LruBitmapCache();
-                            imageLoader = new ImageLoader(
-                                    Volley.newRequestQueue(context), imageCache);
-
-
-                            (profile_pic).setImageUrl(
-                                    Common.Relative_URL+jo.getString("photo"), imageLoader);
-
-                        }else{
-                            Bitmap bitmap = ((BitmapDrawable)profile_pic.getDrawable()).getBitmap();
-                            GraphicsUtil graphicUtil = new GraphicsUtil();
-                            profile_pic.setImageBitmap(graphicUtil.getCircleBitmap(bitmap, 16));
-                        }
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Bitmap bitmap = ((BitmapDrawable)profile_pic.getDrawable()).getBitmap();
-                        GraphicsUtil graphicUtil = new GraphicsUtil();
-                        profile_pic.setImageBitmap(graphicUtil.getCircleBitmap(bitmap, 16));
-                    }
-
-
-                  //  pDialog.hide();
-                }
-            },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                        //    pDialog.hide();
-                            profile_pic.setImageResource(R.drawable.student);
-
-                            if(error.networkResponse != null && error.networkResponse.data != null){
-                                VolleyError er = new VolleyError(new String(error.networkResponse.data));
-                                error = er;
-                                System.out.println(error.toString());
-                               // parseData(new String(error.networkResponse.data));
-                            }
-                        }
-                    })  {
-                @Override
-                protected Map<String, String> getParams() {
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put("UserId", Common.userid);
-                   Log.e("-----------------","Photo Req--- "+params);
-                    return params;
-                }
-            };
-            stringRequest.setTag(TAG);
-            stringRequest.setRetryPolicy(new DefaultRetryPolicy(300000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            // Adding request to request queue
-            reuestQueue.add(stringRequest);
-
-
+      //  GetImage();
 
 
     }
@@ -523,6 +506,33 @@ public class Home extends AppCompatActivity
 
             this.finish();*/
         }
+
+
+        new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
+                .setTitleText("Sure to exit Primesys Track?")
+                .setCancelText("No,cancel !")
+                .setConfirmText("Yes!")
+                .showCancelButton(true)
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        Intent startMain = new Intent(Intent.ACTION_MAIN);
+                        startMain.addCategory(Intent.CATEGORY_HOME);
+                        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(startMain);
+
+                        sDialog.cancel();
+                    }
+                })
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                    }
+                })
+                .show();
+
+
     }
 
 
@@ -534,6 +544,7 @@ public class Home extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_profile) {
+
             Intent Add=new Intent(context,UserProfileActivity.class);
             startActivity(Add);
         }else if (id == R.id.nav_change_password) {
@@ -548,7 +559,8 @@ public class Home extends AppCompatActivity
         } else if (id == R.id.nav_block) {
             Intent Add=new Intent(context,BlockTracking.class);
             startActivity(Add);
-        }*/ else if (id == R.id.nav_signout) {
+        }*/
+        else if (id == R.id.nav_signout) {
             if(sharedPreferences.contains(key_IS))
                 isfirst = sharedPreferences.getBoolean(key_IS, true);
 
@@ -558,6 +570,8 @@ public class Home extends AppCompatActivity
                 editor.putString(key_id, "");
                 editor.putString(key_PASS, "");
                 editor.putString(key_Roll_id, "");
+                editor.putString(key_UserPic, "");
+
                 editor.remove(key_IS);
 
                 editor.commit();
@@ -577,21 +591,23 @@ public class Home extends AppCompatActivity
                 e.printStackTrace();
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                Intent login=new Intent(context,LoginActivity.class);
-                startActivity(login);
+
+                Intent startMain = new Intent(context,LoginActivity.class);
+                startMain.addCategory(Intent.CATEGORY_HOME);
+                startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(startMain);
                 finishAndRemoveTask();
 
             }
             else
             {
-                Intent login=new Intent(context,LoginActivity.class);
-                startActivity(login);
+                Intent startMain = new Intent(context,LoginActivity.class);
+                startMain.addCategory(Intent.CATEGORY_HOME);
+                startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(startMain);
                 finish();
 
             }
-
-
-
 
 
         } else if (id == R.id.nav_share) {
@@ -608,7 +624,7 @@ public class Home extends AppCompatActivity
         //sharing implementation here
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
-        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, "VTS");
+        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, "PrimesysTrack");
         sharingIntent.putExtra(Intent.EXTRA_TEXT, getResources().getString(R.string.sharemessaage));
         startActivity(sharingIntent);
     }
@@ -617,7 +633,7 @@ public class Home extends AppCompatActivity
   /*  @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-         getMenuInflater().inflate(R.menu.home, menu);
+         getMenuInflater().inflate(R.menu.home_menu, menu);
 
      *//*   // Get the notifications MenuItem and LayerDrawable (layer-list)
         MenuItem item = menu.findItem(R.id.ic_notification);
@@ -740,26 +756,39 @@ public class Home extends AppCompatActivity
     private void setupTabIcons() {
         tabLayout.getTabAt(0).setIcon(tabIcons[0]);
         tabLayout.getTabAt(1).setIcon(tabIcons[1]);
-
-        System.err.println("7888888888888888888877777777777777777777777777--------------"+Common.VtsFuncAllow+"  "+Common.VtsSmsAllow);
+        System.err.println("--------------"+Common.VtsFuncAllow+"  "+Common.VtsSmsAllow);
        if (Common.VtsFuncAllow)
             tabLayout.getTabAt(2).setIcon(tabIcons[3]);
         if (Common.VtsSmsAllow&&Common.VtsFuncAllow)
-           tabLayout.getTabAt(3).setIcon(tabIcons[4]);
+        {
+            tabLayout.getTabAt(3).setIcon(tabIcons[4]);
+            if (Common.AccReportAllow)
+                tabLayout.getTabAt(4).setIcon(tabIcons[5]);
+
+        }
         else if (Common.VtsSmsAllow&&!Common.VtsFuncAllow)
+        {
             tabLayout.getTabAt(2).setIcon(tabIcons[4]);
+            if (Common.AccReportAllow)
+                tabLayout.getTabAt(3).setIcon(tabIcons[5]);
+        }
+
+
 
     }
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new ShowMapFragment(), "Map");
+        adapter.addFrag(new ShowMapFragment(), "Track");
         adapter.addFrag(new historyFragment(), "History");
 
        if (Common.VtsFuncAllow)
            adapter.addFrag(new VTSFunction(), "VTS Function");
         if (Common.VtsSmsAllow)
-            adapter.addFrag(new SMSFuction(), "SMS Fuction");
+            adapter.addFrag(new SMSFuction(), "SMS Functions");
+        if (Common.AccReportAllow)
+            adapter.addFrag(new ACCReport(), "Report");
+
 
         viewPager.setAdapter(adapter);
     }
@@ -815,7 +844,21 @@ public class Home extends AppCompatActivity
 
                     break;
                 case 3:
-                    fragment = Fragment.instantiate(context, SMSFuction.class.getName());
+                    if (Common.AccReportAllow)
+                    {
+                        fragment = Fragment.instantiate(context, ACCReport.class.getName());
+                        Log.e("INside ---", "AccReportAllow---------------------------------");
+
+                    }else
+                    {
+                        fragment = Fragment.instantiate(context, SMSFuction.class.getName());
+                        Log.e("INside ---", "SMSFuction---------------------------------");
+
+                    }
+
+                    break;
+                case 4:
+                    fragment = Fragment.instantiate(context, ACCReport.class.getName());
                     Log.e("INside ---", "SMSFuction---------------------------------");
 
                     break;

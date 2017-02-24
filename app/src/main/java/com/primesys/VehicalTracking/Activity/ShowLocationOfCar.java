@@ -128,41 +128,5 @@ public class ShowLocationOfCar extends FragmentActivity implements OnMapReadyCal
     }
 
 
-   /* private  void setgeolocation() {
-        String Geomsg="";
 
-        mMap.clear();
-        LatLng latLng = new LatLng(Double.parseDouble(smsdata.getLat()),Double.parseDouble( smsdata.getLang()));
-
-       
-        markerOptions = new MarkerOptions().position(latLng);
-
-
-        markerOptions.snippet(Geomsg+"\n"+"Latitude : "+String.format("%.6f",latLng.latitude)+"\t"+"Longitude : "+String.format("%.6f",latLng.longitude));
-        markerOptions.title("Speed : "+smsdata.getSpeed()+" km/h"+"\t"+"Date : "+ Common.getDateCurrentTimeZone(smsdata.getTimestamp())+"\n");
-
-        // markerOptions.title(mCircle.getRadius()+" meter");
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.pinmarker));
-        mGoogleMap.addMarker(markerOptions);
-
-		*//*    CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
-		    mGoogleMap.animateCamera(zoom);
-
-		    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));*//*
-        System.err.println("=====show====Geo current"+smsdata.getCurrlat()+","+smsdata.getCurrlang());
-        System.err.println("=====show====Geo fence"+smsdata.getLat()+","+smsdata.getLang());
-
-        LatLng boylatlang = new LatLng(Double.parseDouble(smsdata.getCurrlat()),Double.parseDouble( smsdata.getCurrlang()));
-        MarkerOptions boymarkerOptions = new MarkerOptions()
-                .position(boylatlang)
-                .title(boylatlang.toString());
-        // markerOptions.title(mCircle.getRadius()+" meter");
-        boymarkerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_markerboy));
-        mGoogleMap.addMarker(boymarkerOptions);
-
-
-        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(smsdata.getLat()),Double.parseDouble( smsdata.getLang())), 15.5f), 4000, null);
-
-
-    }*/
 }

@@ -6,12 +6,15 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 
@@ -37,6 +40,8 @@ public class ShowMapAdapter  extends ArrayAdapter<GmapDetais> {
 	Bitmap bitmap;
 	static RequestQueue RecordSyncQueue;
 	public static GmapDetais gp;
+	LinearLayout lay_main;
+	View veh_status;
 	public ShowMapAdapter(Context context, int layoutResourceId,
 			ArrayList<GmapDetais> data, ImageLoader imageLoader2) {
 		super(context, layoutResourceId,data);
@@ -64,10 +69,15 @@ public class ShowMapAdapter  extends ArrayAdapter<GmapDetais> {
 			final LinearLayout lay = (LinearLayout) convertView.findViewById(R.id.lay_main);
 			final CircularNetworkImageView imgchild = (CircularNetworkImageView) convertView.findViewById(R.id.img_child);
 			txtchild = (TextView) convertView.findViewById(R.id.txt_child);
+			lay_main= (LinearLayout) convertView.findViewById(R.id.lay_main);
 			txtchild.setText(gp.getName());
 			imgchild.setTag(position);
 			txtchild.setTag(position);
-
+			if (gp.getColor()!=null)
+			{
+				lay_main.setBackgroundColor(Color.parseColor(gp.getColor()));
+			//	convertView.setBackgroundColor(Color.parseColor(gp.getColor()));
+			}
 
 			//to show Network Images  here child
 			try {

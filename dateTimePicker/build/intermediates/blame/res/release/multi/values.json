@@ -1,6 +1,6 @@
 [
     {
-        "outputFile": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/build/intermediates/res/merged/release/values/values.xml",
+        "outputFile": "/home/pt002/RUpesh_Data/Rupesh_Project_WorkPlace/Android_Studio_PRJ/VehicalTracking/dateTimePicker/build/intermediates/incremental/mergeReleaseResources/merged.dir/values/values.xml",
         "map": [
             {
                 "to": {
@@ -11,7 +11,7 @@
                     "endOffset": 112
                 },
                 "from": {
-                    "file": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/src/main/res/values/colors.xml",
+                    "file": "/home/pt002/RUpesh_Data/Rupesh_Project_WorkPlace/Android_Studio_PRJ/VehicalTracking/dateTimePicker/src/main/res/values/colors.xml",
                     "position": {
                         "startLine": 4,
                         "startColumn": 4,
@@ -30,7 +30,7 @@
                     "endOffset": 175
                 },
                 "from": {
-                    "file": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/src/main/res/values/colors.xml",
+                    "file": "/home/pt002/RUpesh_Data/Rupesh_Project_WorkPlace/Android_Studio_PRJ/VehicalTracking/dateTimePicker/src/main/res/values/colors.xml",
                     "position": {
                         "startLine": 5,
                         "startColumn": 4,
@@ -49,7 +49,7 @@
                     "endOffset": 221
                 },
                 "from": {
-                    "file": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/src/main/res/values/strings.xml",
+                    "file": "/home/pt002/RUpesh_Data/Rupesh_Project_WorkPlace/Android_Studio_PRJ/VehicalTracking/dateTimePicker/src/main/res/values/strings.xml",
                     "position": {
                         "startLine": 1,
                         "startColumn": 0,
@@ -69,7 +69,7 @@
                     "endOffset": 512
                 },
                 "from": {
-                    "file": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/src/main/res/values/styles.xml",
+                    "file": "/home/pt002/RUpesh_Data/Rupesh_Project_WorkPlace/Android_Studio_PRJ/VehicalTracking/dateTimePicker/src/main/res/values/styles.xml",
                     "position": {
                         "startLine": 6,
                         "startColumn": 4,
@@ -90,7 +90,7 @@
                     "endOffset": 672
                 },
                 "from": {
-                    "file": "/home/primesys002/Rupesh Android Stuff/AndroidStudioWorkplace/VehicalTracking/dateTimePicker/src/main/res/values/styles.xml",
+                    "file": "/home/pt002/RUpesh_Data/Rupesh_Project_WorkPlace/Android_Studio_PRJ/VehicalTracking/dateTimePicker/src/main/res/values/styles.xml",
                     "position": {
                         "startLine": 15,
                         "startColumn": 4,

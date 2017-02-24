@@ -132,6 +132,19 @@
                         />
                 </com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout>
 
+           <!--     <com.github.anastr.speedviewlib.DeluxeSpeedView
+                    android:id="@+id/deluxeSpeedView"
+                    android:layout_width="150sp"
+                    android:layout_gravity="right"
+                    android:layout_height="wrap_content" />-->
+                <com.github.anastr.speedviewlib.SpeedView
+                    android:id="@+id/speedView"
+                    android:layout_width="200sp"
+                    android:layout_gravity="right"
+                    app:maxSpeed="180"
+                    android:layout_height="200sp" />
+
+
 
             </FrameLayout>
         </LinearLayout>

@@ -13,7 +13,7 @@
         android:layout_height="100dp"
         android:scaleType="fitCenter"
         android:layout_marginBottom="5dp"
-        android:src="@drawable/student" android:id="@+id/Proimage" />
+        android:src="@mipmap/ic_icon" android:id="@+id/Proimage" />
 
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
         android:id="@+id/nav_name"

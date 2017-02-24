@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<!--
+    <item
+        android:id="@+id/adduser"
+        android:icon="@drawable/addrequest"
+        app:showAsAction="always"
+        android:title="Add User"
+        />
+
+    <item
+        android:id="@+id/Invitation"
+        android:icon="@drawable/invitaion"
+        app:showAsAction="always"
+        android:title="Request Inbox"
+        />-->
+
+    <item
+        android:id="@+id/getdir"
+        android:icon="@drawable/road_route"
+        app:showAsAction="always"
+        android:title="Get Direction"
+        />
+
+
+</menu>

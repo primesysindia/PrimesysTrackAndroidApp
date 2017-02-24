@@ -3,34 +3,26 @@ package com.primesys.VehicalTracking.MyAdpter;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.os.AsyncTask;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.telephony.SmsManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -38,20 +30,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.primesys.VehicalTracking.Activity.ChanageEnginepassword;
-import com.primesys.VehicalTracking.Activity.LoginActivity;
 import com.primesys.VehicalTracking.Dto.VehicalTrackingSMSCmdDTO;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.Common;
 import com.primesys.VehicalTracking.VTSFragments.SMSFuction;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -117,6 +100,8 @@ public class VhehicalSMSlistAdpter extends RecyclerView.Adapter<VhehicalSMSlistA
         VehicalTrackingSMSCmdDTO item = smslist.get(position);
         //  holder.itemDesc.setText(item.get());
         holder.smstitle.setText(item.getTitle());
+        Typeface typeFace=Typeface.createFromAsset(mContext.getAssets(),"Times New Roman.ttf");
+        holder.smstitle.setTypeface(typeFace);
 
         holder.itemView.setTag(position);
     }
@@ -142,7 +127,7 @@ public class VhehicalSMSlistAdpter extends RecyclerView.Adapter<VhehicalSMSlistA
                     else if (CurrentSMSObj.getCommnadType().equalsIgnoreCase("stop electric"))
                     {
                         if (pinexist)
-                            ShowPassword_dialog();
+                            ShowPassword_dialog("Are you sure to stop vehicle?");
                         else
                             ShowPasswordCreate_dialog();
                     }
@@ -150,7 +135,7 @@ public class VhehicalSMSlistAdpter extends RecyclerView.Adapter<VhehicalSMSlistA
                   else if (CurrentSMSObj.getCommnadType().equalsIgnoreCase("Supply electric"))
                     {
                         if (pinexist)
-                            ShowPassword_dialog();
+                            ShowPassword_dialog("Are you sure to start vehicle?");
                         else
                             ShowPasswordCreate_dialog();
 
@@ -283,6 +268,7 @@ public class VhehicalSMSlistAdpter extends RecyclerView.Adapter<VhehicalSMSlistA
                 }
 
                 public void onFinish() {
+                    VhehicalSMSlistAdpter.pDialogmain.dismiss();
 
                     if (CurrentSMSObj.getCommnadType().equals("stop electric"))
                     setErrormsg(R.string.stop_engine_ensure);
@@ -362,7 +348,7 @@ public class VhehicalSMSlistAdpter extends RecyclerView.Adapter<VhehicalSMSlistA
 
 
 
-    protected void ShowPassword_dialog() {
+    protected void ShowPassword_dialog(final String msg) {
         // custom dialog
 
         final EditText txt_pin;
@@ -383,7 +369,30 @@ public class VhehicalSMSlistAdpter extends RecyclerView.Adapter<VhehicalSMSlistA
                 if(txt_pin.getText().length()!=0){
 
                     if (txt_pin.getText().toString().equals(Enginepin)){
-                        Sendsms(CurrentSMSObj.getActualCommand());
+
+                        new SweetAlertDialog(mContext, SweetAlertDialog.WARNING_TYPE)
+                                .setTitleText(msg.toString())
+                                .setCancelText("No,cancel !")
+                                .setConfirmText("Yes!")
+                                .showCancelButton(true)
+                                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                    @Override
+                                    public void onClick(SweetAlertDialog sDialog) {
+                                        Sendsms(CurrentSMSObj.getActualCommand());
+
+
+                                        sDialog.cancel();
+                                    }
+                                })
+                                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                    @Override
+                                    public void onClick(SweetAlertDialog sDialog) {
+                                        sDialog.cancel();
+                                    }
+                                })
+                                .show();
+
+
                         dialog.dismiss();
                     }
                     else
@@ -462,7 +471,7 @@ public class VhehicalSMSlistAdpter extends RecyclerView.Adapter<VhehicalSMSlistA
                 Enginepin=pin;
                 pinexist=true;
 
-                ShowPassword_dialog();
+                ShowPassword_dialog("Are you sure to stop vehicle?");
                 Common.ShowSweetSucess(mContext,jo.getString("message"));
 
             }else

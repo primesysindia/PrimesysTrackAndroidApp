@@ -1,6 +1,7 @@
 package com.primesys.VehicalTracking.Activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import com.android.volley.toolbox.Volley;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.Common;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -134,7 +136,7 @@ public class Forget_password extends AppCompatActivity {
         pDialog.setCancelable(false);
         pDialog.show();
         //JSon object request for reading the json data
-        stringRequest = new StringRequest(Request.Method.POST, Common.URL+"UserServiceAPI/SendForgrtPassword",new Response.Listener<String>()
+        stringRequest = new StringRequest(Request.Method.POST, Common.TrackURL+"UserServiceAPI/SendForgrtPassword",new Response.Listener<String>()
         {
         @Override
             public void onResponse(String response) {
@@ -161,7 +163,7 @@ public class Forget_password extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("Email",Email.getText().toString());
+                params.put("Email_Id",Email.getText().toString());
 
                 System.out.println("REq---ForgetPass WOrd us  -------" + params);
                 return params;
@@ -179,50 +181,34 @@ public class Forget_password extends AppCompatActivity {
 
     private void ParseSave(String response) {
 
-        try {
 
-            JSONObject jo=new JSONObject(response);
-            if( jo.getString("error").equals("false")){
-             //   finish();
-                //Initialize data
-                sharedPreferences = context.getSharedPreferences("User_data", Context.MODE_PRIVATE);
-                editor = sharedPreferences.edit();
 
-                editor.putString(key_id, "");
-                editor.putString(key_PASS, "");
-                editor.putString(key_Roll_id, "");
-                editor.remove(key_IS);
 
-                editor.commit();
-                //Common.ShowSweetSucess(context, jo.getString("message"));
-                 SweetAlertDialog pDialog = new SweetAlertDialog(context, SweetAlertDialog.SUCCESS_TYPE);
-                pDialog.setTitleText( jo.getString("message"));
-                pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                    @Override
-                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+            try {
+                JSONObject jo=new JSONObject(response);
+                if (jo.getString("error").equalsIgnoreCase("false")) {
+                    sharedPreferences = context.getSharedPreferences("User_data", Context.MODE_PRIVATE);
+                    editor = sharedPreferences.edit();
 
-                        finish();
-                    }
-                });
-                pDialog.setCancelable(true);
-                pDialog.show();
-            }else{
-                Common.ShowSweetAlert(context, jo.getString("message"));
+                    editor.putString(key_id, "");
+                    editor.putString(key_PASS, "");
+                    editor.putString(key_Roll_id, "");
+                    editor.remove(key_IS);
 
+                    editor.commit();
+                    Common.ShowSweetSucess(context, jo.getString("message"));
+                    Intent loginIntent = new Intent(context, LoginActivity.class);
+                    startActivity(loginIntent);
+                    finish();
+                }else{
+                    Common.ShowSweetAlert( context, jo.getString("message"));
+
+                }
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
-/*
-            if(response.contains("Password sended to your email id.")){
-                Common.ShowSweetAlert(context, "Password sended to your email id. Please check your mail");
-                finish();
-            }else{
-                Common.ShowSweetAlert(context,"Email Id not register.Please enter valid email Id.");
 
-            }
-*/
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private void findviewid() {

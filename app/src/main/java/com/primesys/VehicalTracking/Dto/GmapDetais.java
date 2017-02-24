@@ -6,7 +6,35 @@ public class GmapDetais implements Serializable {
 	/**
 	 * 
 	 */
-	String id,name,path,type,imei_no;
+	String id;
+	String name;
+	String path;
+	String type;
+	String imei_no;
+
+	public String getStatus() {
+		return status;
+	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public static long getSerialVersionUID() {
+		return serialVersionUID;
+	}
+
+	String status;
+
+	public void setColor(String color) {
+		this.color = color;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	String color;
 	public String getType() {
 		return type;
 	}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="RobotoTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="TimesNewRomanTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@string/font_family_times_new_roman</item>
+    </style>
+</resources>

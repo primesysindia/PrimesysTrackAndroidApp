@@ -2,7 +2,6 @@ package com.primesys.VehicalTracking.VTSFragments;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -19,11 +18,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -35,6 +36,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.primesys.VehicalTracking.Activity.Home;
 import com.primesys.VehicalTracking.Activity.LoginActivity;
 import com.primesys.VehicalTracking.Db.DBHelper;
 import com.primesys.VehicalTracking.Dto.GmapDetais;
@@ -102,9 +104,16 @@ public class SMSFuction extends Fragment {
         context = container.getContext();
         helper = DBHelper.getInstance(context);
         findById();
-
-        GetSMSItemlist();
-        Log.i("-------------------------","LIstview======="+rootView+"=========="+smslist);
+        if (helper.Show_SMSFunction().size()>0)
+            SetSmsListData();
+        else
+            GetSMSItemlist();
+        try {
+            ShowMapFragment.CDT.cancel();
+            Home.tabLayout.setVisibility(View.VISIBLE);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return rootView;
     }
 
@@ -182,12 +191,15 @@ public class SMSFuction extends Fragment {
         // custom dialog
 
         final Dialog dialog = new Dialog(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
         dialog.setContentView(R.layout.dialog_studentlist);
         dialog.setCancelable(false);
-        dialog.setTitle("Select Device");
-        dialog.getWindow().setLayout(RecyclerView.LayoutParams.WRAP_CONTENT, RecyclerView.LayoutParams.WRAP_CONTENT);
-
+        dialog.closeOptionsMenu();
+        dialog.getWindow().setLayout(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT);
+        dialog.show();
         listStudent=(ListView)dialog.findViewById(R.id.student_list);
+        ImageView close = (ImageView) dialog.findViewById(R.id.imageView_close);
 
 //		StudentId=Integer.parseInt(myAdapter.getItem(0).getId());
         padapter=new StudentListAdpter(context, R.layout.fragment_mapsidebar, childlist);
@@ -215,6 +227,16 @@ public class SMSFuction extends Fragment {
                 dialog.dismiss();
             }
         });
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Home.viewPager.setCurrentItem(0);
+                dialog.dismiss();
+
+            }
+
+            });
 
         dialog.show();
     }
@@ -559,7 +581,7 @@ public class SMSFuction extends Fragment {
             @Override
             public void onResponse(String response) {
 
-                System.out.println("Responce of  d----"+response);
+                Log.e("-***-------------------------*******--**************************-","Responce of GetSMSItemlist d----"+response);
                 pDialog1.dismiss();
 
                Parsesmslist(response);
@@ -575,8 +597,10 @@ public class SMSFuction extends Fragment {
                         if(error.networkResponse != null && error.networkResponse.data != null){
                             VolleyError er = new VolleyError(new String(error.networkResponse.data));
                             error = er;
-                            System.out.println(error.toString());
+
                         }
+                        Log.e("-***-------------------------*******--**************************-","Responce of GetSMSItemlist d----"+error.toString());
+
                     }
                 }) {
 
@@ -622,6 +646,7 @@ public class SMSFuction extends Fragment {
 
                 }
 
+                helper.insertSMSFunction(smslistdata);
 
 
             }else Common.ShowSweetAlert(context,"Error in fetching data.Please try again.");
@@ -632,18 +657,17 @@ public class SMSFuction extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }finally {
-
-
-            mAdpter = new VhehicalSMSlistAdpter(smslistdata, R.layout.row_smslist, context);
-            smslist.setAdapter(mAdpter);
-
-            helper.insertSMSFunction(smslistdata);
-
-
+            SetSmsListData();
         }
 
     }
+    private void SetSmsListData() {
 
+        ArrayList<VehicalTrackingSMSCmdDTO> smslistdata=new ArrayList<>();
+        smslistdata=helper.Show_SMSFunction();
+        mAdpter = new VhehicalSMSlistAdpter(smslistdata, R.layout.row_smslist, context);
+        smslist.setAdapter(mAdpter);
+    }
     private void requestPermission(){
 
         ActivityCompat.requestPermissions((Activity) context,new String[]{android.Manifest.permission.SEND_SMS},MY_PERMISSIONS_REQUEST_SMS);
@@ -800,10 +824,8 @@ public class SMSFuction extends Fragment {
         no.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                ShowEditVsNumberDialog(DeviceSimNo);
-
-
+                ShowListofStudent();
+                dialog.dismiss();
 
             }
         });
@@ -816,6 +838,7 @@ public class SMSFuction extends Fragment {
 
             }
         });
+
 
         dialog.show();
     }

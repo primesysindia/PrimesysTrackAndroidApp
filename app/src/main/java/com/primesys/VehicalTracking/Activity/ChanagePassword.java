@@ -1,16 +1,10 @@
 package com.primesys.VehicalTracking.Activity;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -32,6 +26,11 @@ import com.android.volley.toolbox.Volley;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.Common;
 
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class ChanagePassword extends Activity {
@@ -48,11 +47,11 @@ public class ChanagePassword extends Activity {
     RequestQueue reuestQueue;
     String TAG="ChangePassword";
     Context changeContext=ChanagePassword.this;
-    private String url= Common.URL+"LoginServiceAPI.asmx/ChangePassword";
     public SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor ;
     private final String key_USER = "USER";
     private final String key_PASS = "PASS";
+    private final String key_IS = "IS_FIRST";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,11 +106,11 @@ public class ChanagePassword extends Activity {
             textNew.setError("Enter New Passoword");
             textNew.requestFocus();
             valid=false;
-        }else if (strNew.length()<6) {
+        }/*else if (strNew.length()<6) {
             textNew.setError("Passoword shouled Min 6 digit");
             textNew.requestFocus();
             valid=false;
-        }else if (strConfirm.length()==0) {
+        }*/else if (strConfirm.length()==0) {
             textConfirm.setError("Enter Confirm Password");
             textConfirm.requestFocus();
             valid=false;
@@ -165,7 +164,7 @@ public class ChanagePassword extends Activity {
         reuestQueue=Volley.newRequestQueue(changeContext); //getting Request object from it
         final SweetAlertDialog pDialog = Common.ShowSweetProgress(changeContext, "Loding wait");
         //JSon object request for reading the json data
-        stringRequest = new StringRequest(Method.POST,url,new Response.Listener<String>() {
+        stringRequest = new StringRequest(Method.POST,Common.URL+"LoginServiceAPI.asmx/ChangePassword",new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
@@ -209,15 +208,21 @@ public class ChanagePassword extends Activity {
         {
 
             JSONObject jo=new JSONObject(response);
-            Log.e("Pasword Does't Exist", ""+response);
-            if (jo.getString("msg").contains("Password Does Not Exist!")) {
+            if (jo.getString("msg").contains("Password Updated Successfully!")) {
+
+                editor = sharedPreferences.edit();
+                editor.remove(key_IS);
+                editor.commit();
                 Common.showToast(jo.getString("msg"), changeContext);
-				/*finish();*/
-            }else{
+
                 Intent i=new Intent(changeContext,LoginActivity.class);
-                Common.showToast(jo.getString("msg"), changeContext);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
                 startActivity(i);
                 finish();
+            }else{
+
+                Common.showToast(jo.getString("msg"), changeContext);
             }
 
 

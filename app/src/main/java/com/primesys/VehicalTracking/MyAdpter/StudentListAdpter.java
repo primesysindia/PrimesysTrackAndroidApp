@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Path;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -68,6 +69,9 @@ public class StudentListAdpter  extends ArrayAdapter<GmapDetais>{
 			final CircularNetworkImageView imgchild=(CircularNetworkImageView)convertView.findViewById(R.id.img_child);
 			txtchild=(TextView)convertView.findViewById(R.id.txt_child);
 			txtchild.setText(gp.getName());
+
+
+
 			imgchild.setTag(position);
 			txtchild.setTag(position);
 

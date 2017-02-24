@@ -782,7 +782,6 @@ public class ShowMap extends AppCompatActivity implements OnMapReadyCallback, Lo
                                     .visible(true));*/
                         prev = current;
                         mp = new MarkerOptions();
-                        Bitmap bmp = BitmapFactory.decodeResource(trackContext.getResources(), R.drawable.custom_marker);
                         mp.position(current).icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(trackContext, customMarker())));
 
                         mp.snippet("Latitude : " + String.format("%.6f", current.latitude) + "\t" + "Longitude : " + String.format("%.6f", current.longitude));

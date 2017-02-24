@@ -2,18 +2,6 @@ package com.primesys.VehicalTracking.Receiver;
 
 
 
-import com.android.volley.RequestQueue;
-
-import com.android.volley.toolbox.StringRequest;
-import com.primesys.VehicalTracking.Activity.Forget_password;
-import com.primesys.VehicalTracking.Activity.ShowLocationOfCar;
-import com.primesys.VehicalTracking.Db.DBHelper;
-import com.primesys.VehicalTracking.Dto.SmsNotificationDTO;
-import com.primesys.VehicalTracking.Dto.VehicalTrackingSMSCmdDTO;
-import com.primesys.VehicalTracking.MyAdpter.VhehicalSMSlistAdpter;
-import com.primesys.VehicalTracking.R;
-import com.primesys.VehicalTracking.Utility.Common;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -22,16 +10,31 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.provider.Telephony;
 import android.support.v7.app.NotificationCompat;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.primesys.VehicalTracking.Activity.ShowLocationOfCar;
+import com.primesys.VehicalTracking.Db.DBHelper;
+import com.primesys.VehicalTracking.Dto.SmsNotificationDTO;
+import com.primesys.VehicalTracking.MyAdpter.VhehicalSMSlistAdpter;
+import com.primesys.VehicalTracking.R;
+import com.primesys.VehicalTracking.Utility.Common;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -54,7 +57,6 @@ public class IncomingSms extends BroadcastReceiver {
     DBHelper helper;
     Random random = new Random();
     private int notificationId=0;
-
     public void onReceive(Context context, Intent intent) {
 
         // Retrandroid.content.SharedPreferencesieves a map of extended data from the intent.
@@ -108,10 +110,16 @@ public class IncomingSms extends BroadcastReceiver {
                 }
 
                 Log.e("SmsReceiver------------", "senderNum:" + senderNum + "; message:" + message);
-                if(VhehicalSMSlistAdpter.pDialogmain.isShowing()) {
-                    VhehicalSMSlistAdpter.pDialogmain.dismiss();
-                    VhehicalSMSlistAdpter.countdowntimer.cancel();
+
+                try{
+                    if(VhehicalSMSlistAdpter.pDialogmain.isShowing()) {
+                        VhehicalSMSlistAdpter.pDialogmain.dismiss();
+                        VhehicalSMSlistAdpter.countdowntimer.cancel();
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
+
                 if (senderNum.contains(DeviceSimNo)&&message.contains("Speed  Alarm")) {
                     abortBroadcast();
                     MatchSpeedAlarm(context,message);
@@ -125,7 +133,7 @@ public class IncomingSms extends BroadcastReceiver {
 
                 }
                 else if (senderNum.contains(DeviceSimNo)&&message.contains("http://maps.google.com/maps")) {
-                    abortBroadcast();
+                   abortBroadcast();
 
                     MatchLocation(context,message);
                     VhehicalSMSlistAdpter.setSucessDialog(context1);
@@ -135,26 +143,26 @@ public class IncomingSms extends BroadcastReceiver {
                 }
                 else if (senderNum.contains(DeviceSimNo)&&message.contains("speedok!")) {
                     abortBroadcast();
-                    sendNotification(context,"Speed","Speed Set Sucessfully.");
+                    sendNotification(context,"Speed alert","Speed Set Successfully.");
                     VhehicalSMSlistAdpter.setSucessDialog(context1);
 
                 }
-                else if (senderNum.contains(DeviceSimNo)&&message.contains("Stop Electicity ok!")) {
+                else if (senderNum.contains(DeviceSimNo)&&message.contains("Stop electricity ok!")) {
                     abortBroadcast();
-                    sendNotification(context,"Speed","Engine Stop Sucessfully.");
+                    sendNotification(context,"Engine Stop ","Engine Stop successfully.");
                     VhehicalSMSlistAdpter.setSucessDialog(context1);
 
 
                 }
-                else if (senderNum.contains(DeviceSimNo)&&message.contains("supply electcity ok!")) {
+                else if (senderNum.contains(DeviceSimNo)&&message.contains("supply electricity ok!")) {
                     abortBroadcast();
-                    sendNotification(context,"Speed","Engine Start Sucessfully.");
+                    sendNotification(context,"Engine Start","Engine Start successfully.");
                     VhehicalSMSlistAdpter.setSucessDialog(context1);
 
 
                 }else if (senderNum.contains(DeviceSimNo)&&message.contains("stop oil ok!")) {
                     abortBroadcast();
-                    sendNotification(context,"Speed","Stop Oil Sucessfully.");
+                    sendNotification(context,"Stop Oil","Stop Oil successfully.");
                     VhehicalSMSlistAdpter.setSucessDialog(context1);
 
 
@@ -162,25 +170,42 @@ public class IncomingSms extends BroadcastReceiver {
 
                 }else if (senderNum.contains(DeviceSimNo)&&message.contains("supply oil ok!")) {
                     abortBroadcast();
-                    sendNotification(context,"Speed","Supply Oil Sucessfully.");
+                    sendNotification(context,"Supply Oil","Supply Oil successfully.");
                     VhehicalSMSlistAdpter.setSucessDialog(context1);
 
 
                 }else if (senderNum.contains(DeviceSimNo)&&message.contains("ACC ON OK")) {
                     abortBroadcast();
-                    sendNotification(context,"Speed","ACC ON Sucessfully.");
+                    sendNotification(context,"ACC  ","ACC ON successfully.");
                     VhehicalSMSlistAdpter.setSucessDialog(context1);
 
 
                 }else if (senderNum.contains(DeviceSimNo)&&message.contains("ACC OFF OK")) {
                     abortBroadcast();
-                    sendNotification(context,"Speed","ACC OFF Sucessfully.");
+                    sendNotification(context,"ACC ","ACC OFF successfully.");
                     VhehicalSMSlistAdpter.setSucessDialog(context1);
 
 
-                }else if (senderNum.contains(DeviceSimNo)&&message.contains("ACC! ")) {
+                }else if (senderNum.contains(DeviceSimNo)&&message.contains("ACC")&&message.contains("!!!")) {
                     abortBroadcast();
-                    sendNotification(context,"Speed","Speed Set Sucessfully.");
+
+                    ParseACCONMsg(context,message);
+                   /* sendNotification(context,"Speed","Speed Set successfully.");
+                    VhehicalSMSlistAdpter.setSucessDialog(context1);*/
+
+
+                }else if (senderNum.contains(DeviceSimNo)&&message.contains("cut power alert")) {
+                    //   abortBroadcast();
+
+                    ParseACCOFFMsg(context,message);
+                   /* sendNotification(context,"Speed","Speed Set successfully.");
+                    VhehicalSMSlistAdpter.setSucessDialog(context1);*/
+
+
+                }
+                else if (senderNum.contains(DeviceSimNo)&&message.contains("cancel speed")&&message.contains("!")) {
+                    abortBroadcast();
+                    sendNotification(context,"Speed alert","Over speed alert cancel successfully.");
                     VhehicalSMSlistAdpter.setSucessDialog(context1);
 
 
@@ -291,6 +316,236 @@ public class IncomingSms extends BroadcastReceiver {
         }
     }
 
+    private void ParseACCOFFMsg(Context context, String message) {
+
+
+        String txt="cut power alert!IMEI:355488020822947  18.562457,N,73.956082,E";
+        SmsNotificationDTO smsdata=new SmsNotificationDTO();
+
+        String re1="(cut)";	// Word 1
+        String re2="( )";	// White Space 1
+        String re3="(power)";	// Word 2
+        String re4="( )";	// White Space 2
+        String re5="(alert)";	// Word 3
+        String re6="(!)";	// Any Single Character 1
+        String re7="(IMEI)";	// Word 4
+        String re8="(:)";	// Any Single Character 2
+        String re9="(\\d+)";	// Integer Number 1
+        String re10="(  )";	// White Space 3
+        String re11="([+-]?\\d*\\.\\d+)(?![-+0-9\\.])";	// Float 1
+        String re12="(,)";	// Any Single Character 3
+        String re13="((?:[a-z][a-z0-9_]*))";	// Variable Name 1
+        String re14="(,)";	// Any Single Character 4
+        String re15="([+-]?\\d*\\.\\d+)(?![-+0-9\\.])";	// Float 2
+        String re16="(,)";	// Any Single Character 5
+        String re17="((?:[a-z][a-z0-9_]*))";	// Variable Name 2
+
+        Pattern p = Pattern.compile(re1+re2+re3+re4+re5+re6+re7+re8+re9+re10+re11+re12+re13+re14+re15+re16+re17,Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        Matcher m = p.matcher(message);
+        if (m.find())
+        {
+            String word1=m.group(1);
+            String ws1=m.group(2);
+            String word2=m.group(3);
+            String ws2=m.group(4);
+            String word3=m.group(5);
+            String c1=m.group(6);
+            String word4=m.group(7);
+            String c2=m.group(8);
+            String int1=m.group(9);
+            String ws3=m.group(10);
+            String float1=m.group(11);
+            String c3=m.group(12);
+            String var1=m.group(13);
+            String c4=m.group(14);
+            String float2=m.group(15);
+            String c5=m.group(16);
+            String var2=m.group(17);
+            System.out.print("("+word1.toString()+")"+"("+ws1.toString()+")"+"("+word2.toString()+")"+"("+ws2.toString()+")"+"("+word3.toString()+")"+"("+c1.toString()+")"+"("+word4.toString()+")"+"("+c2.toString()+")"+"("+int1.toString()+")"+"("+ws3.toString()+")"+"("+float1.toString()+")"+"("+c3.toString()+")"+"("+var1.toString()+")"+"("+c4.toString()+")"+"("+float2.toString()+")"+"("+c5.toString()+")"+"("+var2.toString()+")"+"\n");
+
+
+            smsdata.setNotify_Title("ACC OFF");
+            smsdata.setNotify_Type("ACC");
+            smsdata.setLatDir(m.group(13));
+            smsdata.setLangDir(m.group(17));
+
+
+            if (m.group(13).equalsIgnoreCase("N")&&m.group(17).equalsIgnoreCase("E")) {
+                smsdata.setLat(m.group(11));
+                smsdata.setLang(m.group(15));
+            }else   if (m.group(13).equalsIgnoreCase("N")&&m.group(17).equalsIgnoreCase("W")) {
+
+                smsdata.setLat(m.group(11));
+                smsdata.setLang("-"+m.group(15));
+            }
+            else if (m.group(13).equalsIgnoreCase("S")&&m.group(17).equalsIgnoreCase("E")) {
+                smsdata.setLat("-"+m.group(11));
+                smsdata.setLang(m.group(15));
+
+            }else  if (m.group(13).equalsIgnoreCase("S")&&m.group(17).equalsIgnoreCase("W")) {
+                smsdata.setLat("-"+m.group(11));
+                smsdata.setLang("-"+m.group(15));
+            }
+            String mydate = java.text.DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
+
+            smsdata.setSpeed(null);
+            smsdata.setTime(mydate);
+            smsdata.setDate(mydate);
+            smsdata.setImeiNo(m.group(9));
+
+            helper = DBHelper.getInstance(context1);
+
+            if (Common.ACCSqliteEnable)
+            helper.insertSMSNotification(smsdata);
+            try{
+                PostNotificationData_Server(context, smsdata);
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void ParseACCONMsg(Context context, String message) {
+        if (message.contains("N")&&message.contains("E")) {
+
+            System.out.print("Inside *-------------------------------***********************ParseACCONMsgParseACCONMsgParseACCONMsgParseACCONMsg***************----------");;
+
+            String txt = "ACC  !!!IMEI:355488020822828     N20.900905,E77.810837";
+            SmsNotificationDTO smsdata = new SmsNotificationDTO();
+            String re1 = "(ACC)";    // Word 1
+            String re2 = "(  )";    // White Space 1
+            String re3 = "(!)";    // Any Single Character 1
+            String re4 = "(!)";    // Any Single Character 2
+            String re5 = "(!)";    // Any Single Character 3
+            String re6 = "(IMEI)";    // Word 2
+            String re7 = "(:)";    // Any Single Character 4
+            String re8 = "(\\d+)";    // Integer Number 1
+            String re9 = "(     )";    // White Space 2
+            String re10 = "([a-z])";    // Any Single Word Character (Not Whitespace) 1
+            String re11 = "([+-]?\\d*\\.\\d+)(?![-+0-9\\.])";    // Float 1
+            String re12 = "(,)";    // Any Single Character 5
+            String re13 = "([a-z])";    // Any Single Word Character (Not Whitespace) 2
+            String re14 = "([+-]?\\d*\\.\\d+)(?![-+0-9\\.])";    // Float 2
+
+            Pattern p = Pattern.compile(re1 + re2 + re3 + re4 + re5 + re6 + re7 + re8 + re9 + re10 + re11 + re12 + re13 + re14, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+            Matcher m = p.matcher(message);
+            if (m.find()) {
+                String word1 = m.group(1);
+                String ws1 = m.group(2);
+                String c1 = m.group(3);
+                String c2 = m.group(4);
+                String c3 = m.group(5);
+                String word2 = m.group(6);
+                String c4 = m.group(7);
+                String int1 = m.group(8);
+                String ws2 = m.group(9);
+                String w1 = m.group(10);
+                String float1 = m.group(11);
+                String c5 = m.group(12);
+                String w2 = m.group(13);
+                String float2 = m.group(14);
+                System.out.print("(" + word1.toString() + ")" + "(" + ws1.toString() + ")" + "(" + c1.toString() + ")" + "(" + c2.toString() + ")" + "(" + c3.toString() + ")" + "(" + word2.toString() + ")" + "(" + c4.toString() + ")" + "(" + int1.toString() + ")" + "(" + ws2.toString() + ")" + "(" + w1.toString() + ")" + "(" + float1.toString() + ")" + "(" + c5.toString() + ")" + "(" + w2.toString() + ")" + "(" + float2.toString() + ")" + "\n");
+
+                smsdata.setNotify_Title("ACC ON");
+                smsdata.setNotify_Type("ACC");
+                smsdata.setLatDir(m.group(10));
+                smsdata.setLangDir(m.group(13));
+
+
+                if (m.group(10).equalsIgnoreCase("N") && m.group(13).equalsIgnoreCase("E")) {
+                    smsdata.setLat(m.group(11));
+                    smsdata.setLang(m.group(14));
+                } else if (m.group(10).equalsIgnoreCase("N") && m.group(13).equalsIgnoreCase("W")) {
+
+                    smsdata.setLat(m.group(11));
+                    smsdata.setLang("-" + m.group(14));
+                } else if (m.group(10).equalsIgnoreCase("S") && m.group(13).equalsIgnoreCase("E")) {
+                    smsdata.setLat("-" + m.group(11));
+                    smsdata.setLang(m.group(14));
+
+                } else if (m.group(10).equalsIgnoreCase("S") && m.group(13).equalsIgnoreCase("W")) {
+                    smsdata.setLat("-" + m.group(11));
+                    smsdata.setLang("-" + m.group(14));
+                }
+
+                String mydate = java.text.DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
+
+                smsdata.setSpeed(null);
+                smsdata.setTime(mydate);
+                smsdata.setDate(mydate);
+                smsdata.setImeiNo(m.group(8));
+
+                helper = DBHelper.getInstance(context1);
+                if (Common.ACCSqliteEnable)
+                helper.insertSMSNotification(smsdata);
+
+                try {
+                    PostNotificationData_Server(context,smsdata);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }else {
+            System.out.print("Inside *------elseeeeeeeeeeee--------------355488020878745-----------***********************ParseACCONMsgParseACCONMsgParseACCONMsgParseACCONMsg***************----------");;
+
+                String txt = "ACC  !!!IMEI:355488020822828";
+                SmsNotificationDTO smsdata = new SmsNotificationDTO();
+                String re1 = "(ACC)";    // Word 1
+                String re2 = "(  )";    // White Space 1
+                String re3 = "(!)";    // Any Single Character 1
+                String re4 = "(!)";    // Any Single Character 2
+                String re5 = "(!)";    // Any Single Character 3
+                String re6 = "(IMEI)";    // Word 2
+                String re7 = "(:)";    // Any Single Character 4
+                String re8 = "(\\d+)";    // Integer Number 1
+
+
+                Pattern p = Pattern.compile(re1 + re2 + re3 + re4 + re5 + re6 + re7 + re8, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+                Matcher m = p.matcher(message);
+                if (m.find()) {
+                    String word1 = m.group(1);
+                    String ws1 = m.group(2);
+                    String c1 = m.group(3);
+                    String c2 = m.group(4);
+                    String c3 = m.group(5);
+                    String word2 = m.group(6);
+                    String c4 = m.group(7);
+                    String int1 = m.group(8);
+
+                    System.out.print("(" + word1.toString() + ")" + "(" + ws1.toString() + ")" + "(" + c1.toString() + ")" + "(" + c2.toString() + ")" + "(" + c3.toString() + ")" + "(" + word2.toString() + ")" + "(" + c4.toString() + ")" + "(" + int1.toString() );
+
+                    smsdata.setNotify_Title("ACC ON");
+                    smsdata.setNotify_Type("ACC");
+
+                    String mydate = java.text.DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
+
+                    smsdata.setSpeed(null);
+                    smsdata.setTime(mydate);
+                    smsdata.setDate(mydate);
+                    smsdata.setImeiNo(m.group(8));
+
+                    helper = DBHelper.getInstance(context1);
+                    if (Common.ACCSqliteEnable)
+                    helper.insertSMSNotification(smsdata);
+
+                    try {
+                        PostNotificationData_Server(context, smsdata);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+        }
+
+
+
+    }
+
     public void MatchSpeedAlarm(Context context, String message) {
         String txt="Speed  Alarm!IMEI:355488020878745  18.562317,N,73.834386,E";
 
@@ -365,12 +620,10 @@ public class IncomingSms extends BroadcastReceiver {
         smsdata.setImeiNo(m.group(7));
 
         helper = DBHelper.getInstance(context1);
-
+        if (Common.ACCSqliteEnable)
         helper.insertSMSNotification(smsdata);
 
         sendNotification(context,smsdata);
-
-
 
     }
 
@@ -486,7 +739,7 @@ public class IncomingSms extends BroadcastReceiver {
         smsdata.setImeiNo(m.group(31));
 
         helper = DBHelper.getInstance(context1);
-
+        if (Common.ACCSqliteEnable)
        helper.insertSMSNotification(smsdata);
         SendLocationNotification(context,smsdata);
 
@@ -594,6 +847,8 @@ public class IncomingSms extends BroadcastReceiver {
         Common.playDefaultNotificationSound(context);
 
         mNotificationManager.notify(notificationId, mBuilder.build());
+
+
         Log.d(TAG, "Notification sent successfully.");
     }
 
@@ -601,6 +856,88 @@ public class IncomingSms extends BroadcastReceiver {
 
 
 
+    void PostNotificationData_Server(Context context, final SmsNotificationDTO smsdata)
+    {
+        reuestQueue= Volley.newRequestQueue(context);
+
+        //JSon object request for reading the json data
+        stringRequest = new StringRequest(Request.Method.POST, Common.TrackURL+"UserServiceAPI/PostNotificationData_Server",new Response.Listener<String>() {
+       // stringRequest = new StringRequest(Request.Method.POST,"http://192.168.1.102:8022/TrackingAppDB/TrackingAPP/UserServiceAPI/PostNotificationData_Server",new Response.Listener<String>() {
+        @Override
+            public void onResponse(String response) {
+            Log.e("PostNotificationData_Server==============",response);
+                if(response!=null)
+                    parseJSON(response);
+               // pDialog.hide();
+            }
+
+        },
+                new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //	pDialog.hide();
+                        if(error.networkResponse != null && error.networkResponse.data != null){
+                            VolleyError er = new VolleyError(new String(error.networkResponse.data));
+                            error = er;
+                            Log.e("Response ",error.toString());
+                            parseJSON(new String(error.networkResponse.data));
+                          //  pDialog.hide();
+
+                        }
+
+                    }
+                }) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                try
+                {
+
+                    //	params.put("id",id);
+
+                    params.put("NTitle",smsdata.getNotify_Title()+"");
+                    params.put("NType",smsdata.getNotify_Type()+"");
+                    params.put("LatDir",smsdata.getLatDir()+"");
+                    params.put("LanDir",smsdata.getLangDir()+"");
+                    params.put("Lat",smsdata.getLat()+"");
+                    params.put("lang", smsdata.getLang()+"");
+                    params.put("ImieNo", smsdata.getImeiNo()+"");
+                    params.put("UserId", Common.userid);
+
+                    System.out.println("PostNotificationData_Server Req --------"+params);
+                    //params.put("bdate",birthDate);
+                }catch(Exception e)
+                {
+
+                }
+                Log.e("params ",params+"");
+                //	params.put("user", user+"");
+                return params;
+            }
+
+        };
+        stringRequest.setTag(TAG);
+        RetryPolicy retryPolicy = new DefaultRetryPolicy(
+                20 * 1000,
+                0,
+                1
+        );
+        stringRequest.setRetryPolicy(retryPolicy);
+        reuestQueue.add(stringRequest);
+    }
+
+
+
+
+
+    //parse the result
+    void parseJSON(String result)
+    {
+        System.err.println(result);
+
+    }
 
 	
 }
