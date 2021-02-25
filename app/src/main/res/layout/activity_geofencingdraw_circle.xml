@@ -1,0 +1,40 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <include layout="@layout/app_bar_with_search"
+        android:id="@+id/appbar"
+        />
+<FrameLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_below="@id/appbar"
+    android:layout_above="@+id/setting_bar"
+    >
+
+    <fragment
+        android:layout_width="match_parent"
+        android:layout_below="@+id/rg_views"
+        android:layout_height="match_parent"
+        android:id="@+id/mapfragment"
+        class="com.google.android.gms.maps.SupportMapFragment"/>
+
+
+    <include layout="@layout/seekbar_with_button"
+        />
+</FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/setting_bar"
+        >
+
+    <include layout="@layout/activity_geofencing_detail"
+        />
+    </LinearLayout>
+
+
+</RelativeLayout>

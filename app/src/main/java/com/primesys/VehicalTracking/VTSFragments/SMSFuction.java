@@ -15,16 +15,18 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -36,14 +38,17 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.primesys.VehicalTracking.Activity.Home;
 import com.primesys.VehicalTracking.Activity.LoginActivity;
+import com.primesys.VehicalTracking.ActivityMykiddyLike.HomeNew;
+import com.primesys.VehicalTracking.ActivityMykiddyLike.HomeNewRailway;
+import com.primesys.VehicalTracking.ActivityMykiddyLike.SMSlistAdpter;
 import com.primesys.VehicalTracking.Db.DBHelper;
-import com.primesys.VehicalTracking.Dto.GmapDetais;
+import com.primesys.VehicalTracking.Dto.DeviceDataDTO;
 import com.primesys.VehicalTracking.Dto.SpeedalertDTO;
 import com.primesys.VehicalTracking.Dto.VehicalTrackingSMSCmdDTO;
 import com.primesys.VehicalTracking.MyAdpter.StudentListAdpter;
 import com.primesys.VehicalTracking.MyAdpter.VhehicalSMSlistAdpter;
+import com.primesys.VehicalTracking.PrimesysTrack;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.Common;
 
@@ -80,8 +85,8 @@ public class SMSFuction extends Fragment {
     SweetAlertDialog pDialog;
     public StudentListAdpter padapter;
     DBHelper helper;
-    private ArrayList<GmapDetais> childlist=new ArrayList<>();
-    public static String StudentId="0";
+    private ArrayList<DeviceDataDTO> childlist=new ArrayList<>();
+    public static DeviceDataDTO CuurentDeviceDelect;
     public static SpeedalertDTO speed=new SpeedalertDTO();
     ArrayList<VehicalTrackingSMSCmdDTO> smslistdata=new ArrayList<VehicalTrackingSMSCmdDTO>();
     public VhehicalSMSlistAdpter mAdpter;
@@ -93,8 +98,9 @@ public class SMSFuction extends Fragment {
     public String DeviceSimNo="";
     private TextView tv_msg;
     private Dialog EditVsNumberDialog;
-    private String TAG="SMSFuction";
+    private String TAG="GSMSFuction";
     private String updated_simno="";
+    private SMSlistAdpter mAdptermykiddy;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -102,18 +108,23 @@ public class SMSFuction extends Fragment {
         // TODO Auto-generated method stub
         rootView = inflater.inflate(R.layout.sms_function, container, false);
         context = container.getContext();
-        helper = DBHelper.getInstance(context);
         findById();
-        if (helper.Show_SMSFunction().size()>0)
+        setHasOptionsMenu(true);
+        CheckStudent(context);
+
+        Log.e(PrimesysTrack.TAG,"SMSFuction---------------onCreateView");
+/*
+        if (PrimesysTrack.mDbHelper.Show_SMSFunction().size()>0)
             SetSmsListData();
         else
-            GetSMSItemlist();
-        try {
-            ShowMapFragment.CDT.cancel();
+            GetSMSItemlist();*/
+       /* try {
+            if (ShowMapFragment.CDT!=null)
+                ShowMapFragment.CDT.cancel();
             Home.tabLayout.setVisibility(View.VISIBLE);
         }catch (Exception e){
             e.printStackTrace();
-        }
+        }*/
         return rootView;
     }
 
@@ -130,7 +141,7 @@ public class SMSFuction extends Fragment {
 
 
 
-       /* mAdpter = new VhehicalSMSlistAdpter(smslistdata, R.layout.row_smslist, context);
+       /* mAdpter = new GVhehicalSMSlistAdpter(smslistdata, R.layout.row_smslist, context);
         smslist.setAdapter(mAdpter);*/
 
     }
@@ -138,9 +149,16 @@ public class SMSFuction extends Fragment {
 
 
     public void CheckStudent(Context context1) {
-        helper = DBHelper.getInstance(context1);
 
-        if (Common.getConnectivityStatus(context1)&& helper.Show_Device_list().size()==0) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!checkPermission())
+                requestPermission();
+        }
+
+
+        childlist=PrimesysTrack.mDbHelper.Show_Device_list();
+
+        if (Common.getConnectivityStatus(context1)&& PrimesysTrack.mDbHelper.Show_Device_list().size()==0) {
             // Call Api to get track information
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -154,22 +172,39 @@ public class SMSFuction extends Fragment {
                 ex.printStackTrace();
             }
         }else {
-            childlist=helper.Show_Device_list();
 
             if (childlist.size()>1)
                 ShowListofStudent();
             else {
-                StudentId = childlist.get(0).getId();
+                CuurentDeviceDelect = childlist.get(0);
                 GetDeviceMobileNo();
+                if (CuurentDeviceDelect.getType().equalsIgnoreCase("Car"))
                 GetCarEnginePin();
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (!checkPermission())
-                        requestPermission();
 
+                if (CuurentDeviceDelect.getType().equalsIgnoreCase("Car"))
+                   smslistdata=PrimesysTrack.mDbHelper.Show_SMSFunction();
+                else
+                    smslistdata=PrimesysTrack.mDbHelper.Show_MykiddySMSFunction();
+
+                if (smslistdata.size()>0)
+                {
+                    SetSmsListData();
+                    Log.e(PrimesysTrack.TAG,"smslistdata-1111111111111");
+                }
+
+                else{
+                    GetSMSItemlist();
+
+                    Log.e(PrimesysTrack.TAG,"smslistdata-222222222222");
+                    Log.e(PrimesysTrack.TAG,"CurrentDeviceDelect---type------"+CuurentDeviceDelect.getType());
 
                 }
+
+
+
             }
+
         }
 
 
@@ -187,20 +222,30 @@ public class SMSFuction extends Fragment {
         sharedPreferences=context.getSharedPreferences("User_data",Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
     }
-    private void ShowListofStudent() {
+ /*   private void ShowListofStudent() {
         // custom dialog
 
         final Dialog dialog = new Dialog(context);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setTitle(context.getResources().getString(R.string.select_device)+" For SMS Function");
 
         dialog.setContentView(R.layout.dialog_studentlist);
         dialog.setCancelable(false);
         dialog.closeOptionsMenu();
-        dialog.getWindow().setLayout(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT);
+      //  dialog.getWindow().setLayout(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT);
         dialog.show();
         listStudent=(ListView)dialog.findViewById(R.id.student_list);
-        ImageView close = (ImageView) dialog.findViewById(R.id.imageView_close);
-
+        Button cancel = (Button) dialog.findViewById(R.id.d_cancel);
+        cancel.setVisibility(View.VISIBLE);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                Fragment selectedFragment = Fragment.instantiate(context, HomeTrackFragment.class.getName());
+                transaction.replace(R.id.track_container, selectedFragment);
+                transaction.commit();
+                dialog.dismiss();
+            }
+        });
 //		StudentId=Integer.parseInt(myAdapter.getItem(0).getId());
         padapter=new StudentListAdpter(context, R.layout.fragment_mapsidebar, childlist);
         listStudent.setAdapter(padapter);
@@ -212,35 +257,140 @@ public class SMSFuction extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-              /*  for (int j = 0; j < parent.getChildCount(); j++)
+                VhehicalSMSlistAdpter.pinexist=false;
+                VhehicalSMSlistAdpter.Enginepin="";              *//*  for (int j = 0; j < parent.getChildCount(); j++)
                     parent.getChildAt(j).setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
                 // change the background color of the selected element
                 view.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
-*/
-                StudentId=childlist.get(position).getId();
+*//*              CuurentDeviceDelect = childlist.get(0);
                 GetDeviceMobileNo();
                 GetCarEnginePin();
 
-                if (!checkPermission())
-                    requestPermission();
+
+                if (CuurentDeviceDelect.getType().equalsIgnoreCase("Car"))
+                    smslistdata=PrimesysTrack.mDbHelper.Show_SMSFunction();
+                else
+                    smslistdata=PrimesysTrack.mDbHelper.Show_MykiddySMSFunction();
+
+                if (smslistdata.size()>0)
+                    SetSmsListData();
+                else
+                    GetSMSItemlist();
 
                 dialog.dismiss();
             }
         });
-        close.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-                Home.viewPager.setCurrentItem(0);
-                dialog.dismiss();
-
-            }
-
-            });
 
         dialog.show();
+    }*/
+
+
+
+    private void ShowListofStudent() {
+        try {
+
+
+            final Dialog dialog = new Dialog(context);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setContentView(R.layout.dialog_device_list);
+            dialog.setCancelable(false);
+            //dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+            // dialog.getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            // dialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+
+            dialog.closeOptionsMenu();
+       /* dialog.show();
+        dialog.getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);*/
+
+            final Window window = dialog.getWindow();
+            window.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+            window.setGravity(Gravity.CENTER);
+
+            dialog.show();
+            final TextView tv_title=(TextView)dialog.findViewById(R.id.d_title);
+            tv_title.setText("Select Device");
+            listStudent=(ListView)dialog.findViewById(R.id.student_list);
+            Button cancel = (Button) dialog.findViewById(R.id.d_cancel);
+            cancel.setVisibility(View.VISIBLE);
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (Common.FeatureAddressEnable)
+                        HomeNewRailway.Bottom_navigation.setSelectedItemId(R.id.navigation_track);
+                    else
+                        HomeNew.Bottom_navigation.setSelectedItemId(R.id.navigation_track);
+                    dialog.dismiss();
+                }
+            });
+//		StudentId=Integer.parseInt(myAdapter.getItem(0).getId());
+            padapter=new StudentListAdpter(context, R.layout.fragment_mapsidebar, childlist);
+            listStudent.setAdapter(padapter);
+
+            listStudent.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view,
+                                        int position, long id) {
+                    VhehicalSMSlistAdpter.pinexist=false;
+                    VhehicalSMSlistAdpter.Enginepin="";
+                    for (int j = 0; j < parent.getChildCount(); j++)
+                        parent.getChildAt(j).setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
+                    // change the background color of the selected element
+                    // view.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
+                    CuurentDeviceDelect = childlist.get(position);
+                    GetDeviceMobileNo();
+                    GetCarEnginePin();
+
+
+                    if (CuurentDeviceDelect.getType().equalsIgnoreCase("Car"))
+                        smslistdata=PrimesysTrack.mDbHelper.Show_SMSFunction();
+                    else
+                        smslistdata=PrimesysTrack.mDbHelper.Show_MykiddySMSFunction();
+
+                    if (smslistdata.size()>0)
+                        SetSmsListData();
+                    else
+                        GetSMSItemlist();
+
+                    dialog.dismiss();
+                }
+            });
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if(getView() == null){
+            return;
+        }
+
+        getView().setFocusableInTouchMode(true);
+        getView().requestFocus();
+        getView().setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+                if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK){
+
+                    if (Common.FeatureAddressEnable)
+                        HomeNewRailway.Bottom_navigation.setSelectedItemId(R.id.navigation_track);
+                    else
+                        HomeNew.Bottom_navigation.setSelectedItemId(R.id.navigation_track);
+                    return true;
+                }
+                return false;
+            }
+        });
+
+    }
 
     //Track Informatiion
     class TrackInfrmation extends AsyncTask<Void, String, String>{
@@ -255,7 +405,7 @@ public class SMSFuction extends Fragment {
             String result="";
             try{
                 HttpClient httpclient=new DefaultHttpClient();
-                HttpPost httpost=new HttpPost(Common.URL+"ParentAPI.asmx/GetTrackInfo");
+                HttpPost   httpost=new HttpPost(Common.URL+"ParentAPI.asmx/GetTrackInfo");
                 List<NameValuePair> param=new ArrayList<NameValuePair>(1);
                 param.add(new BasicNameValuePair("ParentId", Common.userid));
                 httpost.setEntity(new UrlEncodedFormEntity(param));
@@ -282,7 +432,7 @@ public class SMSFuction extends Fragment {
             JSONArray joArray=new JSONArray(result);
             for (int i = 0; i < joArray.length(); i++) {
                 JSONObject joObject =joArray.getJSONObject(i);
-                GmapDetais dmDetails=new GmapDetais();
+                DeviceDataDTO dmDetails=new DeviceDataDTO();
                 dmDetails.setId(joObject.getString("StudentID"));
                 dmDetails.setName(joObject.getString("Name"));
 
@@ -303,11 +453,11 @@ public class SMSFuction extends Fragment {
             if (childlist.size()>0) {
 
                 //Insert Offeline data
-                helper.Insert_Device_list(childlist);
+                PrimesysTrack.mDbHelper.Insert_Device_list(childlist);
                 if (childlist.size()>1)
                     ShowListofStudent();
                 else
-                    StudentId=childlist.get(0).getId();
+                    CuurentDeviceDelect=childlist.get(0);
                 try {
                     GetDeviceMobileNo();
 
@@ -374,10 +524,12 @@ public class SMSFuction extends Fragment {
         ToggleButton activemode;
         final EditText alertname;
         final EditText speedlimit;
-        final Dialog dialog = new Dialog(this.getActivity().getWindow().getContext());
-        dialog.setContentView(R.layout.dialog_speedlalert);
-        dialog.setTitle("Set Alert Deatil");
 
+        final Dialog dialog = new Dialog(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_speedlalert);
+        final TextView tv_title=(TextView)dialog.findViewById(R.id.d_title);
+        tv_title.setText("Set Alert Detail");
 
         activemode = (ToggleButton) dialog.findViewById(R.id.toggleenable);
         alertname = (EditText) dialog.findViewById(R.id.alertname);
@@ -462,7 +614,7 @@ public class SMSFuction extends Fragment {
             JSONObject jo = new JSONObject();
 
             jo.put("event", Common.EV_UPDATECAR_SPEEDALERT);
-            jo.put("student_id",Integer.parseInt(StudentId));
+            jo.put("student_id",Integer.parseInt(CuurentDeviceDelect.getId()));
             jo.put("alert_id",speed.getAlertID());
 
             JSONObject jodata = new JSONObject();
@@ -513,7 +665,7 @@ public class SMSFuction extends Fragment {
             JSONObject jo=new JSONObject();
             jo.put("event", Common.EV_STOP_CAR);
 
-            jo.put("student_id",StudentId);
+            jo.put("student_id",CuurentDeviceDelect.getId());
             trackSTring=jo.toString();
             System.out.println(trackSTring);
         }
@@ -530,7 +682,7 @@ public class SMSFuction extends Fragment {
             JSONObject jo=new JSONObject();
             jo.put("event", Common.EV_START_CAR);
 
-            jo.put("student_id",StudentId);
+            jo.put("student_id",CuurentDeviceDelect.getId());
             trackSTring=jo.toString();
             System.out.println(trackSTring);
         }
@@ -573,15 +725,21 @@ public class SMSFuction extends Fragment {
 
         reuestQueue=Volley.newRequestQueue(context); //getting Request object from it
          final SweetAlertDialog pDialog1 = Common.ShowSweetProgress(context, "Progress wait.......");
+         String smsUrl=Common.TrackURL+"UserServiceAPI/GetSMSItemlist";
 
         //JSon object request for reading the json data
-        stringRequest = new StringRequest(Request.Method.POST, Common.TrackURL+"UserServiceAPI/GetSMSItemlist",new Response.Listener<String>() {
+        if (CuurentDeviceDelect.getType().equalsIgnoreCase("Car"))
+            smsUrl=Common.TrackURL+"UserServiceAPI/GetSMSItemlist";
+        else
+            smsUrl=Common.TrackURL+"UserServiceAPI/GetMyKiddySMSItemlist";
+
+        stringRequest = new StringRequest(Request.Method.POST, smsUrl,new Response.Listener<String>() {
 
 
             @Override
             public void onResponse(String response) {
 
-                Log.e("-***-------------------------*******--**************************-","Responce of GetSMSItemlist d----"+response);
+                Log.e(PrimesysTrack.TAG,"Responce of GetSMSItemlist d----"+response);
                 pDialog1.dismiss();
 
                Parsesmslist(response);
@@ -599,7 +757,7 @@ public class SMSFuction extends Fragment {
                             error = er;
 
                         }
-                        Log.e("-***-------------------------*******--**************************-","Responce of GetSMSItemlist d----"+error.toString());
+                        Log.e("-***----*********-","Responce of GetSMSItemlist d----"+error.toString());
 
                     }
                 }) {
@@ -608,9 +766,8 @@ public class SMSFuction extends Fragment {
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
 
-                params.put("StudentID",StudentId);
-
-                System.out.println("REq---GetSMSItemlist------"+params);
+                params.put("StudentID",CuurentDeviceDelect.getId());
+                Log.e(PrimesysTrack.TAG,"REq of GetSMSItemlist d----"+params);
                 return params;
             }
 
@@ -646,7 +803,10 @@ public class SMSFuction extends Fragment {
 
                 }
 
-                helper.insertSMSFunction(smslistdata);
+                if (CuurentDeviceDelect.getType().equalsIgnoreCase("Car"))
+                    PrimesysTrack.mDbHelper.insertSMSFunction(smslistdata);
+                else
+                    PrimesysTrack.mDbHelper.insertMykiddySMSFunction(smslistdata);
 
 
             }else Common.ShowSweetAlert(context,"Error in fetching data.Please try again.");
@@ -663,10 +823,17 @@ public class SMSFuction extends Fragment {
     }
     private void SetSmsListData() {
 
-        ArrayList<VehicalTrackingSMSCmdDTO> smslistdata=new ArrayList<>();
-        smslistdata=helper.Show_SMSFunction();
-        mAdpter = new VhehicalSMSlistAdpter(smslistdata, R.layout.row_smslist, context);
-        smslist.setAdapter(mAdpter);
+        if (CuurentDeviceDelect.getType().equalsIgnoreCase("Car"))
+        {
+            mAdpter = new VhehicalSMSlistAdpter(smslistdata, R.layout.row_smslist, context);
+            smslist.setAdapter(mAdpter);
+        }
+        else
+        {
+            mAdptermykiddy = new SMSlistAdpter(smslistdata, R.layout.row_smslist, context);
+            smslist.setAdapter(mAdptermykiddy);
+        }
+
     }
     private void requestPermission(){
 
@@ -713,7 +880,6 @@ public class SMSFuction extends Fragment {
     private void GetDeviceMobileNo()
     {
 
-
         reuestQueue= Volley.newRequestQueue(context); //getting Request object from it
          pDialog = Common.ShowSweetProgress(context, "Getting Device Sim No.......");
 
@@ -725,7 +891,7 @@ public class SMSFuction extends Fragment {
             @Override
             public void onResponse(String response) {
 
-                System.out.println("Responce of Get sim no----"+response);
+              Log.e(PrimesysTrack.TAG,"Responce of Get sim no----"+response);
 
                 parseMObJSON(response);
                 pDialog.dismiss();
@@ -753,7 +919,7 @@ public class SMSFuction extends Fragment {
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
 
-                params.put("StudentID", SMSFuction.StudentId);
+                params.put("StudentID", SMSFuction.CuurentDeviceDelect.getId());
                 params.put("ComandType","monitor");
 
                 System.out.println("REq----get mob------"+params);
@@ -774,12 +940,15 @@ public class SMSFuction extends Fragment {
         try {
             JSONObject jo=new JSONObject(result);
             if (jo.getString("error").equals("false"))
-            {
-                DeviceSimNo = jo.getString("DeviceSimNumber");
-                ShowDeviceNoConfirmationDialog();
+            {     DeviceSimNo = jo.getString("DeviceSimNumber");
+
+                if (DeviceSimNo.equalsIgnoreCase("null")||DeviceSimNo.equalsIgnoreCase(""))
+                    ShowEditVsNumberDialog("");
+                else
+                     ShowDeviceNoConfirmationDialog();
 
 
-            }else Common.ShowSweetAlert(context,"We are not getting Device sim no.Please contact to contact@mykiddytracker.com ");
+            }else Common.ShowSweetAlert(context,"We are not getting device sim no.Please contact to contact@mykiddytracker.com ");
 
 
         } catch (JSONException e) {
@@ -815,7 +984,6 @@ public class SMSFuction extends Fragment {
             @Override
             public void onClick(View v) {
                 SaveDeviceSimNO();
-
                 dialog.dismiss();
 
 
@@ -832,6 +1000,7 @@ public class SMSFuction extends Fragment {
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dialog.dismiss();
                 ShowEditVsNumberDialog(DeviceSimNo);
 
 
@@ -847,15 +1016,18 @@ public class SMSFuction extends Fragment {
 
 
 
-    private void ShowEditVsNumberDialog(String deviceSimNo) {
+    public void ShowEditVsNumberDialog(String deviceSimNo) {
 
         // custom dialog
 
         final EditText simno;
         final Button submit;
-        EditVsNumberDialog = new Dialog(context);
+
+        final Dialog EditVsNumberDialog = new Dialog(context);
+        EditVsNumberDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         EditVsNumberDialog.setContentView(R.layout.vs_editno_dialog);
-        EditVsNumberDialog.setTitle("Update Device SIM No ");
+        final TextView tv_title=(TextView)EditVsNumberDialog.findViewById(R.id.d_title);
+        tv_title.setText("Update Device SIM No");
 
 
         simno=(EditText)EditVsNumberDialog.findViewById(R.id.edit_no);
@@ -932,7 +1104,7 @@ public class SMSFuction extends Fragment {
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
 
-                params.put("StudentID", SMSFuction.StudentId);
+                params.put("StudentID", SMSFuction.CuurentDeviceDelect.getId());
                 params.put("Simno",simno);
 
                 System.out.println("REq----post mobileno------"+params);
@@ -942,7 +1114,7 @@ public class SMSFuction extends Fragment {
         };
 
 
-        stringRequest.setTag(TAG);
+        stringRequest.setTag(TAG);         stringRequest.setRetryPolicy(Common.vollyRetryPolicy);
         // Adding request to request queue
         reuestQueue.add(stringRequest);
     }
@@ -956,12 +1128,17 @@ public class SMSFuction extends Fragment {
 
                 DeviceSimNo=updated_simno;
                 tv_msg.setText("Please confirm "+DeviceSimNo+" is device SIM Number ? ");
+                Common.ShowSweetSucess(context,jo.getString("message"));
+
+            }else {
+                Common.ShowSweetAlert(context,jo.getString("message"));
+
             }
-            Common.ShowSweetSucess(context,jo.getString("message"));
         } catch (JSONException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }finally{
+            if (EditVsNumberDialog!=null)
             EditVsNumberDialog.dismiss();
         }
     }
@@ -982,14 +1159,14 @@ public class SMSFuction extends Fragment {
     {
         reuestQueue=Volley.newRequestQueue(context); //getting Request object from it
 
-        final SweetAlertDialog pDialog1 = Common.ShowSweetProgress(context, "Ge wait.......");
+        final SweetAlertDialog pDialog1 = Common.ShowSweetProgress(context, "Please wait.......");
 
     stringRequest = new StringRequest(Request.Method.POST, Common.TrackURL+"UserServiceAPI/GetstudentVTSStatus",new Response.Listener<String>() {
 
         @Override
         public void onResponse(String response) {
 
-            System.out.println("Responce of  GetstudentVTSStatus----"+response);
+            System.out.println("Responce of  GetCarEnginePin----"+response);
             pDialog1.dismiss();
 
             parseEnableJSON(response);
@@ -1007,7 +1184,7 @@ public class SMSFuction extends Fragment {
             if(error.networkResponse != null && error.networkResponse.data != null){
                 VolleyError er = new VolleyError(new String(error.networkResponse.data));
                 error = er;
-                System.out.println(error.toString());
+                System.out.println("GetCarEnginePin -REq---"+error.toString());
                 parseEnableJSON(new String(error.networkResponse.data));
             }
         }
@@ -1017,7 +1194,7 @@ public class SMSFuction extends Fragment {
         protected Map<String, String> getParams() {
             Map<String, String> params = new HashMap<String, String>();
 
-            params.put("StudentID", SMSFuction.StudentId);
+            params.put("StudentID", SMSFuction.CuurentDeviceDelect.getId());
 
             System.out.println("REq---GetstudentVTSStatus------"+params);
             return params;

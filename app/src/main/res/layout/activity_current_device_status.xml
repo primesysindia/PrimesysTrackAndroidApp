@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activity.DeviceReport.CurrentDeviceStatusActivity">
+    <android.widget.LinearLayout
+        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:id="@+id/lay_lin"
+        android:layout_width="match_parent">
+        <include layout="@layout/app_bar_home"
+            android:id="@+id/appbar"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Current Device Status"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:id="@+id/tv_report_title"
+            android:padding="@dimen/mid_margin"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="On Devices No:"
+            android:textSize="15sp"
+            android:textColor="@color/green"
+            android:id="@+id/tv_on_devices"
+            android:visibility="gone"
+
+            android:padding="5dp"/>
+
+        <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+            android:text="Off Devices No:"
+            android:visibility="gone"
+        android:textSize="15sp"
+        android:textColor="@color/red"
+        android:id="@+id/tv_off_devices"
+        android:padding="5dp"/>
+
+
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/report_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_gravity="center"
+                android:layout_height="wrap_content"/>
+            <ProgressBar
+                android:id="@+id/download_progressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:tooltipText="Downloading report please wait.."
+                android:indeterminateDrawable="@drawable/progress" >
+            </ProgressBar>
+        </FrameLayout>
+
+
+
+        <!--    <include layout="@layout/activity_item_list_with_refine"/>
+-->
+
+
+    </android.widget.LinearLayout>
+
+
+</android.support.constraint.ConstraintLayout>

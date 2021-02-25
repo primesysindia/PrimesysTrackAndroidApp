@@ -2,6 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/AppUpadtelibrary/AppUpadtelibrary.iml" filepath="$PROJECT_DIR$/AppUpadtelibrary/AppUpadtelibrary.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PGSDK_V2.1/PGSDK_V2.1.iml" filepath="$PROJECT_DIR$/PGSDK_V2.1/PGSDK_V2.1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PaytmSDK/PaytmSDK.iml" filepath="$PROJECT_DIR$/PaytmSDK/PaytmSDK.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Updtaeapplibrary/Updtaeapplibrary.iml" filepath="$PROJECT_DIR$/Updtaeapplibrary/Updtaeapplibrary.iml" />
       <module fileurl="file://$PROJECT_DIR$/VehicalTracking.iml" filepath="$PROJECT_DIR$/VehicalTracking.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/dateTimePicker/dateTimePicker.iml" filepath="$PROJECT_DIR$/dateTimePicker/dateTimePicker.iml" />

@@ -2,13 +2,9 @@ package com.primesys.VehicalTracking.Activity;
 
 import android.app.Application;
 import android.os.StrictMode;
-import android.text.TextUtils;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.Volley;
-import com.primesys.VehicalTracking.Utility.LruBitmapCache;
 
 public class APIController extends Application {
 
@@ -54,66 +50,5 @@ public class APIController extends Application {
 		 }*/
 	}
 
-	public int getRead() {
-		return read;
-	}
-	public void setRead(int read) {
-		this.read = read;
-	}
 
-	public String getNews() {
-		return news;
-	}
-
-
-	public void setNews(String news) {
-		this.news = news;
-	}
-
-
-	public static synchronized APIController getInstance()
-	{
-		return apiInstance;
-	}
-
-	public RequestQueue getRequestQueue()
-	{
-		if(httpRequestqueue==null)
-		{
-			return Volley.newRequestQueue(getApplicationContext());
-		}
-		else
-			return httpRequestqueue;
-	}
-
-	//Image Loader we have to implement custom cache
-    public ImageLoader getImageLodaer()
-    {
-    	getRequestQueue();
-    	if(picLoader==null)
-    	{
-    		picLoader=new ImageLoader(httpRequestqueue, new LruBitmapCache());
-    	}
-    	return this.picLoader;
-    }
-    public <T> void addToRequestQueue(Request<T> req, String tag) {
-        // set the default tag if tag is empty
-        req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
-        getRequestQueue().add(req);
-    }
- 
-    
-    public <T> void addToRequestQueue(Request<T> req) {
-        req.setTag(TAG);
-        getRequestQueue().add(req);
-    }
- 
-    //cancel pending request
-    public void cancelPendingRequests(Object tag) {
-        if (httpRequestqueue != null) {
-        	httpRequestqueue.cancelAll(tag);
-        }
-    }
-    
-    
 }

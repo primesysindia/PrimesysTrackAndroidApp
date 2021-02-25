@@ -3,12 +3,18 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="distributionType" value="LOCAL" />
+        <compositeConfiguration>
+          <compositeBuild compositeDefinitionSource="SCRIPT" />
+        </compositeConfiguration>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="$APPLICATION_HOME_DIR$/gradle/gradle-2.14.1" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/AppUpadtelibrary" />
+            <option value="$PROJECT_DIR$/PGSDK_V2.1" />
+            <option value="$PROJECT_DIR$/PaytmSDK" />
+            <option value="$PROJECT_DIR$/Updtaeapplibrary" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/dateTimePicker" />
             <option value="$PROJECT_DIR$/fablibrary" />

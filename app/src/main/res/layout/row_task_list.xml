@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.wangjie.androidbucket.support.cardview.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:elevation="5dp"
+    app:shadowSize="3dp"
+    android:background="@color/colorPrimaryDark">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:padding="10dp"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/tripstart"
+            android:layout_width="50sp"
+            android:layout_height="50sp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="10sp"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/ic_trip_start" />
+
+        <View
+            android:layout_width="3sp"
+            android:layout_height="match_parent"
+            android:background="@color/red"
+            android:layout_below="@+id/tripstart"
+            android:layout_marginLeft="33sp"
+            android:layout_above="@+id/tripstop"
+
+            android:id="@+id/horizontal_divider"/>
+        <TextView
+            android:id="@+id/tv_start_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/tripstart"
+            android:padding="5dp"
+            android:text="start time"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/tv_start_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_start_time"
+            android:layout_toRightOf="@+id/tripstart"
+            android:padding="5dp"
+            android:text="start Address"
+            android:textColor="@color/black" />
+
+       <TextView
+            android:id="@+id/tv_vehicale_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_start_address"
+            android:layout_toRightOf="@+id/tripstart"
+            android:padding="5dp"
+            android:text="Stoppage min "
+            android:textColor="@color/black" />
+
+          <TextView
+               android:id="@+id/tv_route"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:layout_below="@+id/tv_vehicale_name"
+               android:layout_toRightOf="@+id/tripstart"
+               android:padding="5dp"
+               android:text="Avg Speed "
+               android:textColor="@color/black" />
+
+        <!--     <TextView
+               android:id="@+id/tv_max_speed"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:layout_below="@+id/tv_avg_speed"
+               android:layout_toRightOf="@+id/tripstart"
+               android:padding="5dp"
+               android:text="MAx Speed "
+               android:textColor="@color/black" />
+
+
+
+
+
+
+           <TextView
+               android:id="@+id/tv_stop_time"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:layout_below="@+id/tv_max_speed"
+               android:layout_toRightOf="@+id/tripstart"
+               android:padding="5dp"
+               android:text="stop time"
+               android:textColor="@color/black" />
+
+           <TextView
+               android:id="@+id/tv_stop_address"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:layout_below="@+id/tv_stop_time"
+               android:layout_toRightOf="@+id/tripstart"
+               android:padding="5dp"
+               android:text="stop Address"
+               android:textColor="@color/black" />
+   --><!--
+        <TextView
+            android:id="@+id/tv_totalkm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_below="@+id/tv_stop_address"
+            android:layout_toRightOf="@+id/tripstart"
+            android:gravity="center_horizontal"
+            android:padding="5dp"
+            android:text="Total Km"
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:textStyle="bold" />-->
+
+        <ImageView
+            android:id="@+id/tripstop"
+            android:layout_width="50sp"
+            android:layout_height="50sp"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/ic_trip_stop"
+            android:layout_below="@+id/tv_max_speed" />
+
+
+    </RelativeLayout>
+
+</com.wangjie.androidbucket.support.cardview.CardView>

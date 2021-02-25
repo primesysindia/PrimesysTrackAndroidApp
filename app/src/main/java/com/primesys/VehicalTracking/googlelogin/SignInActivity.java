@@ -324,8 +324,7 @@ public class SignInActivity extends AppCompatActivity implements
             }
 
         };
-        stringRequest.setTag(TAG);
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(300000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest.setTag(TAG);         stringRequest.setRetryPolicy(Common.vollyRetryPolicy);
         // Adding request to request queue
         reuestQueue.add(stringRequest);
     }

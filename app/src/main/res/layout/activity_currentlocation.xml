@@ -63,22 +63,54 @@
             android:layout_below="@+id/info"
           >
 
-           <!-- <fragment
-                android:id="@+id/gmap"
-                class="com.google.android.gms.maps.MapFragment"
-                android:layout_width="fill_parent"
-                android:layout_height="match_parent" />-->
-            <com.google.android.gms.maps.MapView android:id="@+id/gmaphistoty"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent" />
-            <ListView
-                android:id="@+id/User_list"
-                android:layout_width="105dp"
-                android:layout_height="wrap_content"
-                android:choiceMode="singleChoice"
-                android:listSelector="@color/green_theme"
-                android:orientation="horizontal" >
-            </ListView>
+            <fragment
+                android:id="@+id/gmaphistoty"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+             />
+
+
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="50dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:weightSum="100"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ListView
+                        android:id="@+id/User_list"
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:choiceMode="singleChoice"
+                        android:listSelector="@color/colorAccent"
+                        android:orientation="horizontal"
+                        >
+                    </ListView>
+
+                </LinearLayout>
+                <ToggleButton
+                    android:id="@+id/tooglelist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:button="@drawable/checktoggle"
+                    android:background="@null"
+                    android:layout_gravity="center"
+                    android:textOn=""
+                    android:textOff=""/>
+            </LinearLayout>
+
+
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/fab_date"
                 android:layout_width="wrap_content"
@@ -95,7 +127,7 @@
                 android:layout_height="match_parent"
                 rfal:rfal_frame_color="#ffffff"
                 rfal:rfal_frame_alpha="0.7"
-                android:layout_gravity="right|center_vertical"></com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout>
+                android:layout_gravity="right|center_vertical">
 
             <com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton
                 xmlns:rfab="http://schemas.android.com/apk/res-auto"
@@ -114,25 +146,24 @@
                 rfab:rfab_shadow_dx="0dp"
                 rfab:rfab_shadow_dy="5dp"
                 android:layout_gravity="right|bottom" />
+            </com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:id="@+id/anim"
+                android:layout_marginTop="50dp"
                 android:layout_alignParentRight="true"
-
                 android:padding="5dp"
-
                 android:layout_gravity="right|top">
 
 
                 <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Pause"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:id="@+id/btn_pause"
-                    android:background="@drawable/capsulshapebutton"
+                    android:background="@drawable/ic_pause"
                     android:gravity="center"
                     android:padding="5dp"
                     android:visibility="invisible"
@@ -140,15 +171,13 @@
                     android:textColor="@color/white"
                    />
                 <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Resume"
-                    android:background="@drawable/capsulshapebutton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/ic_play"
                     android:id="@+id/btn_resume"
                     android:gravity="center"
                     android:padding="5dp"
                     android:visibility="invisible"
-
                     android:textColor="@color/white"
                     />
 
@@ -156,6 +185,17 @@
 
 
             </LinearLayout>
+
+            <SearchView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/edit_search_device"
+                android:layout_gravity="top|left"
+                android:gravity="center"
+                android:background="@color/white"
+                android:layout_marginTop="5dp"
+                ></SearchView>
+
         </FrameLayout>
 
 

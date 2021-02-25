@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:fitsSystemWindows="true"
+    android:background="@color/color_background"
+
+    ><RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary">
@@ -17,22 +24,36 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_alignParentLeft="true"
-
             android:background="@color/white" />
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            >
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_showoff"
+                android:id="@+id/img_splash"
+                android:src="@mipmap/ic_icon"
                 android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true" />
 
 
         </RelativeLayout>
 
-
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_guest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/capsulshapebutton"
+            android:layout_weight="40"
+            android:visibility="gone"
+            android:layout_marginBottom="24dp"
+            android:textColor="@color/white"
+            android:padding="12dp"
+            android:gravity="center"
+            android:text="Guest User"/>
     </LinearLayout>
 </RelativeLayout>
+    </android.support.design.widget.CoordinatorLayout>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" android:fitsSystemWindows="true">
+
+    <android.support.design.widget.AppBarLayout android:layout_height="wrap_content"
+        android:layout_width="match_parent" android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent" android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary" app:popupTheme="@style/AppTheme.PopupOverlay" >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="100">
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_icon"
+                    android:id="@+id/homeicon"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="10"
+
+                    />
+
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:hint="Search Location"
+                    android:layout_gravity="center_vertical"
+                    android:padding="5dp"
+                    android:textColorHint="@color/colorPrimary"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:layout_weight="70"
+                    android:id="@+id/edt_tool_search"
+                    android:background="@drawable/edittext_style_border"
+                      android:textSize="15sp"/>
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/search_placeholder"
+                    android:layout_marginLeft="10dp"
+                    android:id="@+id/img_search_bar"
+                    android:layout_gravity="center"
+                    android:layout_weight="10"
+
+                    />
+            </LinearLayout>
+
+
+
+
+
+        </android.support.v7.widget.Toolbar>
+
+
+    </android.support.design.widget.AppBarLayout>
+
+
+    <!--   <android.support.design.widget.FloatingActionButton android:id="@+id/fab"
+           android:layout_width="wrap_content" android:layout_height="wrap_content"
+           android:layout_gravity="bottom|end" android:layout_margin="@dimen/fab_margin"
+           android:src="@android:drawable/ic_dialog_email" />-->
+
+</android.support.design.widget.CoordinatorLayout>

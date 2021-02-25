@@ -2,30 +2,44 @@ package com.primesys.VehicalTracking.Activity;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -41,20 +55,34 @@ import com.facebook.GraphResponse;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.SignInButton;
-import com.primesys.VehicalTracking.Db.DBHelper;
+import com.google.gson.Gson;
+import com.primesys.VehicalTracking.Activity.EmployeeAcivity.DriverEmpUsActivity;
+import com.primesys.VehicalTracking.Activity.EmployeeAcivity.EmpHomeActivity;
+import com.primesys.VehicalTracking.ActivityMykiddyLike.GeoFencingHomeNew;
+import com.primesys.VehicalTracking.ActivityMykiddyLike.GeofencingNewdrawCircle;
+import com.primesys.VehicalTracking.ActivityMykiddyLike.GeofencingUpdatedrawCircle;
+import com.primesys.VehicalTracking.ActivityMykiddyLike.HomeNew;
+import com.primesys.VehicalTracking.ActivityMykiddyLike.HomeNewRailway;
 import com.primesys.VehicalTracking.Dto.LocationData;
 import com.primesys.VehicalTracking.Dto.LoginDetails;
 import com.primesys.VehicalTracking.Dto.MessageMain;
+import com.primesys.VehicalTracking.Guest.GDatabaseHelper;
+import com.primesys.VehicalTracking.Guest.GSignup;
+import com.primesys.VehicalTracking.PrimesysTrack;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.Common;
 import com.primesys.VehicalTracking.VTSFragments.ShowMapFragment;
+import com.primesys.VehicalTracking.VTSFragments.ShowMapFragmentFeatureAddressEnable;
 import com.primesys.VehicalTracking.googlelogin.SignInActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -66,7 +94,7 @@ import io.fabric.sdk.android.Fabric;
 public class LoginActivity extends AppCompatActivity {
     private static final int REQUEST_SIGNUP = 0;
     public static Client mClient;
-    private Button login;
+    private Button login,btn_guest;
     private EditText text_username,text_password;
     private final String key_IS = "IS_FIRST";
     private final String key_USER = "USER";
@@ -78,7 +106,15 @@ public class LoginActivity extends AppCompatActivity {
     public static LoginDetails Ldetails = new LoginDetails();
     public static ArrayList<MessageMain> arrayTeacher = new ArrayList<MessageMain>();
     public static ArrayList<String> arrayParent = new ArrayList<String>();
-
+    ObjectAnimator anim;
+    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
+  //  public static  SharedPreferences mPrefsGCM;
+    private String regId="";
+    public  final String key_REG_ID = "REG_ID";
+    public static final String REG_ID = "REG_ID";
+    private static final String APP_VERSION = "appVersion";
+    private static final String GCM_KEY_SEND = "gcm_key_send";
+   // private GoogleCloudMessaging gcm;
     boolean isfirst;
     TextView forget_password,register,lblTerms;
     Context login_context=LoginActivity.this;
@@ -102,18 +138,19 @@ public class LoginActivity extends AppCompatActivity {
     String emailid, mobilenumber;
     static String deviceid;
     String key_User_id="User_Id";
-    public static String roll_id;
     public static  Boolean getdata=false;
-    private DBHelper helper;
+
     private String phpurl="http://www.mykiddytracker.com/php/getAppId.php";
     private RadioGroup rgType;
     private String key_url_type="Url_Type";
     private CheckBox termAndCondition;
+    private GDatabaseHelper GdbHelper;
+    private ImageView img_splash;
+    private String key_Admin_id="=Admin_Id";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 
         // Initialize Facebook
         FacebookSdk.sdkInitialize(getApplicationContext());
@@ -123,13 +160,32 @@ public class LoginActivity extends AppCompatActivity {
         editor.commit();
         deviceid = getDeviceID();
         emailid = getRegisteredID();
-        Fabric.with(this, new Crashlytics());
-
+       Fabric.with(this, new Crashlytics());
+        if (android.os.Build.VERSION.SDK_INT > 9)
+        {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
         if(!sharedPreferences.contains(key_IS))
             isfirst = sharedPreferences.getBoolean(key_IS, true);
 
         if (!isfirst) {
             setContentView(R.layout.screen_off_show);
+
+            try {
+                img_splash= (ImageView) findViewById(R.id.img_splash);
+                Animation animation = AnimationUtils.loadAnimation(login_context, R.anim.custom_progress_dialog_animation);
+                // la.startAnimation(animation);
+                anim = ObjectAnimator.ofFloat(img_splash, "rotation", 0, 360);
+                anim.setDuration(1000);
+                anim.setRepeatCount(animation.INFINITE);
+                anim.setRepeatMode(ObjectAnimator.RESTART);
+                anim.start();
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            btn_guest= (Button) findViewById(R.id.btn_guest);
 
             username = sharedPreferences.getString(key_USER,"");
             password = sharedPreferences.getString(key_PASS,"");
@@ -146,19 +202,33 @@ public class LoginActivity extends AppCompatActivity {
 
 
             }
-           /* else if (!isfirst) {
-                Login_off();
-            }*/else
-               /* new SweetAlertDialog(login_context, SweetAlertDialog.WARNING_TYPE)
-                        .setTitleText("Turn on Internet Connection!")
-                        .show();*/
-                Common.ShowSweetAlert(login_context, "Turn on Internet Connection!");
+          else {
+                pDialog = new SweetAlertDialog(login_context, SweetAlertDialog.ERROR_TYPE);
+                pDialog.setTitleText("Alert");
+                pDialog.setContentText("Turn on internet connection!");
+                pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+
+                        finish();
+                              }
+                });
+                pDialog.setCancelable(true);
+                pDialog.show();
+            }
         }else {
 
 
             setContentView(R.layout.activity_login);
             findbyId();
+            GdbHelper = new GDatabaseHelper(login_context, getFilesDir().getAbsolutePath());
+            Log.e("-pathToSav-Logim--","----------"+ getFilesDir().getAbsolutePath());
 
+            try {
+                GdbHelper.prepareDatabase();
+            } catch (IOException e) {
+                Log.e(TAG, e.getMessage());
+            }
 
             //SeT Username
             text_username.setText(sharedPreferences.getString(key_USER, ""));
@@ -174,18 +244,12 @@ public class LoginActivity extends AppCompatActivity {
                         if (Common.getConnectivityStatus(login_context)) {
                             if (validate()){
 
-                                if (username.length() == 0) {
-                                    text_username.setError("Please User ID!");
-                                    text_username.requestFocus();
-                                } else if (password.length() == 0) {
-                                    text_password.setError("Please Password!");
-                                    text_password.requestFocus();
-                                } else if (termAndCondition.isChecked()) {
+                                if (termAndCondition.isChecked()) {
                                     postLoginRequest();
 
                                 }
                                 else {
-                                    Common.showToast("Please Accept Terms and Conditions",login_context);
+                                    Common.ShowSweetAlert(login_context,"Please accept terms and conditions");
 
                                 }
                             }
@@ -337,40 +401,55 @@ public class LoginActivity extends AppCompatActivity {
 
                 @Override
                 public void onClick(View v) {
-                    final Dialog dialog = new Dialog(login_context);
-                    dialog.setContentView(R.layout.maindialog);
-                    dialog.setTitle("Agreement & Terms");
-                    dialog.setCancelable(true);
+                    try {
 
-                    dialog.getWindow().setLayout(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT);
+                        final Dialog dialog = new Dialog(login_context);
+                        dialog.setContentView(R.layout.maindialog);
+                        dialog.setTitle("Agreement & Terms");
+                        dialog.setCancelable(true);
 
-                    // set up text
-                    TextView text = (TextView) dialog
-                            .findViewById(R.id.TextView01);
-                    Typeface custom_font = Typeface.createFromAsset(getAssets(), "Roboto-Regular.ttf");
-                    text.setTypeface(custom_font);
-                    text.setText(R.string.lots_of_text);
-                    text.setPadding(5, 5, 5, 5);
-                    Button buttoncancel = (Button) dialog
-                            .findViewById(R.id.button1);
-                    buttoncancel.setBackgroundColor(getResources().getColor(
-                            R.color.colorPrimaryDark));
-                    buttoncancel.setTextColor(getResources().getColor(
-                            android.R.color.white));
-                    buttoncancel.setOnClickListener(new View.OnClickListener() {
+                        dialog.getWindow().setLayout(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT);
 
-                        @Override
-                        public void onClick(View v) {
-                            dialog.dismiss();
-                        }
-                    });
-                    dialog.show();
+                        // set up text
+                        TextView text = (TextView) dialog
+                                .findViewById(R.id.TextView01);
+                        Typeface custom_font = Typeface.createFromAsset(getAssets(), "Roboto-Regular.ttf");
+                        text.setTypeface(custom_font);
+                        text.setText(R.string.lots_of_text);
+                        text.setPadding(5, 5, 5, 5);
+                        Button buttoncancel = (Button) dialog
+                                .findViewById(R.id.button1);
+                        buttoncancel.setBackgroundColor(getResources().getColor(
+                                R.color.colorPrimaryDark));
+                        buttoncancel.setTextColor(getResources().getColor(
+                                android.R.color.white));
+                        buttoncancel.setOnClickListener(new View.OnClickListener() {
 
+                            @Override
+                            public void onClick(View v) {
+                                dialog.dismiss();
+                            }
+                        });
+                        dialog.show();
+
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
+
             });
 
         }
 
+        //FOr Guest User
+        btn_guest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent guest=new Intent(login_context, GSignup.class);
+                startActivity(guest);
+            }
+        });
 
 
     }
@@ -389,6 +468,8 @@ public class LoginActivity extends AppCompatActivity {
 
         // TODO Auto-generated method stub
         login= (Button) findViewById(R.id.btn_login);
+        btn_guest= (Button) findViewById(R.id.btn_guest);
+
         register=(TextView) findViewById(R.id.link_signup);
        /* Typeface custom_font = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Regular.ttf");
         login.setTypeface();peface(custom_font);*/
@@ -404,7 +485,6 @@ public class LoginActivity extends AppCompatActivity {
         termAndCondition = (CheckBox) findViewById(R.id.check_accept);
         lblTerms = (TextView) findViewById(R.id.lbl_terms);
         fbloginButton = (LoginButton) findViewById(R.id.fb_login_button);
-         helper = DBHelper.getInstance(login_context);
 
     }
 
@@ -419,13 +499,14 @@ public class LoginActivity extends AppCompatActivity {
         pDialog.setCancelable(false);
         if (isfirst)
             pDialog.show();
+        Log.e(PrimesysTrack.TAG,"Login req-----postLoginRequest------ ");
 
         //JSon object request for reading the json data
         stringRequest = new StringRequest(Request.Method.POST, Common.URL+"LoginServiceAPI.asmx/GetLoginDetails",new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
-                System.out.println("Login result " + response);
+               Log.e(PrimesysTrack.TAG,"Login result----------- " + response);
                 if (response.contains("Invalid Userid/Passward")) {
 
                     Common.ShowSweetAlert(login_context, "Invalid Username or Password !");
@@ -440,6 +521,8 @@ public class LoginActivity extends AppCompatActivity {
                     editor.putBoolean(key_IS, false);
                     editor.putString(key_USER, username);
                     editor.putString(key_PASS, password);
+                    editor.putString(key_fname, Common.username);
+
                     editor.commit();
                     parseJSON(response);
                 }
@@ -452,14 +535,21 @@ public class LoginActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        Log.e(PrimesysTrack.TAG,"Login erroer-----postLoginRequest------ "+new Gson().toJson(error));
+                        System.out.println(error.toString());
+
                         if (pDialog.isShowing())
                             pDialog.dismiss();
 
-                        if(error.networkResponse != null && error.networkResponse.data != null){
-                            VolleyError er = new VolleyError(new String(error.networkResponse.data));
-                            System.out.println(error.toString());
-                            parseJSON(new String(error.networkResponse.data));
-                        }
+                            if (error instanceof NetworkError) {
+                            } else if (error instanceof ServerError) {
+                            } else if (error instanceof AuthFailureError) {
+                            } else if (error instanceof ParseError) {
+                            } else if (error instanceof NoConnectionError) {
+                            } else if (error instanceof TimeoutError) {
+                              //  Toast.makeText(login_context, "Oops. Timeout error!", Toast.LENGTH_LONG).show();
+
+                            }
                     }
                 }) {
             @Override
@@ -472,12 +562,14 @@ public class LoginActivity extends AppCompatActivity {
               //  params.put("App_Emailid", emailid);
                 params.put("App_Emailid", username);
 
+
                 System.out.println("Login REquesr " + params.toString());
 
                 return params;
             }
         };
         stringRequest.setTag(TAG);
+        stringRequest.setRetryPolicy(Common.vollyRetryPolicy);
         // Adding request to request queue
         reuestQueue.add(stringRequest);
     }
@@ -486,7 +578,6 @@ public class LoginActivity extends AppCompatActivity {
     //parse the result
     void parseJSON(String result)
     { JSONObject jo=null;
-        System.out.println("parseJSON--login--" + result);
 
         JSONArray array = null;
         try {
@@ -496,9 +587,31 @@ public class LoginActivity extends AppCompatActivity {
             Common.userid = jo.getString("UserID");
             Common.username = jo.getString("userName");
             Common.Student_Count = jo.getInt("Student_Count");
-            Common.TrackDay=Integer.parseInt(jo.getString("daysr"));
-            Common.SERVERIP = jo.getString("SocketUrl");
+            Common.schoolId=jo.getString("school_id");
+            if(result.contains("WebUserID"))
+            Common.WebUserId = jo.getString("WebUserID");
+
+            if(result.contains("dist_unit"))
+                Common.mesurment_unit = jo.getString("dist_unit");
+
+            if (result.contains("PlatformRenewalStatus")){
+                if (jo.getString("PlatformRenewalStatus").equals("1"))
+                    Common.PlatformRenewalStatus =false;
+                   else
+                      Common.PlatformRenewalStatus = true;
+            }
+
+            if(!Common.PlatformRenewalStatus){
+                if (result.contains("daysr"))
+                    Common.TrackDay=Integer.parseInt(jo.getString("daysr"));
+                else Common.TrackDay=-2;
+
+            }
+//            Common.SERVERIP = jo.getString("SocketUrl");
+            Common.SERVERIP="192.168.1.102";
+
             Common.PORT=Integer.parseInt(jo.getString("SocketPort"));
+            Common.TrackURL = "http://"+ Common.SERVERIP+":8080/TrackingAppDB/TrackingAPP/";
 
            if (jo.getString("VtsFuncAllow").equals("0"))
             Common.VtsFuncAllow =true;
@@ -507,8 +620,12 @@ public class LoginActivity extends AppCompatActivity {
 
            if (jo.getString("ACCReportAllow").equals("0"))
                     Common.AccReportAllow=true;
+          /*  if (jo.getString("ACCSqliteEnable").equals("0"))
+                Common.ACCSqliteEnable=true;*/
             if (jo.getString("ACCSqliteEnable").equals("0"))
-                Common.ACCSqliteEnable=true;
+                Common.FeatureAddressEnable=true;
+            else  Common.FeatureAddressEnable=false;
+
             Common.ACCSmsDeleteCheckCount=Integer.parseInt(jo.getString("ACCSmsDeleteCheckCount"));
             Common.ACCSMSDeleteNo=Integer.parseInt(jo.getString("ACCSMSDeleteNo"));
             if (result.contains("MarkerTimeDiff"))
@@ -524,16 +641,17 @@ public class LoginActivity extends AppCompatActivity {
 
             if (result.contains("DeviceStatusReqTime"))
                 Common.DeviceStatusReq_Time=Integer.parseInt(jo.getString("DeviceStatusReqTime"));
-                //  Common.TrackDay=Integer.parseInt(jo.getString("daysr"));
        //     System.out.println("TrackDay----" + Common.TrackDay);
 
             editor = sharedPreferences.edit();
 
             editor.putString(key_Roll_id, Common.roleid);
             editor.putString(key_User_id, Common.userid);
+            editor.putString(key_fname, Common.username);
+
             editor.commit();
             // setting data for join
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Ldetails.setClass_id(jo.getString("ClassName"));
+             Ldetails.setClass_id(jo.getString("ClassName"));
 
             Ldetails.setSchool_id(jo.getString("school_id"));
             Ldetails.setUserType(Common.roleid);
@@ -550,79 +668,175 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
-        DBHelper helper = DBHelper.getInstance(login_context);
-        helper.getLastTimeStamp();
+        PrimesysTrack.mDbHelper.getLastTimeStamp();
         //************Added by rupesh
         editor = sharedPreferences.edit();
-        editor.putString(key_Roll_id, Common.roleid)
-        ;editor.putString(key_url_type, Common.Url_Type);
-            editor.putString("User_Id", Common.userid);
+        editor.putString(key_Roll_id, Common.roleid);
+        editor.putString(key_url_type, Common.Url_Type);
+        editor.putString("User_Id", Common.userid);
+
         editor.commit();
 
-        roll_id=sharedPreferences.getString(key_Roll_id,"");
-
-
-            if (Common.roleid.equals("5")) {
-                Client.SERVERIP = Common.SERVERIP;
-                arrayTeacher = new ArrayList<MessageMain>();
-                new connectTask().execute();
-                DBHelper.getInstance(login_context).truncateTables("db_user");
-                Intent intent = new Intent(login_context, Home.class);
-                startActivity(intent);
-                overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
-            }else if(Common.roleid.equals("7"))
-            {
-                Client.SERVERIP = Common.SERVERIP;
-            arrayTeacher = new ArrayList<MessageMain>();
-            new connectTask().execute();
-            DBHelper.getInstance(login_context).truncateTables("db_user");
-            Intent intent = new Intent(login_context, Home.class);
-            startActivity(intent);
-            overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
-        }else if(Common.roleid.equals("3"))
-            {
-                Client.SERVERIP = Common.SERVERIP;
-                arrayTeacher = new ArrayList<MessageMain>();
-                new connectTask().execute();
-                DBHelper.getInstance(login_context).truncateTables("db_user");
-                Intent intent = new Intent(login_context, Home.class);
-                startActivity(intent);
-                overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
+           /* if (checkPlayServices()) {
+                //	RegisterGCM_Key();
+                registerGCM();
             }
-            /*else if (Common.roleid.equals("8")) {
-            Client.SERVERIP = Common.SERVERIP;
-            arrayTeacher = new ArrayList<MessageMain>();
-            playSound=0;
-            new connectTask().execute();
-            DBHelper.getInstance(login_context).truncateTables("db_user");
-            Intent intent = new Intent(login_context, HomeTrackQuizUser.class);
-            startActivity(intent);
-            overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
-        }else if (Common.roleid.equals("9")) {
-            Client.SERVERIP = Common.SERVERIP;
-            arrayTeacher = new ArrayList<MessageMain>();
-            playSound=0;
-            new connectTask().execute();
-            DBHelper.getInstance(login_context).truncateTables("db_user");
-            Intent intent = new Intent(login_context, QuizGridDashBord.class);
-            startActivity(intent);
-            overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
-        }else if (Common.roleid.equals("10")) {
-            Client.SERVERIP = Common.SERVERIP;
-            arrayTeacher = new ArrayList<MessageMain>();
-            playSound=0;
-            new connectTask().execute();
-            DBHelper.getInstance(login_context).truncateTables("db_user");
-            Intent intent = new Intent(login_context, HomeStandaredUser.class);
-            startActivity(intent);
-            overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
-        }*/
+*/
 
+            if (!Common.PlatformRenewalStatus) {
+                if (Common.TrackDay > 0) {
 
+                    if (Common.roleid.equals("5")) {
+                        Client.SERVERIP = Common.SERVERIP;
+                        arrayTeacher = new ArrayList<MessageMain>();
+                        new connectTask().execute();
+                        PrimesysTrack.mDbHelper.truncateTables("db_user");
+                        Intent intent = new Intent(login_context, HomeNew.class);
+                        startActivity(intent);
+                        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
+                    } else if (Common.roleid.equals("7")) {
+                        Client.SERVERIP = Common.SERVERIP;
+                        arrayTeacher = new ArrayList<MessageMain>();
+                        new connectTask().execute();
+                        PrimesysTrack.mDbHelper.truncateTables("db_user");
+                        if (Common.FeatureAddressEnable){
+                            Intent intent = new Intent(login_context, HomeNewRailway.class);
+                            startActivity(intent);
+                        }else {
+                            Intent intent = new Intent(login_context, HomeNew.class);
+                            startActivity(intent);
+                        }
+                        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
+                    } else if (Common.roleid.equals("3")) {
+                        Client.SERVERIP = Common.SERVERIP;
+                        arrayTeacher = new ArrayList<MessageMain>();
+                        new connectTask().execute();
+                        PrimesysTrack.mDbHelper.truncateTables("db_user");
+                        Intent intent = new Intent(login_context, HomeNew.class);
+                        startActivity(intent);
+                        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
+                    }
+                    else if (Common.roleid.equals("15")) {
+                        // Client.SERVERIP = Common.SERVERIP;
+                        // arrayTeacher = new ArrayList<MessageMain>();
+                        new connectTask().execute();
+
+                        Log.e("-----------","Common.roleid.equals----"+ Common.roleid);
+                        PrimesysTrack.mDbHelper.truncateTables("db_user");
+                        Intent intent = new Intent(login_context, DriverEmpUsActivity.class);
+                        startActivity(intent);
+                        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
+                    }
+                    else if (Common.roleid.equals("14")) {
+                        Client.SERVERIP = Common.SERVERIP;
+                        // arrayTeacher = new ArrayList<MessageMain>();
+                        new connectTask().execute();
+                        PrimesysTrack.mDbHelper.truncateTables("db_user");
+                        Intent intent = new Intent(login_context, EmpHomeActivity.class);
+                        startActivity(intent);
+                        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
+                    }
+                    else if (Common.roleid.equals("16")) {
+                        Client.SERVERIP = Common.SERVERIP;
+                        // arrayTeacher = new ArrayList<MessageMain>();
+                        new connectTask().execute();
+                        PrimesysTrack.mDbHelper.truncateTables("db_user");
+                        Common.adminId=Common.userid;
+                        editor.putString(key_Admin_id, Common.userid);
+                        editor.commit();
+                        Intent intent = new Intent(login_context, AdminParentActivity.class);
+                        startActivity(intent);
+                        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
+                    }
+                } else {
+                    ShowPaymentDialog();
+                }
+            }else {
+
+                    if (Common.roleid.equals("5")) {
+                        Client.SERVERIP = Common.SERVERIP;
+                        arrayTeacher = new ArrayList<MessageMain>();
+                        new connectTask().execute();
+                        PrimesysTrack.mDbHelper.truncateTables("db_user");
+                        Intent intent = new Intent(login_context, HomeNew.class);
+                        startActivity(intent);
+                        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
+                    }else if(Common.roleid.equals("7"))
+                    {
+                        Client.SERVERIP = Common.SERVERIP;
+                        arrayTeacher = new ArrayList<MessageMain>();
+                        new connectTask().execute();
+                        PrimesysTrack.mDbHelper.truncateTables("db_user");
+                        if (Common.FeatureAddressEnable){
+                            Intent intent = new Intent(login_context, HomeNewRailway.class);
+                            startActivity(intent);
+                        }else {
+                            Intent intent = new Intent(login_context, HomeNew.class);
+                            startActivity(intent);
+                        }
+
+                        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
+                    }else if(Common.roleid.equals("3"))
+                    {
+                        Client.SERVERIP = Common.SERVERIP;
+                        arrayTeacher = new ArrayList<MessageMain>();
+                        new connectTask().execute();
+                        PrimesysTrack.mDbHelper.truncateTables("db_user");
+                        Intent intent = new Intent(login_context, HomeNew.class);
+                        startActivity(intent);
+                        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
+                    } else if (Common.roleid.equals("15")) {
+                         Client.SERVERIP = Common.SERVERIP;
+                        // arrayTeacher = new ArrayList<MessageMain>();
+                        new connectTask().execute();
+
+                        Log.e("-----------","Common.roleid.equals----"+Common.roleid);
+                        PrimesysTrack.mDbHelper.truncateTables("db_user");
+                        Intent intent = new Intent(login_context, DriverEmpUsActivity.class);
+                        startActivity(intent);
+                        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
+                    }else if (Common.roleid.equals("14")) {
+                        Client.SERVERIP = Common.SERVERIP;
+                        // arrayTeacher = new ArrayList<MessageMain>();
+                        new connectTask().execute();
+                        PrimesysTrack.mDbHelper.truncateTables("db_user");
+                        Intent intent = new Intent(login_context, EmpHomeActivity.class);
+                        startActivity(intent);
+                        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
+                    }
+                    else if (Common.roleid.equals("16")) {
+                        Client.SERVERIP = Common.SERVERIP;
+                        // arrayTeacher = new ArrayList<MessageMain>();
+                        new connectTask().execute();
+                        PrimesysTrack.mDbHelper.truncateTables("db_user");
+                        Common.adminId=Common.userid;
+                        editor.putString(key_Admin_id, Common.userid);
+                        editor.commit();
+                        Intent intent = new Intent(login_context, AdminParentActivity.class);
+                        startActivity(intent);
+                        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
+                    }
+                    else if (Common.roleid.equals("17")) {
+
+                        Client.SERVERIP = Common.SERVERIP;
+                    arrayTeacher = new ArrayList<MessageMain>();
+                    new connectTask().execute();
+                    PrimesysTrack.mDbHelper.truncateTables("db_user");
+                    if (Common.FeatureAddressEnable){
+                        Intent intent = new Intent(login_context, HomeNewRailway.class);
+                        startActivity(intent);
+                    }else {
+                        Intent intent = new Intent(login_context, HomeNew.class);
+                        startActivity(intent);
+                    }
+
+                    overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
+                }
+            }
 
     } catch (JSONException e) {
         e.printStackTrace();
-        CustomDialog.displayDialog("Error While Establishing Connection To Server! Please Contact Admin",login_context);
+        CustomDialog.displayDialog("Error While Establishing Connection To Server! Please Contact Admin.",login_context);
         editor = sharedPreferences.edit();
         editor.clear();
         editor.commit();
@@ -635,8 +849,44 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    private void ShowPaymentDialog() {
+        try{
+            new SweetAlertDialog(login_context, SweetAlertDialog.WARNING_TYPE)
+                    .setTitleText(String.valueOf(login_context.getResources().getText(R.string.str_make_reachage_title)))
+                    .setContentText((String.valueOf(login_context.getResources().getText(R.string.str_make_reachage))))
+                    .setCancelText("No,Exit !")
+                    .setConfirmText("Make Payment!")
+                    .showCancelButton(true)
+                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sDialog) {
+                            Intent startMain = new Intent(login_context,RenewServiceActivity.class);
+                            startActivity(startMain);
+
+                            sDialog.cancel();
+                        }
+                    })
+                    .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sDialog) {
+                            Intent startMain = new Intent(Intent.ACTION_MAIN);
+                            startMain.addCategory(Intent.CATEGORY_HOME);
+                            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(startMain);
+
+                            sDialog.cancel();
+                            finish();
+                        }
+                    })
+                    .show();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
 
+    }
 
 
     //parse the result
@@ -675,8 +925,9 @@ public class LoginActivity extends AppCompatActivity {
 
             catch(Exception e)
             {
-                System.out.print(e);
+                e.printStackTrace();
             }
+
         }
     }
 
@@ -685,19 +936,24 @@ public class LoginActivity extends AppCompatActivity {
     public class connectTask extends AsyncTask<String, String, Client> {
         @Override
         protected Client doInBackground(String... message) {
-            mClient = new Client(new Client.OnMessageReceived() {
-                @Override
-                // here the messageReceived method is implemented
-                public void messageReceived(String message) {
-                    publishProgress(message);
-                }
-                public void messageSend(MessageMain message) {
-                }
-                @Override
-                public void messageSend(String message) {
-                }
-            });
-            mClient.run();
+            try {
+                mClient = new Client(new Client.OnMessageReceived() {
+                    @Override
+                    // here the messageReceived method is implemented
+                    public void messageReceived(String message) {
+                        publishProgress(message);
+                    }
+                    public void messageSend(MessageMain message) {
+                    }
+                    @Override
+                    public void messageSend(String message) {
+                    }
+                });
+                mClient.run();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
             return null;
         }
 
@@ -709,7 +965,18 @@ public class LoginActivity extends AppCompatActivity {
 
             Log.e("Socket respo ----", "Socket respo ----"+comMsg);
             try {
-                if (comMsg.contains(Common.EV_MSG_RECEIVED)) {
+                if (comMsg.contains(Common.EV_REG_SUCC)) {
+                    // Get Register Key for GCM
+
+
+                    Log.e("GCM_KEY_SEND----", "Socket GCM_KEY_SEND-------- ----"+sharedPreferences.getBoolean(GCM_KEY_SEND, false)+"--------"+regId);
+
+                    if (regId!=""&&!sharedPreferences.getBoolean(GCM_KEY_SEND, false)) {
+
+                        //	RegisterGCM_Key();
+                        sendRegisterationIdToServer(regId);
+                    }
+                }else if (comMsg.contains(Common.EV_MSG_RECEIVED)) {
 
                     JSONObject jo = new JSONObject(comMsg);
                     JSONObject jData = jo.getJSONObject("data");
@@ -722,9 +989,9 @@ public class LoginActivity extends AppCompatActivity {
                     msg.setTo(jData.getString("to"));
 
                    /* if(!jData.isNull("student_id"))
-                        helper.insertMessage(msg,jData.getString("student_id"));
+                        PrimesysTrack.mDbHelper.insertMessage(msg,jData.getString("student_id"));
                     else
-                        helper.insertMessage(msg);
+                        PrimesysTrack.mDbHelper.insertMessage(msg);
                     try {
                         if(APIController.getInstance().getRead()==0)
                             NotifyParent("" + msg.getTo(), "" + msg.getMesageText());
@@ -750,61 +1017,87 @@ public class LoginActivity extends AppCompatActivity {
                 if (comMsg.contains(Common.EV_CURR_LOC)) {
 
 					/*ShowGMapC.changeLocation(comMsg);*/
-                    ShowMapFragment.changeLocation(comMsg);
+                    if (Common.FeatureAddressEnable)
+                        ShowMapFragmentFeatureAddressEnable.changeLocation(comMsg);
+                    else
+                        ShowMapFragment.changeLocation(comMsg);
 
                 }
                 else if (comMsg.contains(Common.EV_TOD_LOC)) {
 
-                    DBHelper helper = DBHelper.getInstance(login_context);
-                    helper.insertLocation(parseLocation(comMsg));
+                    PrimesysTrack.mDbHelper.insertLocation(parseLocation(comMsg));
+
+                } else if (comMsg.contains(Common.EV_GEOFENCE_SUCCESS)) {
+                    System.err.println("Reponce Socket-----  Geofence "+comMsg);
+
+                    GeofencingNewdrawCircle.parseNewFenceJSON(comMsg);
+
+                    //GeofenceDTO geofence=parseGeofence(comMsg);
                 }
-             /*   else if (comMsg.contains(Common.EV_DEVICE_STATUS))
-                    HomeActivity.setDeviceData(comMsg);
-                else if (comMsg.contains(Common.EV_GRP_CREAT))
-                    CreateGroup.parseJSON(comMsg);
-                else if(comMsg.contains(Common.EV_ERROR))
-                    socketErrorMsg(comMsg);
-                else if(comMsg.contains(Common.EV_GRPS_LIST))
-                    DemoUserActivity.parseJSON(comMsg);
-                else if(comMsg.contains(Common.EV_MEM_LIST))
+                else if (comMsg.contains(Common.EV_GEOFENCE_LIST)) {
 
-                    MainActivity.parseJSON(comMsg);
-                else if(comMsg.contains(Common.EV_FRND_SUCC)){
-                    AddUserActivity.parseJSON(comMsg);
-                    Common.showToast("Friend added successfully", login_context);
-                }else if(comMsg.contains(Common.EV_FRND_Alredy)){
+                    GeoFencingHomeNew.parsefencelistJSON(comMsg);
 
-                    System.out.println("Inside Friend already added ");
-                    Common.showToast("Friend already added", login_context);
-                }
-                else if(comMsg.contains(Common.EV_FRND_LIST)){
-                    if(Common.flag==0)
-                        DemoUserActivity.restParseJSON(comMsg);
-                    else
-                        AddParticpants.parseJSON(comMsg);
-                }
-                else if (comMsg.contains(Common.EV_GRP_ADD))
-                    Common.showToast("Member added successfully", login_context);
-                else if(comMsg.contains(Common.EV_MSG_ACK))
-                {
-                    DBHelper helper = DBHelper.getInstance(login_context);
-                    try
-                    {
+                } else if (comMsg.contains(Common.EV_GEOFENCE_NOTFOUND)) {
 
+                    GeoFencingHomeNew.parsefencelistJSON(comMsg);
 
-                        JSONObject jo=new JSONObject(comMsg);
-                        JSONObject jData=jo.getJSONObject("data");
-                        Log.e("DAta....", jData.toString());
-                        helper.UpdateMessage(jData.getLong("ref_id"),jData.getLong("timestamp"));
-                        if (MainActivity.mAdapter != null) {
-                            MainActivity.mAdapter.notifyDataSetInvalidated();
-                            MainActivity.mAdapter.notifyDataSetChanged();
-                        }
-                    }catch(Exception e)
-                    {
+                }else if (comMsg.contains(Common.EV_GEOFENCEUPDATE_SUCCESS)) {
+
+                    try{
+
+                        if(GeofencingUpdatedrawCircle.context!=null&&!((Activity) GeofencingUpdatedrawCircle.context ).isFinishing())
+                            GeofencingUpdatedrawCircle.parseUpdateFenceJSON(comMsg);
+                        if(GeoFencingHomeNew.context!=null&&!((Activity) GeoFencingHomeNew.context ).isFinishing())
+                            GeoFencingHomeNew.parseUpdateFenceJSON(comMsg);
+                    }catch (Exception e){
                         e.printStackTrace();
                     }
-                }*/
+
+                }else if (comMsg.contains(Common.EV_GCMADDED_SUCCESS)) {
+
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean(GCM_KEY_SEND, true);
+
+                    editor.commit();
+                }else if (comMsg.contains(Common.EV_GCMDELETED_SUCCESS)) {
+
+                    GeoFencingHomeNew.parseDeleteFenceJSON(comMsg);
+
+
+                    editor.commit();
+                }else if (comMsg.contains(Common.EV_GEOFENCE_DEVICENOTCONN)){
+
+                    try{
+                        if (GeofencingNewdrawCircle.context!=null&&!((Activity) GeofencingNewdrawCircle.context ).isFinishing())
+                            GeofencingNewdrawCircle.parseDeviceNotConnectError(comMsg);
+
+                        if(GeofencingUpdatedrawCircle.context!=null&&!((Activity) GeofencingUpdatedrawCircle.context ).isFinishing())
+                            GeofencingUpdatedrawCircle.parseDeviceNotConnectError(comMsg);
+                        if(GeoFencingHomeNew.context!=null&&!((Activity) GeoFencingHomeNew.context ).isFinishing())
+                            GeoFencingHomeNew.parseDeviceNotConnectError(comMsg);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    //  if (GeofencingUpdatedrawCircle.Update)
+                    //   GeofencingUpdatedrawCircle.parseDeviceNotConnectError(comMsg);
+                    // else
+                    //    GeofencingHome.parseDeviceNotConnectError(comMsg);
+
+                }
+                else if (comMsg.contains(Common.EV_GEOFENCE_ERROR)) {
+
+                    parse_geofence_deviceerror_JSON(comMsg);
+
+                }else if (comMsg.contains(Common.EV_DEVICE_STATUS))
+                {
+                    //  HomeActivity.setDeviceData(comMsg);
+
+                } else if(comMsg.contains(Common.EV_ERROR))
+                    socketErrorMsg(comMsg);
+
+
+
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -858,13 +1151,29 @@ public class LoginActivity extends AppCompatActivity {
                 l.setTimestamp(jo.getLong("timestamp"));
                 list.add(l);
                 //	Toast.makeText(login_context, "dATAC ---->  "+msg,Toast.LENGTH_LONG).show();
-                Log.e("Location data from login", ""+msg);
+                Log.e("Location data login", ""+msg);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return list;
     }
+
+
+
+
+    ///If the device is not connected to our portal and user try to Add / Update Geo Fence, error will be returned.
+    public void parse_geofence_deviceerror_JSON(String comMsg) {
+        try
+        {
+            Common.ShowSweetAlert(login_context, "Can't reach your device please try again.");
+        }catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+    }
+
 
   /*  @Override
     public void onConnectionFailed(ConnectionResult arg0) {
@@ -936,27 +1245,19 @@ public class LoginActivity extends AppCompatActivity {
 
         String email = text_username.getText().toString();
         String password = text_password.getText().toString();
-/*
-        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            text_username.setError("enter a valid email address");
-            valid = false;
-        } else {
-            text_username.setError(null);
-        }*/
 
-        /*if (password.isEmpty() || password.length() < 3 || password.length() > 20) {
-            text_password.setError("between 4 and 10 alphanumeric characters");
+        if (email.isEmpty()) {
+            text_username.setError("Please enter valid username!");
+            text_username.requestFocus();
+
             valid = false;
-        } else {
-            text_password.setError(null);
-        }
-*/
-        if (password.isEmpty()) {
-            text_password.setError("Please enter valid password.");
+        } else if (password.isEmpty()) {
+            text_password.setError("Please enter valid password!");
+            text_password.requestFocus();
+
             valid = false;
-        } else {
-            text_password.setError(null);
         }
+
 
         return valid;
     }
@@ -1017,7 +1318,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         };
         stringRequest.setTag(TAG);
-        // Adding request to request queue
+        stringRequest.setRetryPolicy(Common.vollyRetryPolicy);
         reuestQueue.add(stringRequest);
     }
     // get the registration id for android
@@ -1040,7 +1341,219 @@ public class LoginActivity extends AppCompatActivity {
         }
         return gmail;
     }
+    /**
+     * Method to verify google play services on the device
+     * */
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil
+                .isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
 
+            } else {
+                finish();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public String registerGCM() {
+
+       /* try{
+            gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
+            regId = getRegistrationId(login_context);
+
+            if (TextUtils.isEmpty(regId)) {
+
+                registerInBackground();
+
+                Log.e("RegisterActivity",
+                        "registerGCM - successfully registered with GCM server - regId: "
+                                + regId);
+            } else {
+                //  Toast.makeText(getApplicationContext(),"RegId already available. RegId: " + regId,Toast.LENGTH_LONG).show();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }*/
+
+        return regId;
+    }
+
+    private String getRegistrationId(Context context) {
+        String registrationId = sharedPreferences.getString(REG_ID, "");
+        if (registrationId.isEmpty()) {
+            Log.i(TAG, "Registration not found.");
+            return "";
+        }
+        int registeredVersion = sharedPreferences.getInt(APP_VERSION, Integer.MIN_VALUE);
+        int currentVersion = getAppVersion(context);
+        if (registeredVersion != currentVersion) {
+            Log.i(TAG, "App version changed.");
+            return "";
+        }
+        return registrationId;
+    }
+
+    private static int getAppVersion(Context context) {
+        try {
+            PackageInfo packageInfo = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.d("RegisterActivity",
+                    "I never expected this! Going down, going down!" + e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void registerInBackground() {
+      /*  new AsyncTask<Void, Void, String>() {
+            @SuppressLint("MissingPermission")
+            @Override
+            protected String doInBackground(Void... params) {
+                String msg = "";
+                try {
+                    if (gcm == null) {
+                        gcm = GoogleCloudMessaging.getInstance(login_context);
+                    }
+                    regId = gcm.register(Common.GOOGLE_PROJECT_ID);
+                    Log.d("RegisterActivity", "registerInBackground - regId: "
+                            + regId);
+                    msg = "Device registered, registration ID=" + regId;
+
+                    storeRegistrationId(login_context, regId);
+                } catch (IOException ex) {
+                    msg = "Error :" + ex.getMessage();
+                    Log.d("RegisterActivity", "Error: " + msg);
+                    ex.printStackTrace();
+                }
+                Log.d("RegisterActivity", "AsyncTask completed: " + msg);
+                return msg;
+            }
+
+            @Override
+            protected void onPostExecute(String msg) {
+                //Toast.makeText(getApplicationContext(),"Registered with GCM Server." + msg, Toast.LENGTH_LONG).show();
+            }
+        }.execute(null, null, null);*/
+    }
+
+    protected void sendRegisterationIdToServer(String regId2) {
+
+        String result="";
+        try {
+            if (Integer.parseInt(Common.roleid)==15||Integer.parseInt(Common.roleid)==14){
+                postGcmKeyToServer(regId);
+
+            }else {
+                LoginActivity.mClient.sendMessage(makeGcmRegJSON(regId));
+            }
+            result="shareRegIdWithAppErlangServer------------Post REgisetr Key Successfully to App Server.";
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void postGcmKeyToServer(final String regId) {
+
+        reuestQueue= Volley.newRequestQueue(login_context); //getting Request object from it
+        //JSon object request for reading the json data
+        stringRequest = new StringRequest(Request.Method.POST, Common.TrackURL+"UserServiceAPI/PostGcmKeyToServer",new Response.Listener<String>()
+        {
+            @Override
+            public void onResponse(String response) {
+                System.out.println("------postGcmKeyToServer----------------"+response);
+                parseGcmKeyPost(response);
+
+            }
+        },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //    pDialog.hide();
+                        if (error!=null)
+                            Log.d("Error", error.toString());
+
+                    }
+                })  {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("gcm_key",regId);
+                params.put("name", Common.username);
+                params.put("user_id", Common.userid);
+
+                Log.e("---------------------","REq---postGcmKeyToServer  -------" + params);
+                return params;
+            }
+        };
+        stringRequest.setTag(TAG);
+        stringRequest.setRetryPolicy(Common.vollyRetryPolicy);
+        reuestQueue.add(stringRequest);
+
+
+    }
+
+    private void parseGcmKeyPost(String response) {
+        Log.e("---------------------","REspo---parseGcmKeyPost  -------" + response);
+
+        try {
+            JSONObject jo=new JSONObject(response);
+            if (jo.getString("error").equalsIgnoreCase("false")) {
+
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean(GCM_KEY_SEND, true);
+
+                editor.commit();
+                //   Common.ShowSweetSucess(login_context, jo.getString("message"));
+
+            }//else 	Common.ShowSweetAlert(login_context, jo.getString("message"));
+
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+
+    private void storeRegistrationId(Context context, String regId) {
+        //  sendRegisterationIdToServer(regId);
+
+        int appVersion = getAppVersion(context);
+        Log.i(TAG, "Saving regId on app version " + appVersion);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(REG_ID, regId);
+        editor.putInt(APP_VERSION, appVersion);
+        editor.putBoolean(GCM_KEY_SEND, true);
+
+        editor.commit();
+    }
+
+
+    private String makeGcmRegJSON(String regId) {
+
+        String gcmSTring="{}";
+        try{
+            JSONObject jo=new JSONObject();
+            jo.put("event", Common.EV_GEOFENCE_REG_KEY);
+            jo.put("parent_id",Integer.parseInt(Common.userid));
+            jo.put("reg_key",regId);
+            gcmSTring=jo.toString();
+            System.err.print("MakeGcmRegJSON Event Fire---"+gcmSTring);
+
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+
+        }
+        return gcmSTring;
+
+    }
 
 
 }

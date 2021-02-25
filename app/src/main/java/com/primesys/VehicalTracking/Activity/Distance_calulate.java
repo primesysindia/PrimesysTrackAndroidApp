@@ -121,7 +121,7 @@ public class Distance_calulate extends FragmentActivity implements OnMapReadyCal
 		//	DBHelper dbH=DBHelper.getInstance(historyContext);
 		//	list=dbH.showDetails();
 			 totalCount = Location_list.size();
-			Log.e("-----addDefaultLocations-------","addDefaultLocations"+"--------"+Location_list.size());
+			Log.e("-----addDefaultLoc-----","addDefaultLocations"+"--------"+Location_list.size());
 
 		/*	if(totalCount==0)
 				Common.showToast(getResources().getString(R.string.history_msg), historyContext);*/

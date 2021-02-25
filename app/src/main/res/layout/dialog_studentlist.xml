@@ -1,39 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center" >
+    <RelativeLayout android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        xmlns:android="http://schemas.android.com/apk/res/android">
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="15dp" >
+            android:id="@+id/d_tt"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:padding="@dimen/mid_padding"
+                android:text="Title"
+                android:id="@+id/d_title"
+                android:background="@color/colorPrimary"
+                android:textColor="@color/white"
+                android:gravity="center"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:id="@+id/d_cancel"
+                android:layout_gravity="center|end"
+                android:background="@drawable/ic_close"/>
+
+
+
+        </FrameLayout>
+
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:layout_below="@+id/d_tt"
+            android:background="@color/white"
+            android:id="@+id/frame">
 
             <ListView
                 android:id="@+id/student_list"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:choiceMode="singleChoice"
                 android:layout_gravity="center"
-                android:layout_margin="2dp"
+                android:dividerHeight="1dp"
+
+                android:divider="@color/colorPrimary"
                 android:background="@color/white"
                 android:listSelector="@color/colorPrimaryDark"
                 >
             </ListView>
         </FrameLayout>
-        <ImageView
-            android:id="@+id/imageView_close"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_gravity="right|top"
-            android:clickable="true"
 
-            android:src="@drawable/ic_close"
-             />
-    </FrameLayout>
 
-</FrameLayout>
+        <!--   <Button
+               android:id="@+id/d_cancel"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:layout_gravity="center_horizontal"
+               android:layout_marginTop="10dp"
+               android:layout_below="@+id/frame"
+               android:paddingLeft="@dimen/margin_20dp"
+               android:paddingRight="@dimen/margin_20dp"
+               android:background="@drawable/capsulshapebutton"
+               android:padding="15dp"
+               android:gravity="center"
+               android:text="Cancel"
+               android:textColor="@color/white" />
+   -->
+
+    </RelativeLayout>
+
+</android.support.constraint.ConstraintLayout>

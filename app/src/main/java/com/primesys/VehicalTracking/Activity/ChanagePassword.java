@@ -198,7 +198,7 @@ public class ChanagePassword extends Activity {
             }
 
         };
-        stringRequest.setTag(TAG);
+        stringRequest.setTag(TAG);         stringRequest.setRetryPolicy(Common.vollyRetryPolicy);
         // Adding request to request queue
         reuestQueue.add(stringRequest);
     }

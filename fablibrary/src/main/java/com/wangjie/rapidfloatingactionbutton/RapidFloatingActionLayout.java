@@ -36,7 +36,7 @@ public class RapidFloatingActionLayout extends RelativeLayout implements OnClick
 
     Context c;
 
-    String bigButtonLabel = "Label";
+    String bigButtonLabel = "";
     TextView bigButtonLabelTextView;
 
     public String getBigButtonLabel() {

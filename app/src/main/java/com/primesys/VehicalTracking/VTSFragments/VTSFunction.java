@@ -35,9 +35,10 @@ import com.primesys.VehicalTracking.Activity.Distance_calulate;
 import com.primesys.VehicalTracking.Activity.Home;
 import com.primesys.VehicalTracking.Activity.LoginActivity;
 import com.primesys.VehicalTracking.Db.DBHelper;
-import com.primesys.VehicalTracking.Dto.GmapDetais;
+import com.primesys.VehicalTracking.Dto.DeviceDataDTO;
 import com.primesys.VehicalTracking.Dto.SpeedalertDTO;
 import com.primesys.VehicalTracking.MyAdpter.StudentListAdpter;
+import com.primesys.VehicalTracking.PrimesysTrack;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Receiver.IncomingSms;
 import com.primesys.VehicalTracking.Utility.Common;
@@ -74,7 +75,7 @@ public class VTSFunction extends Fragment {
     public StudentListAdpter padapter;
     DBHelper helper;
     private ListView listStudent;
-    private ArrayList<GmapDetais> childlist=new ArrayList<>();
+    private ArrayList<DeviceDataDTO> childlist=new ArrayList<>();
     public static String StudentId="";
     public static SpeedalertDTO speed=new SpeedalertDTO();
     private Boolean pinexist=false;
@@ -87,7 +88,6 @@ public class VTSFunction extends Fragment {
         // TODO Auto-generated method stub
         rootView = inflater.inflate(R.layout.activity_vts_report_home, container, false);
         context = this.getActivity();
-        helper = DBHelper.getInstance(context);
         findById();
         cal_dist.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,10 +122,6 @@ public class VTSFunction extends Fragment {
 
             @Override
             public void onClick(View v) {
-                //LoginActivity.mClient.sendMessage(makeJsonto_getspeedalert());
-                //  Show_speedalert_dilog();
-                Log.e("speedalrt setOnClickListener --------------","*---------------------------*---------------------*************");
-
                try
                {
                    String txt="Speed  Alarm!IMEI:355488020113737  18.562317,N,73.834386,E";
@@ -241,9 +237,8 @@ public class VTSFunction extends Fragment {
 
     }
     public void CheckStudent(Context context1) {
-        helper = DBHelper.getInstance(context1);
 
-        if (Common.getConnectivityStatus(context1)&& helper.Show_Device_list().size()==0) {
+        if (Common.getConnectivityStatus(context1)&& PrimesysTrack.mDbHelper.Show_Device_list().size()==0) {
             // Call Api to get track information
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -257,7 +252,7 @@ public class VTSFunction extends Fragment {
                 ex.printStackTrace();
             }
         }else {
-            childlist=helper.Show_Device_list();
+            childlist= PrimesysTrack.mDbHelper.Show_Device_list();
 
             if (childlist.size()>1)
                 ShowListofStudent();
@@ -401,8 +396,6 @@ public class VTSFunction extends Fragment {
 
         dialog.setContentView(R.layout.dialog_studentlist);
         dialog.getWindow().setLayout(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT);
-
-
         dialog.setCancelable(false);
         listStudent=(ListView)dialog.findViewById(R.id.student_list);
 
@@ -448,7 +441,8 @@ public class VTSFunction extends Fragment {
             String result="";
             try{
                 HttpClient httpclient=new DefaultHttpClient();
-                HttpPost httpost=new HttpPost(Common.URL+"ParentAPI.asmx/GetTrackInfo");
+
+                   HttpPost httpost=new HttpPost(Common.URL+"ParentAPI.asmx/GetTrackInfo");
                 List<NameValuePair> param=new ArrayList<NameValuePair>(1);
                 param.add(new BasicNameValuePair("ParentId", Common.userid));
                 httpost.setEntity(new UrlEncodedFormEntity(param));
@@ -475,7 +469,7 @@ public class VTSFunction extends Fragment {
             JSONArray joArray=new JSONArray(result);
             for (int i = 0; i < joArray.length(); i++) {
                 JSONObject joObject =joArray.getJSONObject(i);
-                GmapDetais dmDetails=new GmapDetais();
+                DeviceDataDTO dmDetails=new DeviceDataDTO();
                 dmDetails.setId(joObject.getString("StudentID"));
                 dmDetails.setName(joObject.getString("Name"));
 
@@ -494,7 +488,7 @@ public class VTSFunction extends Fragment {
             if (childlist.size()>0) {
 
                 //Insert Offeline data
-                helper.Insert_Device_list(childlist);
+                PrimesysTrack.mDbHelper.Insert_Device_list(childlist);
                 if (childlist.size()>1)
                     ShowListofStudent();
                 else

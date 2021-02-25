@@ -39,7 +39,7 @@
                     android:inputType="textCapWords"
                     android:textColorHint="@color/colorPrimary"
 
-                    android:hint=" Name" />
+                    android:hint=" Name :" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -56,7 +56,7 @@
                     android:textColorHint="@color/colorPrimary"
 
                     android:inputType="textEmailAddress"
-                    android:hint="Email" />
+                    android:hint="Email Id :" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -69,8 +69,8 @@
                     android:layout_height="wrap_content"
                     android:inputType="number"
                     android:textColorHint="@color/colorPrimary"
-
-                    android:hint="Mob no" />
+                    android:maxLength="10"
+                    android:hint="Mob No :" />
             </android.support.design.widget.TextInputLayout>
             <!-- Password Label -->
             <android.support.design.widget.TextInputLayout
@@ -84,7 +84,7 @@
 
                     android:layout_height="wrap_content"
                     android:inputType="text"
-                    android:hint="User Message"/>
+                    android:hint="User Message :"/>
             </android.support.design.widget.TextInputLayout>
 
         </LinearLayout>
@@ -104,6 +104,7 @@
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="24dp"
                 android:padding="12dp"
+                android:textColor="@color/white"
                 android:background="@drawable/capsulshapebutton"
 
                 android:text="Create Account"/>
@@ -116,6 +117,8 @@
                 android:layout_marginLeft="20dp"
                 android:layout_marginBottom="24dp"
                 android:padding="12dp"
+                android:textColor="@color/white"
+
                 android:background="@drawable/capsulshapebutton"
 
                 android:text="Clear"/>

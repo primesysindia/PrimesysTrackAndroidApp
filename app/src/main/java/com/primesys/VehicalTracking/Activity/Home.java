@@ -1,14 +1,19 @@
 package com.primesys.VehicalTracking.Activity;
 
+import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -16,13 +21,16 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,9 +49,10 @@ import com.android.volley.toolbox.Volley;
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
 import com.primesys.VehicalTracking.Db.DBHelper;
-import com.primesys.VehicalTracking.Dto.GmapDetais;
+import com.primesys.VehicalTracking.Dto.DeviceDataDTO;
 import com.primesys.VehicalTracking.Dto.persondetail;
 import com.primesys.VehicalTracking.MyAdpter.ShowMapAdapter;
+import com.primesys.VehicalTracking.PrimesysTrack;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.CircularNetworkImageView;
 import com.primesys.VehicalTracking.Utility.Common;
@@ -52,10 +61,11 @@ import com.primesys.VehicalTracking.VTSFragments.ACCReport;
 import com.primesys.VehicalTracking.VTSFragments.SMSFuction;
 import com.primesys.VehicalTracking.VTSFragments.ShowMapFragment;
 import com.primesys.VehicalTracking.VTSFragments.VTSFunction;
-import com.primesys.VehicalTracking.VTSFragments.historyFragment;
+import com.primesys.VehicalTracking.VTSFragments.history_API_Fragment;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,7 +88,7 @@ public class Home extends AppCompatActivity
     RequestQueue reuestQueue;
     ListView personlist;
     final String TAG="REquest";
-    ArrayList<GmapDetais> tracklist=new ArrayList<GmapDetais>();
+    ArrayList<DeviceDataDTO> tracklist=new ArrayList<DeviceDataDTO>();
     ArrayList<persondetail> tracklistcopy=new ArrayList<persondetail>();
     public SharedPreferences sharedPreferences;
     private final String key_IS = "IS_FIRST";
@@ -90,6 +100,7 @@ public class Home extends AppCompatActivity
     private final String key_Login_Status = "LOGIN_STATUS";
     public  String key_Roll_id="Roll_id";
     private String key_UserPic="UserPic";
+    private static String KEY_LOCATION="Location";
 
     SharedPreferences.Editor editor ;
     private boolean isfirst;
@@ -101,7 +112,6 @@ public class Home extends AppCompatActivity
     private int cnt=0;
     private ShowMapAdapter myAdapter;
     public static Boolean trackInfo=false;
-    private DBHelper helper= DBHelper.getInstance(Home.this);
     public static TabLayout tabLayout;
     public static ViewPager viewPager;
     private int[] tabIcons = {
@@ -110,11 +120,18 @@ public class Home extends AppCompatActivity
             R.drawable.ic_history,
             R.drawable.ic_vtsfuc,
             R.drawable.ic_smsfuc,
-            R.drawable.ic_report
+            R.drawable.ic_repors
 
     };
     private Typeface typeFace;
-
+    public static long MarketVersionName;
+    public static long ExistingVersionName;
+    public  String package_name="com.primesys.VehicalTracking";
+    public  static NotificationManager mNotifyManager;
+    public static NotificationCompat.Builder mBuilder;
+    private String url="";
+    private String ExistingVersion="";
+    private String MarketVersion="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,7 +147,7 @@ public class Home extends AppCompatActivity
 
 
 
-              GmapDetais user=tracklist.get(position);
+                DeviceDataDTO user=tracklist.get(position);
 
                 trackInfo = false;
             /*    BitmapDrawable bitmap_draw = (BitmapDrawable) imgchild.getDrawable();
@@ -185,7 +202,7 @@ public class Home extends AppCompatActivity
 
                 switch (position) {
                     case 0:
-                       // ShowMapFragment.StartUiCOuntDown();
+                        // GShowMapFragment.StartUiCOuntDown();
 
 
                         break;
@@ -195,11 +212,11 @@ public class Home extends AppCompatActivity
 
                         if (Common.VtsFuncAllow){
                             VTSFunction vts=new VTSFunction();
-                            vts.CheckStudent(context);
+                          //  vts.CheckStudent(context);
                         }else if (Common.VtsSmsAllow)
                         {
                             SMSFuction smsf=new SMSFuction();
-                            smsf.CheckStudent(context);
+                           // smsf.CheckStudent(context);
                         }else if (Common.AccReportAllow){
                             ACCReport acc=new ACCReport();
                             acc.CheckStudent(context);
@@ -208,10 +225,10 @@ public class Home extends AppCompatActivity
                         break;
                     case 3:
                         /*if (Common.AccReportAllow){
-                            ACCReport acc=new ACCReport();
+                            GACCReport acc=new GACCReport();
                             acc.CheckStudent(context);
                         }else if (Common.VtsSmsAllow) {
-                     SMSFuction smsf = new SMSFuction();
+                     GSMSFuction smsf = new GSMSFuction();
                      smsf.CheckStudent(context);
                  }*/
                         if (Common.VtsFuncAllow){
@@ -259,7 +276,19 @@ public class Home extends AppCompatActivity
             }
         });
 
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                new GetLiveAppVersion().executeOnExecutor(
+                        AsyncTask.THREAD_POOL_EXECUTOR,
+                        (Void) null);
+            } else {
+                new GetLiveAppVersion().execute();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
+
 
     private void GetAllTrackperson() {
 
@@ -271,8 +300,8 @@ public class Home extends AppCompatActivity
         pDialog.setTitleText("Loading");
         pDialog.setCancelable(false);
         pDialog.show();
-        //JSon object request for reading the json data
-        stringRequest = new StringRequest(Request.Method.POST, Common.URL+"ParentAPI.asmx/GetTrackInfo",new Response.Listener<String>() {
+
+        stringRequest = new StringRequest(Request.Method.POST,Common.URL+"ParentAPI.asmx/GetTrackInfo" , new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
@@ -319,7 +348,7 @@ public class Home extends AppCompatActivity
             JSONArray joArray=new JSONArray(result);
             for (int i = 0; i < joArray.length(); i++) {
                 JSONObject joObject =joArray.getJSONObject(i);
-                GmapDetais dmDetails=new GmapDetais();
+                DeviceDataDTO dmDetails=new DeviceDataDTO();
                 if (i<=0) {
                     defaultImage=joObject.getString("Photo").replaceAll("~", "").trim();
                     if (Common.roleid.contains("5")) {
@@ -331,6 +360,7 @@ public class Home extends AppCompatActivity
                 }
                 dmDetails.setId(joObject.getString("StudentID"));
                 dmDetails.setName(joObject.getString("Name"));
+                dmDetails.setShowGoogleAddress(joObject.getString("ShowGoogleAddress"));
 
                 dmDetails.setPath(joObject.getString("Photo").replaceAll("~", "").trim());
                 dmDetails.setType(joObject.getString("Type"));
@@ -399,6 +429,15 @@ public class Home extends AppCompatActivity
         });
         drawer.setDrawerListener(toggle);
         toggle.syncState();
+
+        Menu nav_Menu = navigationView.getMenu();
+
+        if (Integer.parseInt(Common.schoolId)==1051)
+            nav_Menu.findItem(R.id.nav_change_password).setVisible(false);
+        else
+            nav_Menu.findItem(R.id.nav_change_password).setVisible(true);
+
+
         personlist = (ListView) findViewById(R.id.User_list);
 
         //Initialize data
@@ -428,7 +467,7 @@ public class Home extends AppCompatActivity
         {
             txt_email.setText(sharedPreferences.getString(key_USER,""));
             txt_name.setText(sharedPreferences.getString(key_fname,""));
-         //  Picasso.with(context).load(Common.Relative_URL+Common.userid+"_"+Common.userid+".jpg").transform(new CircleTransform()).into(profile_pic);
+            //  Picasso.with(context).load(Common.Relative_URL+Common.userid+"_"+Common.userid+".jpg").transform(new CircleTransform()).into(profile_pic);
 
         }
         else{
@@ -460,7 +499,7 @@ public class Home extends AppCompatActivity
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
-      //  GetImage();
+        //  GetImage();
 
 
     }
@@ -545,34 +584,50 @@ public class Home extends AppCompatActivity
 
         if (id == R.id.nav_profile) {
 
-            Intent Add=new Intent(context,UserProfileActivity.class);
-            startActivity(Add);
-        }else if (id == R.id.nav_change_password) {
+            if (Common.roleid.equalsIgnoreCase("1")||Common.roleid.equalsIgnoreCase("2")){
+                Common.ShowSweetAlert(context,"You are not eligible for this feature.Please contact to admin.");
+            }else {
+                Intent Add=new Intent(context,UserProfileActivity.class);
+                startActivity(Add);
+            }
+
+
+        }
+        else if (id == R.id.nav_change_password) {
 
             Intent Add=new Intent(context,ChanagePassword.class);
             startActivity(Add);
         }
-       /* else if (id == R.id.nav_newrequest) {
-            Intent Add=new Intent(context,NewRequest.class);
-            startActivity(Add);
+        else if (id == R.id.nav_renew_device) {
+            if (Common.PlatformRenewalStatus){
+                Intent Add = new Intent(context, DeviceLevelRenewService.class);
+                startActivity(Add);
+            }else {
+                Intent Add = new Intent(context, RenewServiceActivity.class);
+                startActivity(Add);
+            }
 
-        } else if (id == R.id.nav_block) {
-            Intent Add=new Intent(context,BlockTracking.class);
+
+       }/* else if (id == R.id.nav_addnewdevice) {
+            Intent Add=new Intent(context,ShowExistingDeviceActivity.class);
             startActivity(Add);
         }*/
         else if (id == R.id.nav_signout) {
             if(sharedPreferences.contains(key_IS))
                 isfirst = sharedPreferences.getBoolean(key_IS, true);
 
-            helper.truncateTables(DBHelper.TABLE_DEVICE_LIST);
+            PrimesysTrack.mDbHelper.truncateTables(DBHelper.TABLE_DEVICE_LIST);
             if (!isfirst) {
                 editor = sharedPreferences.edit();
                 editor.putString(key_id, "");
                 editor.putString(key_PASS, "");
                 editor.putString(key_Roll_id, "");
                 editor.putString(key_UserPic, "");
+                String GCM_KEY_SEND = "gcm_key_send";
+                editor.remove(GCM_KEY_SEND);
 
                 editor.remove(key_IS);
+                editor.remove(KEY_LOCATION);
 
                 editor.commit();
 
@@ -685,9 +740,9 @@ public class Home extends AppCompatActivity
     }*/
 
     // JSON request to get the history
-     String makeJSONHistory(String date)
+    String makeJSONHistory(String date)
     {
-        helper.truncateTables("db_history");
+        PrimesysTrack.mDbHelper.truncateTables("db_history");
         String trackSTring="{}";
         try{
             JSONObject jo=new JSONObject();
@@ -727,7 +782,7 @@ public class Home extends AppCompatActivity
 
         }
 
-        Log.e("Send req For track chiled---", trackSTring+" "+Id);
+        Log.e("Send req  chiled---", trackSTring+" "+Id);
         return trackSTring;
     }
 
@@ -757,7 +812,7 @@ public class Home extends AppCompatActivity
         tabLayout.getTabAt(0).setIcon(tabIcons[0]);
         tabLayout.getTabAt(1).setIcon(tabIcons[1]);
         System.err.println("--------------"+Common.VtsFuncAllow+"  "+Common.VtsSmsAllow);
-       if (Common.VtsFuncAllow)
+        if (Common.VtsFuncAllow)
             tabLayout.getTabAt(2).setIcon(tabIcons[3]);
         if (Common.VtsSmsAllow&&Common.VtsFuncAllow)
         {
@@ -780,10 +835,10 @@ public class Home extends AppCompatActivity
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFrag(new ShowMapFragment(), "Track");
-        adapter.addFrag(new historyFragment(), "History");
+        adapter.addFrag(new history_API_Fragment(), "History");
 
-       if (Common.VtsFuncAllow)
-           adapter.addFrag(new VTSFunction(), "VTS Function");
+        if (Common.VtsFuncAllow)
+            adapter.addFrag(new VTSFunction(), "VTS Function");
         if (Common.VtsSmsAllow)
             adapter.addFrag(new SMSFuction(), "SMS Functions");
         if (Common.AccReportAllow)
@@ -802,14 +857,14 @@ public class Home extends AppCompatActivity
             super(manager);
         }
 
-       /* @Override
-        public Fragment getItem(int position) {
-            Log.e("INside ---","Fragment---------------------------------"+position);
+        /* @Override
+         public Fragment getItem(int position) {
+             Log.e("INside ---","Fragment---------------------------------"+position);
 
-            return mFragmentList.get(position);
+             return mFragmentList.get(position);
 
-        }
-*/
+         }
+ */
         @Override
         public int getItemPosition(Object object) {
             return POSITION_NONE;
@@ -823,20 +878,20 @@ public class Home extends AppCompatActivity
             switch (position) {
                 case 0:
                     fragment = Fragment.instantiate(context, ShowMapFragment.class.getName());
-                    Log.e("INside ---", "ShowMapFragment---------------------------------");
+                    Log.e("INside ---", "GShowMapFragment---------------------------------");
 
                     break;
                 case 1:
                    /* fragment = Fragment.instantiate(context, InfoFragment.class.getName());
                     Log.e("INside ---", "InfoFragment---------------------------------");*/
-                    fragment = Fragment.instantiate(context, historyFragment.class.getName());
-                    Log.e("INside ---", "historyFragment---------------------------------");
+                    fragment = Fragment.instantiate(context, history_API_Fragment.class.getName());
+                    Log.e("INside ---", "history_API_Fragment---------------------------------");
                     break;
                 case 2:
                     if (Common.VtsFuncAllow)
-                    fragment = Fragment.instantiate(context, VTSFunction.class.getName());
+                        fragment = Fragment.instantiate(context, VTSFunction.class.getName());
                     else
-                    fragment = Fragment.instantiate(context, SMSFuction.class.getName());
+                        fragment = Fragment.instantiate(context, SMSFuction.class.getName());
 
 
                     Log.e("INside ---", "historyFrsagment---------------------------------");
@@ -852,14 +907,14 @@ public class Home extends AppCompatActivity
                     }else
                     {
                         fragment = Fragment.instantiate(context, SMSFuction.class.getName());
-                        Log.e("INside ---", "SMSFuction---------------------------------");
+                        Log.e("INside ---", "GSMSFuction---------------------------------");
 
                     }
 
                     break;
                 case 4:
                     fragment = Fragment.instantiate(context, ACCReport.class.getName());
-                    Log.e("INside ---", "SMSFuction---------------------------------");
+                    Log.e("INside ---", "GSMSFuction---------------------------------");
 
                     break;
             }
@@ -884,5 +939,153 @@ public class Home extends AppCompatActivity
             return mFragmentTitleList.get(position);
         }
     }
+
+
+
+    void CheckForUpdate() {
+        if (MarketVersionName > ExistingVersionName) {
+            System.out.println("----------If CheckForUpdate------------");
+
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
+            alertDialog.setTitle("Update Available");
+            alertDialog.setMessage("You are using " + ExistingVersionName + " version\n" + MarketVersionName + " version is availble\nDo you which to download it?");
+            alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+
+                   /* mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    mBuilder = new NotificationCompat.Builder(context);
+                    mBuilder.setContentTitle("Update Mykiddytracker")
+                            .setContentText("Download in progress")
+                            .setSmallIcon(R.drawable.ic_launcher);
+                    Intent intent = new Intent(context, DownloadAPKService.class);
+                    startService(intent);
+*/
+                }
+            });
+            alertDialog.setNegativeButton("Later", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+            alertDialog.show();
+
+
+        }
+
+    }
+
+    class GetLiveAppVersion extends AsyncTask<Void, String, String> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+        @Override
+        protected String doInBackground(Void... params) {
+            String result="";
+            try {
+
+                String curVersion = getPackageManager().getPackageInfo(package_name, 0).versionName;
+                String newVersion = curVersion;
+                newVersion = Jsoup.connect("https://play.google.com/store/apps/details?id=" + package_name)
+                        .timeout(30000)
+                        .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                        .referrer("http://www.google.com")
+                        .get()
+                        .select("div[itemprop=softwareVersion]")
+                        .first()
+                        .ownText();
+                result=newVersion.toString();
+                MarketVersionName=value(result);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return result;
+        }
+        @Override
+        protected void onPostExecute(String MarketVersionName1) {
+
+            PackageInfo pInfo = null;
+            try {
+                pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            //get the app version Name for display
+            ExistingVersion=pInfo.versionName;
+
+            ExistingVersionName = value(pInfo.versionName);
+            System.out.println("----------web_update------------"+ExistingVersion+"-----"+MarketVersion);
+
+
+            if (MarketVersionName>ExistingVersionName) {
+                //  CreateUpdateNotification();
+                ShowUpdateDialog();
+
+            }
+
+        }
+    }
+
+    private void ShowUpdateDialog() {
+
+
+        System.out.println("----------If CheckForUpdate------------");
+
+        new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
+                .setTitleText("Update Available..")
+                .setContentText("You are using  version "+ ExistingVersion + "\n Version " + MarketVersion + " is available in play store. \nDo you which to download it?")
+                .setCancelText("Not Now")
+                .setConfirmText("Yes")
+                .showCancelButton(true)
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+
+
+                        try {
+                            //Check whether Google Play store is installed or not:
+                            context.getPackageManager().getPackageInfo("com.android.vending", 0);
+
+                            url = "market://details?id=" + "com.primesys.VehicalTracking";
+                        } catch ( final Exception e ) {
+                            e.printStackTrace();
+                            url = "https://play.google.com/store/apps/details?id=" + "com.primesys.VehicalTracking";
+                        }
+
+
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+
+                        sDialog.cancel();
+                    }
+                })
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                    }
+                })
+                .show();
+    }
+
+
+
+    private long value(String string) {
+        string = string.trim();
+        if( string.contains( "." )){
+            final int index = string.lastIndexOf( "." );
+            return value( string.substring( 0, index ))* 100 + value( string.substring( index + 1 ));
+        }
+        else {
+            return Long.valueOf( string );
+        }
+
+
+    }
+
+
 
 }

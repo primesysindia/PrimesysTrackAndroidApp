@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="5dp">
+    <EditText android:id="@+id/papano"
+        android:hint="Enter papa mobile no.."
+        android:layout_width="match_parent"
+        android:maxLength="10"
+        android:inputType="number"
+        android:layout_height="wrap_content"/>
+
+    <EditText android:id="@+id/monno"
+        android:hint="Enter mom mobile no.."
+        android:layout_width="match_parent"
+        android:layout_below="@+id/alertname"
+        android:lines="1"
+        android:maxLength="10"
+
+
+        android:inputType="number"
+        android:layout_height="wrap_content"/>
+    <EditText android:id="@+id/uncle_no"
+        android:hint="Enter uncle mobile no.."
+        android:layout_width="match_parent"
+        android:layout_below="@+id/alertname"
+        android:maxLength="10"
+        android:lines="1"
+        android:inputType="number"
+        android:layout_height="wrap_content"/>
+
+
+        <Button
+            android:id="@+id/alertsubmit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/layalert"
+            android:layout_below="@+id/toggleenable"
+            android:background="@drawable/capsulshapebutton"
+            android:gravity="center"
+            android:padding="10dp"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/Submit"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

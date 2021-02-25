@@ -320,7 +320,7 @@ public class SignInActivity11 extends AppCompatActivity implements
                 return params;
             }
         };
-        stringRequest.setTag(TAG);
+        stringRequest.setTag(TAG);         stringRequest.setRetryPolicy(Common.vollyRetryPolicy);
         // Adding request to request queue
         reuestQueue.add(stringRequest);
     }

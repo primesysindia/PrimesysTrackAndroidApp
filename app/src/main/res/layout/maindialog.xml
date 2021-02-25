@@ -31,7 +31,11 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
           android:background="@drawable/capsulshapebutton"
-        android:text="@string/close" 
+        android:text="@string/close"
+        android:padding="5sp"
+        android:gravity="center"
+
+
         android:textColor="@android:color/black"
         />
 

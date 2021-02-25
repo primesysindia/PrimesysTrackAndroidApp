@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="1dp"
+    android:fitsSystemWindows="true"
+   	android:background="@color/color_background"
+     >    
+      
+ <!--   
+    <include
+        android:id="@id/footer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        layout="@layout/activity_footer" />
+-->
+    <include layout="@layout/app_bar_home" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:id="@+id/tool1" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_msg"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal"
+        android:id="@+id/lay"
+
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal"
+        android:padding="5dp" >
+
+        <Button
+            android:id="@+id/vs_yes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/capsulshapebutton"
+            android:text="Yes"
+            android:padding="10sp"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/vs_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/capsulshapebutton"
+            android:text="No"
+            android:padding="10sp"
+            android:textColor="@color/white" />
+        <Button
+            android:id="@+id/vs_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/layalert"
+            android:layout_below="@+id/toggleenable"
+            android:background="@drawable/capsulshapebutton"
+            android:text="Edit Number"
+            android:padding="10sp"
+            android:textColor="@color/white" />
+    </LinearLayout>
+    
+     <TextView android:id="@+id/tv_vserror"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_medium"
+        android:layout_below="@+id/lay"
+        android:text="@string/communication_school"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        android:maxLines="8"
+        android:paddingTop="50dp"
+        android:textStyle="bold"/>
+
+     <TextView
+         android:id="@+id/tv_msg"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_alignParentRight="true"
+         android:layout_alignParentTop="true"
+         android:layout_marginTop="117dp"
+         android:gravity="center"
+         android:padding="@dimen/padding_medium"
+         android:layout_below="@+id/tool1"
+         android:paddingTop="50dp"
+
+         android:text="@string/communication_school"
+         android:textColor="@android:color/white"
+         android:textSize="16sp"
+         android:textStyle="bold" />
+
+</RelativeLayout>

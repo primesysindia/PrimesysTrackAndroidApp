@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="@color/color_background"
+    tools:context="com.primesys.VehicalTracking.Activity.EmployeeAcivity.EmpHomeActivity">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/acc_container">
+
+        <include layout="@layout/app_bar_main"
+            android:id="@+id/appbar"/>
+
+
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_startwork"
+            android:layout_width="wrap_content"
+            android:layout_below="@id/appbar"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/capsulshapebutton"
+            android:layout_marginBottom="15dp"
+            android:textColor="@color/white"
+            android:padding="12dp"
+            android:gravity="center"
+            android:layout_centerHorizontal="true"
+            android:text="Start Work Time"/>
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_endwork"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btn_startwork"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/capsulshapebutton"
+            android:layout_marginBottom="15dp"
+            android:textColor="@color/white"
+            android:padding="12dp"
+            android:gravity="center"
+            android:layout_centerHorizontal="true"
+
+            android:text="End Work Time"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btn_endwork"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:text=""
+            android:visibility="invisible"
+            android:id="@+id/tv_attendance_status"/>
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_application_leave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_attendance_status"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/capsulshapebutton"
+            android:layout_marginBottom="15dp"
+            android:textColor="@color/white"
+            android:padding="12dp"
+            android:gravity="center"
+            android:layout_centerHorizontal="true"
+            android:text="Click to application Leave"
+            />
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_geofencing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btn_application_leave"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/capsulshapebutton"
+            android:layout_marginBottom="15dp"
+            android:textColor="@color/white"
+            android:padding="12dp"
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_centerHorizontal="true"
+            android:text="Click to set Geo-fence"
+            />
+
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/task_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btn_geofencing"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/capsulshapebutton"
+            android:layout_marginBottom="15dp"
+            android:textColor="@color/white"
+            android:padding="12dp"
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_centerHorizontal="true"
+            android:text="Click to get Pickup"
+            />
+    </RelativeLayout>
+</android.support.constraint.ConstraintLayout>

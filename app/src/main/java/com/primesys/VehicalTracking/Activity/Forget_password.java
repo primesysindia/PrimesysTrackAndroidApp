@@ -136,27 +136,23 @@ public class Forget_password extends AppCompatActivity {
         pDialog.setCancelable(false);
         pDialog.show();
         //JSon object request for reading the json data
-        stringRequest = new StringRequest(Request.Method.POST, Common.TrackURL+"UserServiceAPI/SendForgrtPassword",new Response.Listener<String>()
+        stringRequest = new StringRequest(Request.Method.POST, Common.TrackURL+"UserServiceAPI/SendForgetPassword",new Response.Listener<String>()
         {
         @Override
             public void onResponse(String response) {
-            System.out.println("----------------------"+response);
+            pDialog.dismiss();
 
             ParseSave(response);
 
-            pDialog.hide();
             }
         },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        //    pDialog.hide();
+                        pDialog.dismiss();
 
                         if(error.networkResponse != null && error.networkResponse.data != null){
-                            VolleyError er = new VolleyError(new String(error.networkResponse.data));
-                            error = er;
-                            System.out.println(error.toString());
-                            ParseSave(new String(error.networkResponse.data));
+                            ParseSave(error.networkResponse.data+"");
                         }
                     }
                 })  {
@@ -164,8 +160,6 @@ public class Forget_password extends AppCompatActivity {
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("Email_Id",Email.getText().toString());
-
-                System.out.println("REq---ForgetPass WOrd us  -------" + params);
                 return params;
             }
         };
@@ -180,10 +174,6 @@ public class Forget_password extends AppCompatActivity {
     }
 
     private void ParseSave(String response) {
-
-
-
-
             try {
                 JSONObject jo=new JSONObject(response);
                 if (jo.getString("error").equalsIgnoreCase("false")) {
@@ -194,12 +184,22 @@ public class Forget_password extends AppCompatActivity {
                     editor.putString(key_PASS, "");
                     editor.putString(key_Roll_id, "");
                     editor.remove(key_IS);
-
                     editor.commit();
-                    Common.ShowSweetSucess(context, jo.getString("message"));
-                    Intent loginIntent = new Intent(context, LoginActivity.class);
-                    startActivity(loginIntent);
-                    finish();
+                    final SweetAlertDialog pDialog = new SweetAlertDialog(context, SweetAlertDialog.SUCCESS_TYPE);
+                    pDialog.setTitleText("Success");
+                    pDialog.setContentText(jo.getString("message"));
+                    pDialog.setCancelable(true);
+                    pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sweetAlertDialog) {
+                            Intent loginIntent = new Intent(context, LoginActivity.class);
+                            startActivity(loginIntent);
+                            pDialog.dismiss();
+                            finish();
+                        }
+                    });
+                    pDialog.show();
+
                 }else{
                     Common.ShowSweetAlert( context, jo.getString("message"));
 

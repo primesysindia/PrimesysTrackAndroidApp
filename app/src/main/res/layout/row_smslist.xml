@@ -20,9 +20,7 @@
         android:layout_margin="2dp"
         android:id="@+id/titlesms"
         android:gravity="start|left"
-        android:password="false"
-        android:phoneNumber="false"
-        android:paddingStart="5dp" />
+         />
 <!--
     <View
         android:layout_width="match_parent"

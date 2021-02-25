@@ -39,7 +39,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.primesys.VehicalTracking.Activity.Home;
-import com.primesys.VehicalTracking.Db.DBHelper;
+import com.primesys.VehicalTracking.PrimesysTrack;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.CircularNetworkImageView;
 import com.primesys.VehicalTracking.Utility.Common;
@@ -209,7 +209,7 @@ public class InfoFragment extends Fragment {
                     String Photo = jo.getString("Photo").trim();
 
                     Bitmap bitmap = null;
-                    bitmap = DBHelper.getInstance(proContext).getBitMap(Common.userid + "");
+                    bitmap = PrimesysTrack.mDbHelper.getBitMap(Common.userid + "");
                     if (bitmap != null) {
                         profile_pic.setImageBitmap(getRoundedShape(bitmap));
                         Home.profile_pic.setImageBitmap(getRoundedShape(bitmap));
@@ -639,8 +639,7 @@ public class InfoFragment extends Fragment {
                 return params;
             }
         };
-        stringRequest.setTag(TAG);
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(300000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest.setTag(TAG);         stringRequest.setRetryPolicy(Common.vollyRetryPolicy);
         // Adding request to request queue
         reuestQueue.add(stringRequest);
 

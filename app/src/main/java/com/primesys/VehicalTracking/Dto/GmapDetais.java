@@ -12,6 +12,16 @@ public class GmapDetais implements Serializable {
 	String type;
 	String imei_no;
 
+	public String getExpiary_date() {
+		return expiary_date;
+	}
+
+	public void setExpiary_date(String expiary_date) {
+		this.expiary_date = expiary_date;
+	}
+
+	String expiary_date;
+
 	public String getStatus() {
 		return status;
 	}

@@ -22,7 +22,6 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -58,8 +57,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -71,12 +68,12 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.primesys.VehicalTracking.Db.DBHelper;
-import com.primesys.VehicalTracking.Dto.GmapDetais;
+import com.primesys.VehicalTracking.Dto.DeviceDataDTO;
 import com.primesys.VehicalTracking.Dto.LocationDTO;
 import com.primesys.VehicalTracking.Dto.persondetail;
 import com.primesys.VehicalTracking.MyAdpter.ShowMapAdapter;
 import com.primesys.VehicalTracking.MyAdpter.ShowMapmenuAdpter;
+import com.primesys.VehicalTracking.PrimesysTrack;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.CircularNetworkImageView;
 import com.primesys.VehicalTracking.Utility.Common;
@@ -140,12 +137,11 @@ public class ShowMap extends AppCompatActivity implements OnMapReadyCallback, Lo
     private String LocatonDate;
     private SweetAlertDialog pDialog;
     static Context trackContext;
-    private static DBHelper helper;
     private Toolbar toolbar;
     private RadioGroup rgViews;
     ListView personlist;
     final String TAG = "REquest";
-    ArrayList<GmapDetais> tracklist = new ArrayList<GmapDetais>();
+    ArrayList<DeviceDataDTO> tracklist = new ArrayList<DeviceDataDTO>();
     ArrayList<persondetail> tracklistcopy = new ArrayList<persondetail>();
     public SharedPreferences sharedPreferences;
     private final String key_IS = "IS_FIRST";
@@ -207,7 +203,7 @@ public class ShowMap extends AppCompatActivity implements OnMapReadyCallback, Lo
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
 
-                GmapDetais user = tracklist.get(position);
+                DeviceDataDTO user = tracklist.get(position);
 
                 trackInfo = false;
             /*    BitmapDrawable bitmap_draw = (BitmapDrawable) imgchild.getDrawable();
@@ -243,7 +239,7 @@ public class ShowMap extends AppCompatActivity implements OnMapReadyCallback, Lo
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+       // client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
 
 
@@ -256,7 +252,6 @@ public class ShowMap extends AppCompatActivity implements OnMapReadyCallback, Lo
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         trackContext = ShowMap.this;
-        helper = DBHelper.getInstance(trackContext);
         if (!isGooglePlayServicesAvailable()) {
             new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE).setTitleText("Error")
                     .setContentText("Google Play services not available !")
@@ -515,17 +510,7 @@ public class ShowMap extends AppCompatActivity implements OnMapReadyCallback, Lo
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "ShowMap Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://com.primesys.VehicalTracking/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client, viewAction);
+
     }
 
     @Override
@@ -551,7 +536,7 @@ public class ShowMap extends AppCompatActivity implements OnMapReadyCallback, Lo
             String result = "";
             try {
                 HttpClient httpclient = new DefaultHttpClient();
-                HttpPost httpost = new HttpPost(Common.URL + "UserServiceAPI/GetTrackInfo");
+                HttpPost   httpost=new HttpPost(Common.URL+"ParentAPI.asmx/GetTrackInfo");
                 List<NameValuePair> param = new ArrayList<NameValuePair>(1);
                 param.add(new BasicNameValuePair("InvitedId", InvitedId));
                 Log.e("Loc Req ", "" + InvitedId);
@@ -626,19 +611,6 @@ public class ShowMap extends AppCompatActivity implements OnMapReadyCallback, Lo
     @Override
     protected void onStop() {
         super.onStop();
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "ShowMap Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://com.primesys.VehicalTracking/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction);
         flag = 0;
         String trackSTring = "{}";
         try {
@@ -1046,7 +1018,7 @@ public class ShowMap extends AppCompatActivity implements OnMapReadyCallback, Lo
 
     // JSON request to get the history
     static String makeJSONHistory(String date) {
-        helper.truncateTables("db_history");
+        PrimesysTrack.mDbHelper.truncateTables("db_history");
         String trackSTring = "{}";
         try {
             JSONObject jo = new JSONObject();
@@ -1131,8 +1103,7 @@ public class ShowMap extends AppCompatActivity implements OnMapReadyCallback, Lo
                 return params;
             }
         };
-        stringRequest.setTag(TAG);
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(300000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest.setTag(TAG);         stringRequest.setRetryPolicy(Common.vollyRetryPolicy);
         // Adding request to request queue
         reuestQueue.add(stringRequest);
 
@@ -1198,7 +1169,7 @@ public class ShowMap extends AppCompatActivity implements OnMapReadyCallback, Lo
             JSONArray joArray = new JSONArray(result);
             for (int i = 0; i < joArray.length(); i++) {
                 JSONObject joObject = joArray.getJSONObject(i);
-                GmapDetais dmDetails = new GmapDetais();
+                DeviceDataDTO dmDetails = new DeviceDataDTO();
                 if (i <= 0) {
                     defaultImage = joObject.getString("Photo").replaceAll("~", "").trim();
                     if (Common.roleid.contains("5")) {
@@ -1315,6 +1286,8 @@ public class ShowMap extends AppCompatActivity implements OnMapReadyCallback, Lo
                 editor.putString(key_PASS, "");
                 editor.putString(key_Roll_id, "");
                 editor.remove(key_IS);
+                String GCM_KEY_SEND = "gcm_key_send";
+                editor.remove(GCM_KEY_SEND);
 
                 editor.commit();
 
@@ -1377,7 +1350,6 @@ public class ShowMap extends AppCompatActivity implements OnMapReadyCallback, Lo
 
         }
 
-        Log.e("Send req For track chiled---", trackSTring + " " + Id);
         return trackSTring;
     }
 

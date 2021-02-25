@@ -1,15 +1,13 @@
 package com.primesys.VehicalTracking.MyAdpter;
 
 import android.content.Context;
-import android.graphics.Movie;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.primesys.VehicalTracking.Dto.GmapDetais;
+import com.primesys.VehicalTracking.Dto.DeviceDataDTO;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.CircleTransform;
 import com.primesys.VehicalTracking.Utility.Common;
@@ -25,7 +23,7 @@ import java.util.List;
 public class ShowMapmenuAdpter extends RecyclerView.Adapter<ShowMapmenuAdpter.MyViewHolder> {
 
     private final Context context;
-    private List<GmapDetais> menuList;
+    private List<DeviceDataDTO> menuList;
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView title;
@@ -38,7 +36,7 @@ public class ShowMapmenuAdpter extends RecyclerView.Adapter<ShowMapmenuAdpter.My
     }
 
 
-    public ShowMapmenuAdpter(Context trackContext, ArrayList<GmapDetais> moviesList) {
+    public ShowMapmenuAdpter(Context trackContext, ArrayList<DeviceDataDTO> moviesList) {
         this.menuList = moviesList;
         this.context=trackContext;
     }
@@ -53,7 +51,7 @@ public class ShowMapmenuAdpter extends RecyclerView.Adapter<ShowMapmenuAdpter.My
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        GmapDetais menu = menuList.get(position);
+        DeviceDataDTO menu = menuList.get(position);
         holder.title.setText(menu.getName());
         Picasso.with(context).
                 load(Common.Relative_URL+menu.getPath().replaceAll(" ","%20")).transform(new CircleTransform())

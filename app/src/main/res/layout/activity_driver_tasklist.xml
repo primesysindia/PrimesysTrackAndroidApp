@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fitsSystemWindows="true"
+    android:background="@color/color_background"
+>
+    <include layout="@layout/app_bar_home"
+        android:id="@+id/appbar"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textSize="25sp"
+        android:padding="5dp"
+        android:layout_marginBottom="5dp"
+        android:textColor="@color/white"
+        android:layout_below="@+id/appbar"
+        android:id="@+id/trip_heading"/>
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_below="@+id/trip_heading"
+        android:id="@+id/driver_tasklist"
+        android:layout_above="@+id/totalkm">
+
+
+    </android.support.v7.widget.RecyclerView>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:id="@+id/totalkm"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:text="total"
+        android:background="@color/colorPrimaryDark"
+        android:layout_alignParentBottom="true"/>
+</RelativeLayout>

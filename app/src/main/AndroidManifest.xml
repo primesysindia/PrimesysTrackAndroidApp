@@ -10,6 +10,9 @@
     -->
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -20,11 +23,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.SEND_SMS" />
-
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -38,15 +38,21 @@
         android:glEsVersion="0x00020000"
         android:required="true" />
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <application
-        android:name="android.support.multidex.MultiDexApplication"
+        android:name=".PrimesysTrack"
         android:allowBackup="true"
         android:icon="@mipmap/ic_icon"
         android:label="@string/appllication_name"
+        android:largeHeap="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme"
         tools:node="replace"
         tools:replace="android:icon,android:label,android:theme">
-        ///add this line
+
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+
         <activity
             android:name=".Activity.Home"
             android:label="@string/toolbar_name"
@@ -54,14 +60,13 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAyPQ7h3-MBB3IAOAMACNJJmhKl2LvtpkY" />
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="@string/MapKeyLive"/>
+
 
         <!-- For Live Relese VTS    android:value="AIzaSyAyPQ7h3-MBB3IAOAMACNJJmhKl2LvtpkY" /> -->
 
-
         <!-- for DEbug VTS  android:value="AIzaSyCsUL2QWb_jiO2DhXcq1iTWk9ErLOrmyro" /> -->
-
 
         <!--
             <meta-data
@@ -93,16 +98,18 @@
             android:value="@string/google_maps_key" />
         -->
 
-<!--FOe Crashlytics-->
+
+        <!-- For Crashlytics -->
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="7c02be51c01e8913291246df067ef34c38f60d78"
-            />
+            android:value="7c02be51c01e8913291246df067ef34c38f60d78" />
+
         <activity
             android:name=".Activity.ShowMap"
             android:label="@string/toolbar_name" />
         <activity
             android:name=".Activity.LoginActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -112,12 +119,12 @@
         </activity>
         <activity
             android:name=".Activity.SignupActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/toolbar_name"
             android:theme="@style/AppTheme.NoActionBar" />
-
-
         <activity
             android:name=".Activity.Forget_password"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/toolbar_name"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
@@ -125,10 +132,12 @@
             android:label="@string/toolbar_name" />
         <activity
             android:name=".googlelogin.SignInActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/toolbar_name"
             android:theme="@style/ThemeOverlay.MyNoTitleActivity" />
         <activity
             android:name=".googlelogin.SignInActivityWithDrive"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/toolbar_name"
             android:theme="@style/ThemeOverlay.MyNoTitleActivity" />
         <activity
@@ -145,7 +154,23 @@
         </receiver>
         -->
 
+      <!--  <receiver
+            android:name=".Gcm.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
+                <category android:name="com.primesys.mykidtracker" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".Gcm.GCMNotificationIntentService">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
+-->
         <!-- Broadcast Receiver for check the internet connection is on / off -->
         <receiver android:name=".Activity.InternetConnectionReceiver">
             <intent-filter>
@@ -156,23 +181,29 @@
 
         <activity
             android:name=".Activity.TrackSwitch"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/toolbar_name"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activity.UserProfileActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/toolbar_name"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activity.DateTimeActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/toolbar_name"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <!-- Recevier for Incomming msg -->
-        <receiver android:name=".Receiver.IncomingSms">
-            <intent-filter android:priority="99999">
+     <!--   <receiver
+            android:name=".Receiver.IncomingSms"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter android:priority="99999999">
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
-        </receiver>
+        </receiver>-->
 
         <!-- Recevier for Incomming call -->
         <receiver android:name=".Receiver.IncomingCall">
@@ -187,20 +218,193 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activity.ChanageEnginepassword"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/toolbar_name"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activity.ChanagePassword"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/toolbar_name"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".Activity.AccReportlist"
             android:label="@string/toolbar_name"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.RenewServiceActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.PaymentWebview"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <service android:name=".Activity.DownloadAPKService" />
+
+        <activity
+            android:name=".Guest.GHomeTab"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Guest.GSignup"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.DeviceLevelRenewService"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.TripReportShow"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.paytm.pgsdk.PaytmPGActivity"
+            android:configChanges="keyboardHidden|orientation|keyboard"
+            android:screenOrientation="portrait" />
+        <!--
+            <activity
+            android:name=".HomeNew.Payment_Paytm_Webview"
+            android:configChanges="keyboardHidden|orientation|keyboard"
+            android:screenOrientation="portrait" />
+        -->
+        <activity
+            android:name=".PayUmoney.MainActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity
+            android:name=".Activity.ShowExistingDeviceActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.AddStudentActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.EmployeeAcivity.DriverTasklistActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.EmployeeAcivity.DriverEmpUsActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ActivityMykiddyLike.HomeNew"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ActivityMykiddyLike.GeoFencingHomeNew"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ActivityMykiddyLike.GeofencingNewdrawCircle"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ActivityMykiddyLike.GeoFencingShowInOut"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ActivityMykiddyLike.GeofencingUpdatedrawCircle"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ActivityMykiddyLike.Voice_Servilence"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.EmployeeAcivity.EmpHomeActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.EmployeeAcivity.LeaveApplicationActivity"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.EmployeeAcivity.ShowEmpAttendanceActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.EmployeeAcivity.ShowAllEmployeeActivity"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.EmployeeAcivity.EmpHolidayActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.EmployeeAcivity.SimpleEmployee.DriverTasklistActivity"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.EmployeeAcivity.SimpleEmployee.DriverEmpUsActivity"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ActivityMykiddyLike.GeofenceHistory"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.AdminParentActivity"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.AboutPageActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/about_us" />
+        <activity
+            android:name=".Activity.ContactUSActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity
+            android:name=".ActivityMykiddyLike.HomeNewRailway"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.DeviceReport.CurrentDeviceStatusActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".Activity.DeviceReport.DeviceOnReportActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Activity.DeviceReport.NearbyFeatureCodeActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Activity.DeviceReport.DeviceBatteryStatusActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Activity.DeviceReport.MonitorSOSPressActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/toolbar_name"
+            android:theme="@style/AppTheme.NoActionBar" />
 
 
 
+        <receiver android:name=".Receiver.NetworkStateReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

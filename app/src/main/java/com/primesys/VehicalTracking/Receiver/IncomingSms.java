@@ -1,7 +1,8 @@
 package com.primesys.VehicalTracking.Receiver;
 
 
-
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -9,8 +10,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.NotificationCompat;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
@@ -24,16 +28,27 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.primesys.VehicalTracking.Activity.ShowLocationOfCar;
+import com.primesys.VehicalTracking.ActivityMykiddyLike.SMSlistAdpter;
+import com.primesys.VehicalTracking.ActivityMykiddyLike.Voice_Servilence;
 import com.primesys.VehicalTracking.Db.DBHelper;
 import com.primesys.VehicalTracking.Dto.SmsNotificationDTO;
+import com.primesys.VehicalTracking.Guest.Adpter.GVhehicalSMSlistAdpter;
 import com.primesys.VehicalTracking.MyAdpter.VhehicalSMSlistAdpter;
+import com.primesys.VehicalTracking.PrimesysTrack;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.Common;
+import com.primesys.VehicalTracking.VTSFragments.SMSFuction;
+import com.primesys.VehicalTracking.VTSFragments.ShowMapFragment;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -47,7 +62,7 @@ public class IncomingSms extends BroadcastReceiver {
     // Get the object of SmsManager
     final SmsManager sms = SmsManager.getDefault();
     private NotificationManager mNotificationManager;
-    public static Context context1;
+    public static Context mContext;
     private RequestQueue reuestQueue;
     private StringRequest stringRequest;
     private SharedPreferences sharedPreferences;
@@ -61,8 +76,7 @@ public class IncomingSms extends BroadcastReceiver {
 
         // Retrandroid.content.SharedPreferencesieves a map of extended data from the intent.
         final Bundle bundle = intent.getExtras();
-        this.context1 = context.getApplicationContext();
-        helper = DBHelper.getInstance(context1);
+        this.mContext = context.getApplicationContext();
 
         SmsMessage[] smgs = null;
         String senderNum = "";
@@ -110,204 +124,245 @@ public class IncomingSms extends BroadcastReceiver {
                 }
 
                 Log.e("SmsReceiver------------", "senderNum:" + senderNum + "; message:" + message);
+                if (SMSFuction.CuurentDeviceDelect!=null&& SMSFuction.CuurentDeviceDelect.getType().equalsIgnoreCase("Car"))
+                {
 
-                try{
-                    if(VhehicalSMSlistAdpter.pDialogmain.isShowing()) {
-                        VhehicalSMSlistAdpter.pDialogmain.dismiss();
-                        VhehicalSMSlistAdpter.countdowntimer.cancel();
+                    try {
+                        if (VhehicalSMSlistAdpter.pDialogmain != null && VhehicalSMSlistAdpter.pDialogmain.isShowing()) {
+                            VhehicalSMSlistAdpter.pDialogmain.dismiss();
+                            VhehicalSMSlistAdpter.countdowntimer.cancel();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
 
-                if (senderNum.contains(DeviceSimNo)&&message.contains("Speed  Alarm")) {
-                    abortBroadcast();
-                    MatchSpeedAlarm(context,message);
-                    VhehicalSMSlistAdpter.setSucessDialog(context1);
-                    Log.e("abortBroadcast", "abortBroadcast------------: " + senderNum + "; message: " + message);
+                    if (senderNum.contains(DeviceSimNo) && message.contains("Speed  Alarm")) {
 
-                }else if (senderNum.contains(DeviceSimNo)&&message.contains("http://maps.google.com/maps?q=N0.000000,E0.000000") ) {
-                       abortBroadcast();
-                    sendNotification(context,"Current Location","We can't get your location.Please try again.");
-                    VhehicalSMSlistAdpter.setSucessDialog(context1);
+                        MatchSpeedAlarm(context, message);
+                        VhehicalSMSlistAdpter.setSucessDialog(mContext);
+                        Log.e("abortBroadcast", "abortBroadcast------------: " + senderNum + "; message: " + message);
 
-                }
-                else if (senderNum.contains(DeviceSimNo)&&message.contains("http://maps.google.com/maps")) {
-                   abortBroadcast();
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("http://maps.google.com/maps?q=N0.000000,E0.000000")) {
 
-                    MatchLocation(context,message);
-                    VhehicalSMSlistAdpter.setSucessDialog(context1);
+                        sendNotification(context, "Current Location", "We can't get your location.Please try again.");
+                        VhehicalSMSlistAdpter.setSucessDialog(mContext);
 
-                    Log.d(TAG, "In side loaction...: " + message);
-
-                }
-                else if (senderNum.contains(DeviceSimNo)&&message.contains("speedok!")) {
-                    abortBroadcast();
-                    sendNotification(context,"Speed alert","Speed Set Successfully.");
-                    VhehicalSMSlistAdpter.setSucessDialog(context1);
-
-                }
-                else if (senderNum.contains(DeviceSimNo)&&message.contains("Stop electricity ok!")) {
-                    abortBroadcast();
-                    sendNotification(context,"Engine Stop ","Engine Stop successfully.");
-                    VhehicalSMSlistAdpter.setSucessDialog(context1);
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("http://maps.google.com/maps")) {
 
 
-                }
-                else if (senderNum.contains(DeviceSimNo)&&message.contains("supply electricity ok!")) {
-                    abortBroadcast();
-                    sendNotification(context,"Engine Start","Engine Start successfully.");
-                    VhehicalSMSlistAdpter.setSucessDialog(context1);
+                        MatchLocation(context, message);
+                        VhehicalSMSlistAdpter.setSucessDialog(mContext);
+
+                        Log.d(TAG, "In side loaction...: " + message);
+
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("speedok!")) {
+
+                        sendNotification(context, "Speed alert", "Speed Set Successfully.");
+                        VhehicalSMSlistAdpter.setSucessDialog(mContext);
+
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("Stop electricity ok!")) {
+
+                        sendNotification(context, "Engine Stop ", "Engine Stop successfully.");
+                        VhehicalSMSlistAdpter.setSucessDialog(mContext);
 
 
-                }else if (senderNum.contains(DeviceSimNo)&&message.contains("stop oil ok!")) {
-                    abortBroadcast();
-                    sendNotification(context,"Stop Oil","Stop Oil successfully.");
-                    VhehicalSMSlistAdpter.setSucessDialog(context1);
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("supply electricity ok!")) {
+
+                        sendNotification(context, "Engine Start", "Engine Start successfully.");
+                        VhehicalSMSlistAdpter.setSucessDialog(mContext);
 
 
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("stop oil ok!")) {
+
+                        sendNotification(context, "Stop Oil", "Stop Oil successfully.");
+                        VhehicalSMSlistAdpter.setSucessDialog(mContext);
 
 
-                }else if (senderNum.contains(DeviceSimNo)&&message.contains("supply oil ok!")) {
-                    abortBroadcast();
-                    sendNotification(context,"Supply Oil","Supply Oil successfully.");
-                    VhehicalSMSlistAdpter.setSucessDialog(context1);
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("supply oil ok!")) {
+
+                        sendNotification(context, "Supply Oil", "Supply Oil successfully.");
+                        VhehicalSMSlistAdpter.setSucessDialog(mContext);
 
 
-                }else if (senderNum.contains(DeviceSimNo)&&message.contains("ACC ON OK")) {
-                    abortBroadcast();
-                    sendNotification(context,"ACC  ","ACC ON successfully.");
-                    VhehicalSMSlistAdpter.setSucessDialog(context1);
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("ACC ON OK")) {
+
+                        sendNotification(context, "ACC  ", "ACC ON successfully.");
+                        VhehicalSMSlistAdpter.setSucessDialog(mContext);
 
 
-                }else if (senderNum.contains(DeviceSimNo)&&message.contains("ACC OFF OK")) {
-                    abortBroadcast();
-                    sendNotification(context,"ACC ","ACC OFF successfully.");
-                    VhehicalSMSlistAdpter.setSucessDialog(context1);
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("ACC OFF OK")) {
+
+                        sendNotification(context, "ACC ", "ACC OFF successfully.");
+                        VhehicalSMSlistAdpter.setSucessDialog(mContext);
 
 
-                }else if (senderNum.contains(DeviceSimNo)&&message.contains("ACC")&&message.contains("!!!")) {
-                    abortBroadcast();
-
-                    ParseACCONMsg(context,message);
-                   /* sendNotification(context,"Speed","Speed Set successfully.");
-                    VhehicalSMSlistAdpter.setSucessDialog(context1);*/
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("ACC") && message.contains("!!!")) {
 
 
-                }else if (senderNum.contains(DeviceSimNo)&&message.contains("cut power alert")) {
-                    //   abortBroadcast();
-
-                    ParseACCOFFMsg(context,message);
-                   /* sendNotification(context,"Speed","Speed Set successfully.");
-                    VhehicalSMSlistAdpter.setSucessDialog(context1);*/
+                        ParseACCONMsg(context, message);
+                        sendNotification(context, "Speed", "Speed Set successfully.");
+                        GVhehicalSMSlistAdpter.setSucessDialog(mContext);
 
 
-                }
-                else if (senderNum.contains(DeviceSimNo)&&message.contains("cancel speed")&&message.contains("!")) {
-                    abortBroadcast();
-                    sendNotification(context,"Speed alert","Over speed alert cancel successfully.");
-                    VhehicalSMSlistAdpter.setSucessDialog(context1);
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("cut power alert")) {
+                        //
+
+                        ParseACCOFFMsg(context, message);
+                        sendNotification(context, "Speed", "Speed Set successfully.");
+                        /*   GVhehicalSMSlistAdpter.setSucessDialog(mContext);*/
 
 
-                }else if(senderNum.contains(DeviceSimNo)) {
-                  //  VhehicalSMSlistAdpter.setSucessDialog(context1);
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("cancel speed") && message.contains("!")) {
 
+                        sendNotification(context, "Speed alert", "Over speed alert cancel successfully.");
+                        VhehicalSMSlistAdpter.setSucessDialog(mContext);
+
+
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("no stockade ok") && message.contains("!")) {
+
+                        sendNotification(context, "Geo-fence ", "Geo-fence disable sucessfully.");
+                        VhehicalSMSlistAdpter.setSucessDialog(mContext);
+
+
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("stockade ok") && message.contains("!")) {
+
+                        sendNotification(context, "Geo-fence ", "Geo-fence set sucessfully.");
+                        VhehicalSMSlistAdpter.setSucessDialog(mContext);
+
+
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("no stockade ok") && message.contains("!")) {
+
+                        sendNotification(context, "Geo-fence ", "Geo-fence disable sucessfully.");
+                        VhehicalSMSlistAdpter.setSucessDialog(mContext);
+
+
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("stockade") && message.contains("IMEI")) {
+
+                        ParseGeofenceMsg(context, message);
+                        // sendNotification(context,"Geo-fence ","Geo-fence set sucessfully.");
+                        // VhehicalSMSlistAdpter.setSucessDialog(mContext);
+
+
+                    } else if (senderNum.contains(DeviceSimNo) && SMSlistAdpter.pDialogmain != null) {
+                        try {
+                            if (SMSlistAdpter.pDialogmain.isShowing()) {
+                                SMSlistAdpter.pDialogmain.dismiss();
+                                SMSlistAdpter.countdowntimer.cancel();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }else if (SMSFuction.CuurentDeviceDelect!=null&& SMSFuction.CuurentDeviceDelect.getType().equalsIgnoreCase("Child"))
+                {
+
+                    try {
+                        if (SMSlistAdpter.pDialogmain != null && SMSlistAdpter.pDialogmain.isShowing()) {
+                            SMSlistAdpter.pDialogmain.dismiss();
+                            SMSlistAdpter.countdowntimer.cancel();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+
+                    if (senderNum.contains(DeviceSimNo) && message.contains("http://maps.google.com/maps?q=N0.000000,E0.000000")) {
+
+                        sendNotification(context, "Current Location", "We can't get your location.Please try again.");
+                        SMSlistAdpter.setSucessDialog(context);
+
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("http://maps.google.com/maps")) {
+
+
+                        MatchIdCardLocation(context, message);
+                        SMSlistAdpter.setSucessDialog(context);
+
+                        Log.d(TAG, "In side loaction...: " + message);
+
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("OK#CALLMODE#")) {
+
+                        SMSlistAdpter.setSucessDialog(context);
+
+
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("OK#CALLVOL#")) {
+
+                        SMSlistAdpter.setSucessDialog(context);
+
+
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("OK FN1:")) {
+
+
+                        SMSlistAdpter.setSucessDialog(context);
+
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains("OK FN1:")) {
+
+                        SMSlistAdpter.setSucessDialog(context);
+
+                    } else if (senderNum.contains(DeviceSimNo) && (message.equalsIgnoreCase("OK") || senderNum.contains(DeviceSimNo) && message.equalsIgnoreCase("Monitor ok!!"))) {
+
+
+                        if (Voice_Servilence.pDialogmain != null || Voice_Servilence.pDialogmain.isShowing()) {
+                            Voice_Servilence.pDialogmain.dismiss();
+                            Voice_Servilence.closeActivity();
+                        }
+
+                        if (senderNum.contains(DeviceSimNo))
+                            Common.ShowSweetSucess(context.getApplicationContext(), "Your voice Surveillance set sucessfully in monitoring mode please wait for call.");
+
+                        String Devicesimno = Voice_Servilence.devicedata.getDeviceSimNumber();
+                        Log.i("SmsReceiver", "SmsReceiver number matcg--------------------");
+                        if (Voice_Servilence.devicedata.getVSCallback().equals("0")) {
+                            if (Devicesimno != null) {
+                                try {
+                                    if (Voice_Servilence.pDialogmain != null || Voice_Servilence.pDialogmain.isShowing()) {
+                                        Voice_Servilence.pDialogmain.dismiss();
+                                        Voice_Servilence.countdowntimer.cancel();
+
+                                        Voice_Servilence.closeActivity();
+                                    }
+
+                                    Intent callIntent = new Intent(Intent.ACTION_CALL);
+                                    callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                                    callIntent.setData(Uri.parse("tel:" + Devicesimno + ""));
+                                    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                                        // TODO: Consider calling
+                                        //    ActivityCompat#requestPermissions
+                                        // to handle the case where the user grants the permission. See the documentation
+                                        // for ActivityCompat#requestPermissions for more details.
+                                        context.startActivity(callIntent);
+                                        return;
+                                    }
+
+                                    GetCommandtoTrack();
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
+								/*if(message.equalsIgnoreCase(Voice_Servilence.devicedata.getActualCommand())||message.equalsIgnoreCase("OK")||message.equalsIgnoreCase("Monitor ok!!")) {
+
+								}*/
+
+                            } else {
+                                Common.ShowSweetAlert(context, "Phone No. Not Found");
+                            }
+
+                        }
+                        //	sendNotification();
+                    } else if (senderNum.contains(DeviceSimNo) && message.contains(SMSlistAdpter.CurrentSMSObj.getAnsFromDevice().trim())) {
+
+                        //MatchSpeedAlarm(context,message);
+                        SMSlistAdpter.setSucessDialog(context);
+
+                    } else if (senderNum.contains(DeviceSimNo)) {
+                        //  GVhehicalSMSlistAdpter.setSucessDialog(mContext);
+
+                    }
                 }
             }
 
-
-
-            /*if (bundle != null) {
-
-                final Object[] pdusObj = (Object[]) bundle.get("pdus");
-
-                for (int i = 0; i < pdusObj.length; i++) {
-
-                    SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdusObj[i]);
-                    String phoneNumber = currentMessage.getDisplayOriginatingAddress();
-
-                    String senderNum = phoneNumber;
-                    String message = currentMessage.getMessageBody();
-
-                    Log.i("SmsReceiver", "senderNum: " + senderNum + "; message: " + message);
-                    if (senderNum.contains(DeviceSimNo)&&message.contains("Speed  Alarm")) {
-                        abortBroadcast();
-                        MatchSpeedAlarm(context,message);
-                        Log.e("abortBroadcast", "abortBroadcast------------: " + senderNum + "; message: " + message);
-
-                    }else if (senderNum.contains(DeviceSimNo)&&message.contains("http://maps.google.com/maps")) {
-                        abortBroadcast();
-
-                        MatchLocation(context,message);
-
-
-                    }else if (senderNum.contains(DeviceSimNo)&&message.contains("speedok!")) {
-                        abortBroadcast();
-                    }
-                    else if (senderNum.contains(DeviceSimNo)&&message.contains("Stop Electicity ok!")) {
-                        abortBroadcast();
-                    }
-                    else if (senderNum.contains(DeviceSimNo)&&message.contains("supply electcity ok!")) {
-                        abortBroadcast();
-                    }else if (senderNum.contains(DeviceSimNo)&&message.contains("stop oil ok!")) {
-                        abortBroadcast();
-                    }else if (senderNum.contains(DeviceSimNo)&&message.contains("supply oil ok!")) {
-                        abortBroadcast();
-                    }else if (senderNum.contains(DeviceSimNo)&&message.contains("ACC ON OK")) {
-                        abortBroadcast();
-                    }else if (senderNum.contains(DeviceSimNo)&&message.contains("ACC OFF OK")) {
-                        abortBroadcast();
-                    }else if (senderNum.contains(DeviceSimNo)&&message.contains("ACC!")) {
-                        abortBroadcast();
-                    }else if(senderNum.contains(DeviceSimNo)) {
-
-                    }
-
-
-
-
-                  *//*  if (senderNum.contains(Voice_Servilence.devicedata.getDeviceSimNumber())&& (message.equalsIgnoreCase("OK")||message.equalsIgnoreCase("Monitor ok!!"))) {
-
-                    	Toast.makeText(context.getApplicationContext(), "Your voice Surveillance set sucessfully in monitoring mode please wait for call.", Toast.LENGTH_LONG).show();;
-
-
-						//Common.showlongToast("Your voice Surveillance set sucessfully in monitoring mode please wait for call.",context.getApplicationContext());
-						String Devicesimno=Voice_Servilence.devicedata.getDeviceSimNumber();
-						Log.i("SmsReceiver", "SmsReceiver number matcg--------------------");
-						if (Voice_Servilence.devicedata.getVSCallback().equals("0")) {
-							if (Devicesimno!=null) {
-								try{
-									if(Voice_Servilence.pDialogmain.isShowing())
-				            			Voice_Servilence.pDialogmain.dismiss();
-				            			Voice_Servilence.closeActivity();
-
-									Intent callIntent = new Intent(Intent.ACTION_CALL);
-									callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-									callIntent.setData(Uri.parse("tel:"+Devicesimno+""));
-									context.startActivity(callIntent);
-									GetCommandtoTrack();
-
-								}catch(Exception e)
-								{
-									e.printStackTrace();
-								}
-
-								*//**//*if(message.equalsIgnoreCase(Voice_Servilence.devicedata.getActualCommand())||message.equalsIgnoreCase("OK")||message.equalsIgnoreCase("Monitor ok!!")) {
-									abortBroadcast();
-								}*//**//*
-
-							}else{
-								Common.showToast("Phone No. Not Found", context);
-							}
-
-						}
-					//	sendNotification();
-						Voice_Servilence.countdowntimer.cancel();
-					}*//*
-
-                }
-            }*/
 
         } catch (Exception e) {
             Log.e("SmsReceiver", "Exception smsReceiver" + e);
@@ -315,6 +370,85 @@ public class IncomingSms extends BroadcastReceiver {
 
         }
     }
+
+    public void ParseGeofenceMsg(Context context, String message) {
+        SmsNotificationDTO smsdata=new SmsNotificationDTO();
+
+        String txt="stockade IMEI:358511020003418    18.592493,N,73.773507,E";
+
+        String re1="(stockade)";	// Word 1
+        String re2="( )";	// White Space 1
+        String re3="(IMEI)";	// Word 2
+        String re4="(:)";	// Any Single Character 1
+        String re5="(\\d+)";	// Integer Number 1
+        String re6="(    )";	// White Space 2
+        String re7="([+-]?\\d*\\.\\d+)(?![-+0-9\\.])";	// Float 1
+        String re8="(,)";	// Any Single Character 2
+        String re9="(N)";	// Variable Name 1
+        String re10="(,)";	// Any Single Character 3
+        String re11="([+-]?\\d*\\.\\d+)(?![-+0-9\\.])";	// Float 2
+        String re12="(,)";	// Any Single Character 4
+        String re13="(E)";	// Variable Name 2
+
+        Pattern p = Pattern.compile(re1+re2+re3+re4+re5+re6+re7+re8+re9+re10+re11+re12+re13,Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        Matcher m = p.matcher(message);
+        if (m.find())
+        {
+            String word1=m.group(1);
+            String ws1=m.group(2);
+            String word2=m.group(3);
+            String c1=m.group(4);
+            String int1=m.group(5);
+            String ws2=m.group(6);
+            String float1=m.group(7);
+            String c2=m.group(8);
+            String var1=m.group(9);
+            String c3=m.group(10);
+            String float2=m.group(11);
+            String c4=m.group(12);
+            String var2=m.group(13);
+            System.out.print("("+word1.toString()+")"+"("+ws1.toString()+")"+"("+word2.toString()+")"+"("+c1.toString()+")"+"("+int1.toString()+")"+"("+ws2.toString()+")"+"("+float1.toString()+")"+"("+c2.toString()+")"+"("+var1.toString()+")"+"("+c3.toString()+")"+"("+float2.toString()+")"+"("+c4.toString()+")"+"("+var2.toString()+")"+"\n");
+
+
+            smsdata.setNotify_Title("Geo-fence");
+            smsdata.setNotify_Type("Geo-fence");
+            smsdata.setLatDir(m.group(9));
+            smsdata.setLangDir(m.group(13));
+
+
+            if (m.group(9).equalsIgnoreCase("N")&&m.group(13).equalsIgnoreCase("E")) {
+                smsdata.setLat(m.group(7));
+                smsdata.setLang(m.group(11));
+            }else   if (m.group(9).equalsIgnoreCase("N")&&m.group(13).equalsIgnoreCase("W")) {
+
+                smsdata.setLat(m.group(7));
+                smsdata.setLang("-"+m.group(11));
+            }
+            else if (m.group(9).equalsIgnoreCase("S")&&m.group(13).equalsIgnoreCase("E")) {
+                smsdata.setLat("-"+m.group(7));
+                smsdata.setLang(m.group(11));
+
+            }else  if (m.group(9).equalsIgnoreCase("S")&&m.group(13).equalsIgnoreCase("W")) {
+                smsdata.setLat("-"+m.group(7));
+                smsdata.setLang("-"+m.group(11));
+            }
+            String mydate = java.text.DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
+
+            smsdata.setSpeed(null);
+            smsdata.setTime(mydate);
+            smsdata.setDate(mydate);
+            smsdata.setImeiNo(m.group(5));
+
+
+            if (Common.ACCSqliteEnable)
+                PrimesysTrack.mDbHelper.insertSMSNotification(smsdata);
+            sendGeofencingNotification(context,smsdata);
+
+
+        }
+    }
+
+
 
     private void ParseACCOFFMsg(Context context, String message) {
 
@@ -393,12 +527,10 @@ public class IncomingSms extends BroadcastReceiver {
             smsdata.setDate(mydate);
             smsdata.setImeiNo(m.group(9));
 
-            helper = DBHelper.getInstance(context1);
-
             if (Common.ACCSqliteEnable)
-            helper.insertSMSNotification(smsdata);
+            PrimesysTrack.mDbHelper.insertSMSNotification(smsdata);
             try{
-                PostNotificationData_Server(context, smsdata);
+                PostNotificationData_Server(mContext, smsdata);
 
             }catch (Exception e){
                 e.printStackTrace();
@@ -476,9 +608,8 @@ public class IncomingSms extends BroadcastReceiver {
                 smsdata.setDate(mydate);
                 smsdata.setImeiNo(m.group(8));
 
-                helper = DBHelper.getInstance(context1);
                 if (Common.ACCSqliteEnable)
-                helper.insertSMSNotification(smsdata);
+                PrimesysTrack.mDbHelper.insertSMSNotification(smsdata);
 
                 try {
                     PostNotificationData_Server(context,smsdata);
@@ -527,12 +658,11 @@ public class IncomingSms extends BroadcastReceiver {
                     smsdata.setDate(mydate);
                     smsdata.setImeiNo(m.group(8));
 
-                    helper = DBHelper.getInstance(context1);
                     if (Common.ACCSqliteEnable)
-                    helper.insertSMSNotification(smsdata);
+                    PrimesysTrack.mDbHelper.insertSMSNotification(smsdata);
 
                     try {
-                        PostNotificationData_Server(context, smsdata);
+                        PostNotificationData_Server(mContext, smsdata);
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -619,9 +749,8 @@ public class IncomingSms extends BroadcastReceiver {
         smsdata.setDate(null);
         smsdata.setImeiNo(m.group(7));
 
-        helper = DBHelper.getInstance(context1);
         if (Common.ACCSqliteEnable)
-        helper.insertSMSNotification(smsdata);
+        PrimesysTrack.mDbHelper.insertSMSNotification(smsdata);
 
         sendNotification(context,smsdata);
 
@@ -738,9 +867,8 @@ public class IncomingSms extends BroadcastReceiver {
         smsdata.setDate(m.group(27));
         smsdata.setImeiNo(m.group(31));
 
-        helper = DBHelper.getInstance(context1);
         if (Common.ACCSqliteEnable)
-       helper.insertSMSNotification(smsdata);
+       PrimesysTrack.mDbHelper.insertSMSNotification(smsdata);
         SendLocationNotification(context,smsdata);
 
     }
@@ -799,7 +927,7 @@ public class IncomingSms extends BroadcastReceiver {
         intent.putExtra("SMSData", smsdata);
         System.err.println("=====SendLocationNotification--" +
                 ""+smsdata.getLat()+","+smsdata.getLang());
-        PendingIntent contentIntent = PendingIntent.getActivity(context.getApplicationContext(), 1, intent, PendingIntent.FLAG_CANCEL_CURRENT|Notification.FLAG_AUTO_CANCEL);
+        @SuppressLint("WrongConstant") PendingIntent contentIntent = PendingIntent.getActivity(context.getApplicationContext(), 1, intent, PendingIntent.FLAG_CANCEL_CURRENT|Notification.FLAG_AUTO_CANCEL);
 
         notificationId = random.nextInt(9999 - 1000) + 1000;
 
@@ -865,7 +993,7 @@ public class IncomingSms extends BroadcastReceiver {
        // stringRequest = new StringRequest(Request.Method.POST,"http://192.168.1.102:8022/TrackingAppDB/TrackingAPP/UserServiceAPI/PostNotificationData_Server",new Response.Listener<String>() {
         @Override
             public void onResponse(String response) {
-            Log.e("PostNotificationData_Server==============",response);
+            Log.e("PostNotita_Ser=======",response);
                 if(response!=null)
                     parseJSON(response);
                // pDialog.hide();
@@ -930,14 +1058,220 @@ public class IncomingSms extends BroadcastReceiver {
 
 
 
+    private void sendGeofencingNotification(Context context, SmsNotificationDTO smsdata) {
+            if (smsdata.getTime()==null&&smsdata.getTime()==null)
+            {
+                smsdata.setDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
+                smsdata.setTime(new SimpleDateFormat("hh:mm:ss aa").format(new Date()));
 
+                System.out.println("---------------"+smsdata.getDate()+smsdata.getTime());
+            }
+            mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-    //parse the result
-    void parseJSON(String result)
-    {
-        System.err.println(result);
+            Intent intent = new Intent(context.getApplicationContext(),ShowLocationOfCar.class);
+            intent.putExtra("SMSData", smsdata);
+            System.err.println("=====SendLocationNotification--" +
+                    ""+smsdata.getLat()+","+smsdata.getLang());
+             @SuppressLint("WrongConstant") PendingIntent contentIntent = PendingIntent.getActivity(context.getApplicationContext(), 1, intent, PendingIntent.FLAG_CANCEL_CURRENT|Notification.FLAG_AUTO_CANCEL);
+
+            notificationId = random.nextInt(9999 - 1000) + 1000;
+
+            NotificationCompat.Builder mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(
+                    context).setSmallIcon(R.mipmap.ic_icon)
+                    .setContentTitle(smsdata.getNotify_Title())
+                    .setTicker("Primesys Track")
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(smsdata.getNotify_Title()))
+                    .setContentText(smsdata.getNotify_Title()+", Vehicle  goes outside geo-fence");
+
+            mBuilder.setContentIntent(contentIntent);
+            mBuilder.setOngoing(false);
+            mBuilder.setAutoCancel(true);
+            mBuilder.setPriority(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            mBuilder.setOnlyAlertOnce(true);
+            Common.playDefaultNotificationSound(context);
+
+            mNotificationManager.notify(notificationId, mBuilder.build());
 
     }
 
-	
+
+
+
+    private void GetCommandtoTrack() {
+
+
+        reuestQueue=Volley.newRequestQueue(mContext); //getting Request object from it
+
+        //JSon object request for reading the json data
+        stringRequest = new StringRequest(Request.Method.POST,Common.TrackURL+"UserServiceAPI/GetCommandtoTrack",new Response.Listener<String>() {
+            //stringRequest = new StringRequest(Method.POST,"http://192.168.1.102:8022/TrackingAppDB/TrackingAPP/SQLQuiz/Postscore",new Response.Listener<String>() {
+
+
+            @Override
+            public void onResponse(String response) {
+
+                System.out.println("Response of GetCommandtoTrack----"+response);
+
+                parseJSON(response);
+
+
+            }
+
+        },
+                new Response.ErrorListener() {
+
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if (error!=null)
+                            Log.d("Error", error.toString());
+
+                    }
+                }) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+
+                params.put("StudentID", ShowMapFragment.StudentId+"");
+                params.put("ComandType","switch_to_track");
+
+                System.out.println("REq----get mob------"+params);
+                return params;
+            }
+
+        };
+
+
+        stringRequest.setTag(TAG);         stringRequest.setRetryPolicy(Common.vollyRetryPolicy);
+        // Adding request to request queue
+        reuestQueue.add(stringRequest);
+    }
+
+    protected void parseJSON(String result) {
+        // TODO Auto-generated method stub
+
+        //nce of Get sim no----{"DeviceSimNumber":"9145734716",
+        //"":"0","":"1","":
+        //	"monitor","ActualCommand":"MONITOR#","error":"false"}
+
+        try {
+            JSONObject jo=new JSONObject(result);
+            if (jo.getString("error").equals("false")) {
+                String actualcmd=jo.getString("ActualCommand");
+
+
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(Voice_Servilence.devicedata.getDeviceSimNumber(), null,actualcmd, null, null);
+            }
+
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+
+    }
+
+
+
+
+    public void MatchIdCardLocation(Context context, String message){
+
+        Log.d(TAG, "In MatchLocation l***************...:" + message);
+        String txt="http://maps.google.com/maps?q=N18.590489,E73.771106  Speed:0.0 km/h   Time:13:25:22  Date:16/10/17  IMEI:355488020878745";
+        SmsNotificationDTO smsdata=new SmsNotificationDTO();
+
+        //http://maps.google.com/maps?q=N18.590658,E73.771300
+        String re1="(http)";	// Word 1
+        String re2="(:)";	// Any Single Character 1
+        String re3="(\\/)";	// Any Single Character 2
+        String re4="((?:\\/[\\w\\.\\-]+)+)";	// Unix Path 1
+        String re5="(\\?)";	// Any Single Character 3
+        String re6="(q)";	// Any Single Word Character (Not Whitespace) 1
+        String re7="(=)";	// Any Single Character 4
+        String re8="([a-z])";	// Any Single Word Character (Not Whitespace) 2
+        String re9="([+-]?\\d*\\.\\d+)(?![-+0-9\\.])";	// Float 1
+        String re10="(,)";	// Any Single Character 5
+        String re11="([a-z])";	// Any Single Word Character (Not Whitespace) 3
+        String re12="([+-]?\\d*\\.\\d+)(?![-+0-9\\.])";	// Float 2
+
+
+        Pattern p = Pattern.compile(re1+re2+re3+re4+re5+re6+re7+re8+re9+re10+re11+re12,Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        Matcher m = p.matcher(extractUrls(message).get(0));
+        if (m.find())
+        {
+            String word1=m.group(1);
+            String c1=m.group(2);
+            String c2=m.group(3);
+            String unixpath1=m.group(4);
+            String c3=m.group(5);
+            String w1=m.group(6);
+            String c4=m.group(7);
+            String w2=m.group(8);
+            String float1=m.group(9);
+            String c5=m.group(10);
+            String w3=m.group(11);
+            String float2=m.group(12);
+
+            System.out.print("("+word1.toString()+")"+"("+c1.toString()+")"+"("+c2.toString()+")"+"("+unixpath1.toString()+")"+"("+c3.toString()+")"+"("+w1.toString()+")"+"("+c4.toString()+")"+"("+w2.toString()+")"+"("+float1.toString()+")"+"("+c5.toString()+")"+"("+w3.toString()+")"+"("+float2.toString()+")");
+        }
+
+
+        smsdata.setNotify_Title("Current Location");
+        smsdata.setNotify_Type("Location");
+        smsdata.setLatDir(m.group(8));
+        smsdata.setLangDir(m.group(11));
+
+
+
+
+        if (m.group(8).equalsIgnoreCase("N")&&m.group(11).equalsIgnoreCase("E")) {
+            smsdata.setLat(m.group(9));
+            smsdata.setLang(m.group(12));
+        }else   if (m.group(8).equalsIgnoreCase("N")&&m.group(11).equalsIgnoreCase("W")) {
+
+            smsdata.setLat(m.group(9));
+            smsdata.setLang("-"+m.group(12));
+        }
+        else if (m.group(8).equalsIgnoreCase("S")&&m.group(11).equalsIgnoreCase("E")) {
+            smsdata.setLat("-"+m.group(9));
+            smsdata.setLang(m.group(12));
+
+        }else  if (m.group(8).equalsIgnoreCase("S")&&m.group(11).equalsIgnoreCase("W")) {
+            smsdata.setLat("-"+m.group(9));
+            smsdata.setLang("-"+m.group(12));
+        }
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        smsdata.setDate(sdf.format(c.getTime()));
+        helper = DBHelper.getInstance(context);
+        if (Common.ACCSqliteEnable)
+            helper.insertSMSNotification(smsdata);
+        SendLocationNotification(context,smsdata);
+
+    }
+
+
+
+    /**
+     * Returns a list with all links contained in the input
+     */
+    public static List<String> extractUrls(String text)
+    {
+        List<String> containedUrls = new ArrayList<String>();
+        String urlRegex = "((https?|ftp|gopher|telnet|file):((//)|(\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)";
+        Pattern pattern = Pattern.compile(urlRegex, Pattern.CASE_INSENSITIVE);
+        Matcher urlMatcher = pattern.matcher(text);
+
+        while (urlMatcher.find())
+        {
+            containedUrls.add(text.substring(urlMatcher.start(0),
+                    urlMatcher.end(0)));
+        }
+
+        return containedUrls;
+    }
+
+
 }

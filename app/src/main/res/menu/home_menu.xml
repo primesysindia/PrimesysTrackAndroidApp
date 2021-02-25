@@ -15,11 +15,28 @@
         app:showAsAction="always"
         android:title="Request Inbox"
         />-->
+    <item
+        android:id="@+id/geofencing"
+        android:icon="@drawable/ic_geofencing"
+        app:showAsAction="always"
+        android:visible="false"
+        android:title="Geo-fencing"
+        />
+    <item
+        android:id="@+id/voice_s"
+        android:icon="@drawable/ic_voice_serv"
+        app:showAsAction="always"
+        android:visible="false"
 
+        android:title="Voice Surveillance "
+        />
     <item
         android:id="@+id/getdir"
         android:icon="@drawable/road_route"
         app:showAsAction="always"
+        android:visible="false"
+
+
         android:title="Get Direction"
         />
 

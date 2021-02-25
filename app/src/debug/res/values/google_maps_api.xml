@@ -22,5 +22,5 @@
 
     <!-- for DEbug VTS  android:value="AIzaSyCsUL2QWb_jiO2DhXcq1iTWk9ErLOrmyro" /> -->
 
-    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCsUL2QWb_jiO2DhXcq1iTWk9ErLOrmyro</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyAyPQ7h3-MBB3IAOAMACNJJmhKl2LvtpkY</string>
 </resources>

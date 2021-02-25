@@ -1,0 +1,80 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+  android:padding="2dp"
+        android:background="@drawable/background" >
+    <include layout="@layout/app_bar_home"
+        android:id="@+id/appbar"
+        />
+
+<FrameLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_below="@+id/appbar">
+    
+     <fragment
+        android:id="@+id/mapFragment"
+         class="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_above="@+id/seekBar1"  
+        android:layout_height="match_parent" />
+
+
+     <android.support.v7.app.AlertController.RecycleListView
+                android:id="@+id/fencelist"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+    android:background="@drawable/background"
+                android:choiceMode="singleChoice"
+                  android:listSelector="@color/colorPrimaryDark"
+                android:orientation="horizontal" >
+            </android.support.v7.app.AlertController.RecycleListView>
+ 
+  <!--   <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_gradient"
+        android:orientation="horizontal"
+        android:padding="5dp"
+        android:weightSum="100"
+       
+        android:layout_gravity="bottom">
+
+        <ImageView
+            android:id="@+id/fence_edit"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_weight="25"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_edit" />
+
+        <ImageView
+            android:id="@+id/fence_setting"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_weight="25"
+            android:layout_gravity="center"
+            
+            android:src="@drawable/fencesetting" />
+
+        <ImageView
+            android:id="@+id/fence_delete"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            
+            android:layout_weight="25"
+            android:src="@drawable/fencedelete" />
+
+        <ImageView
+            android:id="@+id/fence_new"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:layout_weight="25"
+            android:src="@drawable/fenceadd" />
+    </LinearLayout> -->
+
+</FrameLayout>
+
+</RelativeLayout>

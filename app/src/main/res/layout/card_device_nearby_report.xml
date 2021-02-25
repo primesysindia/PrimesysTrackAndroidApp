@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.wangjie.androidbucket.support.cardview.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/lay_report"
+        android:padding="@dimen/mid_margin">
+
+        <TextView
+            android:id="@+id/tv_device_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:padding="5dp"
+            android:text="Device name:"
+            android:textStyle="bold"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/tv_lasttime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_device_status"
+            android:layout_toRightOf="@+id/tripstart"
+            android:padding="5dp"
+            android:text="Time : "
+            android:textColor="@color/black" />
+        <TextView
+            android:id="@+id/tv_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_device_status"
+            android:layout_toRightOf="@+id/tripstart"
+            android:padding="5dp"
+            android:text="Section : "
+            android:textColor="@color/black" />
+        <TextView
+            android:id="@+id/tv_signal_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_device_name"
+            android:padding="5dp"
+            android:text="Signal loc:"
+            android:textColor="@color/black" />
+        <TextView
+            android:id="@+id/tv_feature_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_device_status"
+            android:layout_toRightOf="@+id/tripstart"
+            android:padding="5dp"
+            android:text="Feature details : "
+            android:textColor="@color/black" />
+        <TextView
+            android:id="@+id/tv_location_arraival"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_device_status"
+            android:layout_toRightOf="@+id/tripstart"
+            android:padding="5dp"
+            android:text="Loc Arrival : "
+            android:textColor="@color/black" />
+        <TextView
+            android:id="@+id/tv_location_departure"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_device_status"
+            android:layout_toRightOf="@+id/tripstart"
+            android:padding="5dp"
+            android:text="Location Departure : "
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/tv_time_spent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_device_status"
+            android:layout_toRightOf="@+id/tripstart"
+            android:padding="5dp"
+            android:text="Time spent : "
+            android:textColor="@color/black" />
+
+    </LinearLayout>
+
+</com.wangjie.androidbucket.support.cardview.CardView>

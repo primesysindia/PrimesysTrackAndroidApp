@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:weightSum="100"
+    android:gravity="center"
+    android:padding="2dp"
+    android:layout_marginTop="10dp"
+    android:background="@drawable/seekbar_style"
+    >
+    <Button
+        android:layout_width="0dp"
+        android:layout_weight="8"
+        android:id="@+id/btn_minus"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:background="@drawable/ic_minus"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="10"
+        android:gravity="center"
+        android:text="500 m"/>
+
+
+    <SeekBar
+        android:id="@+id/radius_seekbar"
+        android:layout_width="0dp"
+        android:layout_weight="60"
+        android:layout_height="wrap_content"
+        android:progressTint="@color/white"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:max="100"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="13"
+        android:gravity="center"
+        android:text="10000 m"/>
+    <Button
+        android:layout_width="0dp"
+        android:layout_weight="8"
+        android:id="@+id/btn_plus"
+        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_plus"/>
+
+</LinearLayout>

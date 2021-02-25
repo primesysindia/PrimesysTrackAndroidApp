@@ -109,9 +109,7 @@ public class SignupActivity extends AppCompatActivity {
     void finViewBYID()
     {
 
-
-        text_name=(EditText)findViewById(R.id.input_name);
-
+       text_name=(EditText)findViewById(R.id.input_name);
         text_email=(EditText)findViewById(R.id.input_email);
         text_mobileno=(EditText)findViewById(R.id.input_number);
         //	spinner_userType.setBackgroundResource(R.layout.spinner_textview);
@@ -375,7 +373,7 @@ public class SignupActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
+        // automatically handle clicks on the GHomeTab/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.back) {

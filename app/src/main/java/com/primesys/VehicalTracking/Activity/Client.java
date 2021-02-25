@@ -103,6 +103,7 @@ public class Client {
 			Log.e("serverAddr", serverAddr.toString());
 			Log.e("TCP Client", "C: Connecting...");
 			socket = new Socket(serverAddr, Common.PORT);
+		//	socket.setSoTimeout(30*1000);
 			if (valid) {
 				LoginDetails L_Details = LoginActivity.Ldetails;
 				PrintWriter obj = new PrintWriter(socket.getOutputStream());
@@ -121,6 +122,7 @@ public class Client {
 				jo.put("timestamp", Common.timstamp);
 				jo.put("data", joData); // optional parameter
 				obj.write(jo.toString());
+				Log.e("3333333333","--------"+jo);
 				obj.flush();// flush the socket
 				valid = false;
 			}
@@ -134,7 +136,7 @@ public class Client {
 				in = new BufferedReader(new InputStreamReader(
 						socket.getInputStream()));
 
-				while (mRun) {
+				while (mRun&&socket.isConnected()) {
 					serverMessage = in.readLine();
 					if (serverMessage != null && mMessageListener != null) {
 						mMessageListener.messageReceived(serverMessage);
@@ -143,6 +145,7 @@ public class Client {
 				}
 			} catch (Exception e) {
 				Log.e("TCP", "S: Error", e);
+				e.printStackTrace();
 			} finally {
 				socket.close();
 				stopClient();

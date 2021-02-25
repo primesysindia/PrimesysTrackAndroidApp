@@ -1,94 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/colorPrimaryDark"
-    android:padding="1dp">
 
-    <TextView
-        android:id="@+id/tv_name"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="12sp"
-        android:text="Vehicle Name : "
-        android:textColor="@color/white"
-        android:textStyle="bold"/>
-    <TextView
-        android:id="@+id/name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/tv_name"
-        android:textSize="12sp"
-        android:text=""
+        android:layout_height="match_parent"
+        android:layout_weight="50"
+        android:background="@color/colorPrimaryDark"
+        android:padding="3dp">
 
-        android:textColor="@color/white"
-        android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/tv_name"
+            android:text=""
+            android:textColor="@color/white"
+
+            android:textSize="12sp"
+            android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tv_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="10sp"
         android:layout_below="@id/name"
-        android:text="Date/Time : "
         android:textColor="@color/white"
-        />
-    <TextView
-        android:id="@+id/alarmtime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/tv_time"
-        android:layout_below="@+id/name"
-        android:textSize="10sp"
-        android:text=""
+        android:textSize="10sp" />
 
-        android:textColor="@color/white"
-        />
+        <TextView
+            android:id="@+id/alarmtime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/name"
+            android:layout_toRightOf="@+id/tv_time"
+            android:text=""
+            android:textColor="@color/white"
+
+            android:textSize="10sp" />
 
     <TextView
         android:id="@+id/tv_speed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="10sp"
-        android:layout_below="@id/alarmtime"
-        android:text="Speed : "
+        android:layout_below="@+id/name"
+        android:layout_toRightOf="@+id/alarmtime"
+        android:text=" , "
         android:textColor="@color/white"
-        />
-    <TextView
-        android:id="@+id/speed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/tv_address"
-        android:layout_below="@+id/alarmtime"
-        android:textSize="10sp"
-        android:text=""
+        android:textSize="10sp" />
 
-        android:textColor="@color/white"
-        />
+        <TextView
+            android:id="@+id/speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/name"
+            android:layout_toRightOf="@+id/tv_speed"
+            android:text=""
+            android:textColor="@color/white"
+
+            android:textSize="10sp" />
 
     <TextView
         android:id="@+id/tv_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="10sp"
         android:layout_below="@id/speed"
-        android:text="Address : "
         android:textColor="@color/white"
-        />
-    <TextView
-        android:id="@+id/address"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/tv_address"
-        android:layout_below="@+id/speed"
-        android:textSize="10sp"
-        android:text=""
+        android:textSize="10sp" />
 
-        android:textColor="@color/white"
-        />
+        <TextView
+            android:id="@+id/address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/speed"
+            android:layout_toRightOf="@+id/tv_address"
+            android:text=""
+            android:textColor="@color/white"
+
+            android:textSize="10sp" />
 
 
-</RelativeLayout>
-
+    </RelativeLayout>

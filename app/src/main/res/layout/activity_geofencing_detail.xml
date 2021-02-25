@@ -1,0 +1,150 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+  android:padding="@dimen/padding_medium"
+    android:background="@drawable/background" >
+
+    <EditText android:id="@+id/geoname"
+        android:hint="Enter geo-fence name.."
+        android:layout_width="match_parent"
+        android:maxLength="18"
+        android:textColor="@color/secondary_text"
+        android:textColorHint="@color/secondary_text"
+        android:layout_height="wrap_content"/> 
+         <EditText android:id="@+id/geodisc"
+        android:hint="Enter geo-fence description"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/geoname"
+             android:visibility="gone"
+        android:lines="2"
+
+        android:layout_height="wrap_content"/> 
+  
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Status "
+        android:layout_marginRight="20dp"
+        android:textColor="@color/secondary_text"
+        android:textSize="20sp"
+        android:layout_below="@+id/geodisc"
+        android:id="@+id/tvstatus"/>
+
+
+     
+            <CheckBox
+                android:id="@+id/statusout"
+                android:textColor="@color/secondary_text"
+                android:layout_toRightOf="@+id/tvstatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true" 
+                android:text="Out"
+                android:textSize="15sp"
+                android:layout_below="@+id/geodisc"
+
+                android:layout_marginRight="10dp"
+                />
+             
+            <CheckBox
+                android:id="@+id/statusin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textColor="@color/secondary_text"
+                android:layout_toRightOf="@+id/statusout"
+                android:layout_below="@+id/geodisc"
+
+                android:text="In"
+                 />
+        
+   <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Alert Mode " 
+        android:textColor="@color/secondary_text"
+        android:textSize="20sp"
+        android:layout_below="@+id/tvstatus"
+        android:id="@+id/tvalert"/>
+
+    <LinearLayout 
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/tvalert"
+    android:id="@+id/layalert"
+    android:orientation="horizontal" android:layout_marginBottom="10dp">    
+     
+            <CheckBox
+                android:id="@+id/alertapp"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true" 
+                android:text="Push to APP"
+                android:textSize="15sp"
+                        android:textColor="@color/secondary_text"
+                
+                android:layout_marginRight="10dp"
+                />
+             
+            <CheckBox
+                android:id="@+id/alertemail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                                android:textSize="15sp"
+                        android:textColor="@color/secondary_text"
+                
+                android:text="Email"
+                 />
+               <CheckBox
+                android:id="@+id/alertsms"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textColor="@color/secondary_text"
+                
+                android:text="SMS"
+                 />
+        
+</LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@+id/layalert"
+        android:weightSum="100">
+
+        <ToggleButton
+            android:id="@+id/toggleenable"
+            android:layout_width="0dp"
+            android:layout_weight="40"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/capsulshapebutton"
+            android:textColor="@color/white"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textOn="Enable"
+            android:textOff="Disable"
+            />
+             <Button
+            android:id="@+id/geosubmit"
+            android:layout_width="0dp"
+            android:layout_weight="40"
+            android:layout_height="match_parent"
+            android:background="@drawable/capsulshapebutton"
+            android:gravity="center"
+                 android:layout_gravity="center"
+            android:text="@string/Submit"
+            android:padding="5dp"
+            android:textColor="@color/white" />
+
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>

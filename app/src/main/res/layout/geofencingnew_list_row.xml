@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.wangjie.androidbucket.support.cardview.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:padding="2dp"
+   >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_margin="5dp"
+        android:background="@color/white">
+      <RelativeLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          >
+
+          <ImageView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:src="@drawable/ic_geofence"
+              android:id="@+id/img_fence"
+              android:padding="3dp"
+              android:layout_margin="3dp"
+              android:foregroundGravity="center"
+               />
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:id="@+id/txt_fence_name"
+              android:textStyle="bold"
+              android:textColor="@color/black"
+              android:textSize="15sp"
+              android:layout_toRightOf="@+id/img_fence"
+              android:layout_marginLeft="@dimen/text_margin"
+             />
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:id="@+id/txt_fence_radius"
+              android:layout_alignParentRight="true"
+              android:layout_marginRight="10dp"
+              android:textColor="@color/secondary_text_transparent_70"
+              android:layout_marginLeft="@dimen/text_margin"
+
+              />
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:id="@+id/txt_fence_address"
+              android:layout_below="@+id/txt_fence_name"
+              android:layout_marginTop="3dp"
+              android:layout_alignLeft="@+id/txt_fence_name"
+
+              />
+
+
+
+      </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2px"
+                android:background="@color/gray_btn_bg_color"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp"
+            android:weightSum="100"
+            >
+
+
+
+            <Button
+               android:layout_width="0dp"
+                android:layout_weight="50"
+                  android:layout_height="wrap_content"
+                 android:id="@+id/btn_fence_edit"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="Edit Fence"
+                android:background="@android:color/transparent"
+                android:drawableTop="@drawable/ic_fence_edit"
+                android:textAlignment="center"
+
+                />
+            <Button
+            android:layout_width="0dp"
+                android:layout_weight="50"
+            android:layout_height="wrap_content"
+            android:text="Delete Fence"
+            android:id="@+id/btn_fence_delete"
+                android:layout_gravity="center"
+                android:gravity="center"
+
+                android:background="@android:color/transparent"
+                android:drawableTop="@drawable/ic_fence_delete"
+                android:textAlignment="center"
+            />
+
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+</com.wangjie.androidbucket.support.cardview.CardView>

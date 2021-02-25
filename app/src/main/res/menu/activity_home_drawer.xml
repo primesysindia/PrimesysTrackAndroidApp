@@ -6,14 +6,19 @@
             android:title="Profile" />
 
 
-       <!-- <item android:id="@+id/nav_addnewfriend" android:icon="@drawable/ic_menu_adduser"
-            android:title="Add New Friend" />
-        <item android:id="@+id/nav_newrequest" android:icon="@drawable/ic_menu_newrequest"
+<!--        <item android:id="@+id/nav_addnewdevice" android:icon="@drawable/ic_menu_adduser"
+            android:title="Add New Device" />-->
+   <!--     <item android:id="@+id/nav_newrequest" android:icon="@drawable/ic_menu_newrequest"
             android:title="New Request" />
         <item android:id="@+id/nav_block" android:icon="@drawable/ic_menu_blockuser"
             android:title="Block Tracking" />-->
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <item android:id="@+id/nav_change_password" android:icon="@android:drawable/ic_partial_secure"
+
+        <item android:id="@+id/nav_change_password" android:icon="@android:drawable/ic_partial_secure"
             android:title="Change Password" />
+        <item android:id="@+id/nav_renew_device" android:icon="@android:drawable/btn_star_big_on"
+            android:title="Renew" />
+        <item android:id="@+id/nav_download_address" android:icon="@android:drawable/stat_sys_download"
+            android:title="Download feature address" />
         <item android:id="@+id/nav_signout" android:icon="@android:drawable/ic_lock_idle_lock"
             android:title="Sign out" />
     </group>
@@ -22,8 +27,13 @@
         <menu>
             <item android:id="@+id/nav_share" android:icon="@drawable/ic_menu_share"
                 android:title="Share" />
+            <item android:id="@+id/nav_contactus" android:icon="@drawable/ic_contactus"
+                android:title="Contact us" />
+            <item android:id="@+id/nav_aboutus" android:icon="@drawable/ic_abous_us"
+                android:title="About us" />
 
         </menu>
     </item>
 
 </menu>
+

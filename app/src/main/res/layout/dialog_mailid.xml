@@ -1,12 +1,31 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:padding="@dimen/mid_padding"
+        android:text="Title"
+        android:id="@+id/d_title"
+        android:background="@color/colorPrimary"
+        android:textColor="@color/white"
+        android:gravity="center"/>
+
+
+    <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/padding_medium"
     >
 
     <EditText android:id="@+id/txt_emailid"
-        android:hint="Enter your Mail-Id.."
+        android:hint="Enter your  email-Id"
         android:layout_width="match_parent"
         android:inputType="textEmailAddress"
         android:layout_height="wrap_content"/>
@@ -20,6 +39,9 @@
         android:background="@drawable/capsulshapebutton"
         android:gravity="center"
         android:text="@string/Submit"
+        android:padding="5sp"
+
         android:textColor="@color/white" />
 
 </RelativeLayout>
+</LinearLayout>

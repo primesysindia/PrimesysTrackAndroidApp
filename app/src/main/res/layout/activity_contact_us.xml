@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activity.ContactUSActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_contact_title"
+            android:text="Contact US"
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:layout_marginTop="40dp"
+            android:layout_margin="@dimen/mid_margin"
+            android:textSize="20sp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/contact_us_title"
+            android:id="@+id/tv_desc"
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:layout_below="@+id/tv_contact_title"
+            android:layout_margin="@dimen/mid_margin"
+            android:padding="@dimen/mid_margin"
+            android:textSize="15sp"/>
+
+
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="way to contact us"
+            android:id="@+id/tv_descll"
+            android:textColor="@color/secondary_text"
+            android:gravity="center"
+            android:layout_below="@+id/tv_desc"
+            android:layout_margin="@dimen/mid_margin"
+            android:padding="@dimen/mid_margin"
+            android:textSize="15sp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_below="@+id/tv_descll"
+            android:gravity="center"
+            android:layout_margin="@dimen/mid_margin"
+            android:paddingTop="@dimen/mid_margin"
+            android:weightSum="90"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/mid_margin"
+                android:layout_weight="30"
+                android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:id="@+id/img_contact_call"
+                android:src="@drawable/ic_phonecall"
+                />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/call"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:padding="@dimen/mid_margin"
+                    android:textColor="@color/colorPrimary"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/mid_margin"
+                android:layout_weight="30"
+
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:id="@+id/img_contact_mail"
+                    android:src="@drawable/ic_email"
+                    />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sendmail"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:padding="@dimen/mid_margin"
+                    android:textColor="@color/colorPrimary"/>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/mid_margin"
+                android:layout_weight="30"
+
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:id="@+id/img_contact_message"
+                    android:src="@drawable/ic_message"
+                    />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sendmessage"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:padding="@dimen/mid_margin"
+                    android:textColor="@color/colorPrimary"/>
+
+            </LinearLayout>
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</android.support.constraint.ConstraintLayout>

@@ -41,7 +41,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.primesys.VehicalTracking.Db.DBHelper;
+import com.primesys.VehicalTracking.PrimesysTrack;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.CircularNetworkImageView;
 import com.primesys.VehicalTracking.Utility.Common;
@@ -91,7 +91,7 @@ public class UserProfileActivity extends Activity {
 	String Upload_filename;
 
 	byte[] bFileConversion;
-	private DBHelper helper;
+
 	private SharedPreferences sharedPreferences;
 	private SharedPreferences.Editor editor;
 	private String key_UserPic="UserPic";
@@ -105,7 +105,6 @@ public class UserProfileActivity extends Activity {
 	//profile_pic.setImageBitmap(getRoundedShape(bm));
 	
 		GetProfileInfo();
-		 helper= DBHelper.getInstance(proContext);
 
 
 		edit.setOnClickListener(new OnClickListener() {
@@ -184,7 +183,7 @@ public class UserProfileActivity extends Activity {
 			@Override
 			public void onResponse(String response) {
 				parseProfileJSON(response);
-				Log.e("Userprofile Responce----", response);
+				Log.e(PrimesysTrack.TAG, response);
 
 				pDialog.dismiss();
 			}
@@ -216,7 +215,7 @@ public class UserProfileActivity extends Activity {
 			}
 
 		};
-		stringRequest.setTag(TAG);
+		stringRequest.setTag(TAG);         stringRequest.setRetryPolicy(Common.vollyRetryPolicy);
 		// Adding request to request queue
 		reuestQueue.add(stringRequest);
 	}
@@ -375,7 +374,7 @@ public class UserProfileActivity extends Activity {
 				String Photo=jo.getString("Photo").trim();
 
 				Bitmap bitmap=null;
-				bitmap= helper.getBitMap(Common.userid+"");
+				bitmap= PrimesysTrack.mDbHelper.getBitMap(Common.userid+"");
 				if (bitmap != null) {
 					{
 						profile_pic.setImageBitmap(getRoundedShape(bitmap));
@@ -399,7 +398,7 @@ public class UserProfileActivity extends Activity {
 
 
 						editor.commit();
-						helper.insertPhoto(bmp,Common.userid);
+						PrimesysTrack.mDbHelper.insertPhoto(bmp,Common.userid);
 					}
 				}
 			}
@@ -630,7 +629,7 @@ e.printStackTrace();		}
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
+		// automatically handle clicks on the GHomeTab/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.back) {
@@ -705,20 +704,16 @@ e.printStackTrace();		}
 		System.out.println("------Respo parseUpdateProfileJSON--"+result1);
 		try
 		{
-			JSONObject jo=new JSONObject(result1);
-	
+			JSONArray jarray=new JSONArray(result1);
+			JSONObject jo= (JSONObject) jarray.get(0);
 
-				new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
-				.setTitleText(jo.getString("message"))
-				.show();
-			
-
+			Common.ShowSweetSucess(this,jo.getString("Message"));
 		}
 		catch(Exception e)
 		{
-			new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
-			.setTitleText(getResources().getString(R.string.server_error))
-			.show();
+			e.printStackTrace();
+
+			Common.ShowSweetAlert(this,getResources().getString(R.string.server_error));
 		}
 
 	}

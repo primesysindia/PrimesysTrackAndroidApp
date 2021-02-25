@@ -1,48 +1,43 @@
 package com.primesys.VehicalTracking.MyAdpter;
 
 
-import java.util.ArrayList;
-import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Path;
 import android.graphics.Rect;
-import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.Volley;
 
-import com.primesys.VehicalTracking.Dto.GmapDetais;
+import com.android.volley.RequestQueue;
+import com.primesys.VehicalTracking.Dto.DeviceDataDTO;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.CircleTransform;
 import com.primesys.VehicalTracking.Utility.CircularNetworkImageView;
 import com.primesys.VehicalTracking.Utility.Common;
 import com.squareup.picasso.Picasso;
 
-public class StudentListAdpter  extends ArrayAdapter<GmapDetais>{
+import java.util.ArrayList;
+
+public class StudentListAdpter  extends ArrayAdapter<DeviceDataDTO>{
 
 	TextView txtchild,txtcar,txtpet;
 	Context context;
 	int layoutResourceId;
-	ArrayList<GmapDetais> datal;
+	ArrayList<DeviceDataDTO> datal;
 	public static Boolean trackInfo=false;
 	LinearLayout laychild,laypet,layCar;
 	Bitmap bitmap;
 	static RequestQueue RecordSyncQueue;
-	public static GmapDetais user1;
+	public static DeviceDataDTO user1;
 	public StudentListAdpter(Context context, int layoutResourceId,
-			ArrayList<GmapDetais> data) {
+			ArrayList<DeviceDataDTO> data) {
 		super(context, layoutResourceId,data);
 		this.layoutResourceId = layoutResourceId;
 		this.context = context;
@@ -64,7 +59,7 @@ public class StudentListAdpter  extends ArrayAdapter<GmapDetais>{
 
 		try{
 
-			GmapDetais gp=datal.get(position);
+			DeviceDataDTO gp=datal.get(position);
 			final LinearLayout lay=(LinearLayout)convertView.findViewById(R.id.lay_main);
 			final CircularNetworkImageView imgchild=(CircularNetworkImageView)convertView.findViewById(R.id.img_child);
 			txtchild=(TextView)convertView.findViewById(R.id.txt_child);

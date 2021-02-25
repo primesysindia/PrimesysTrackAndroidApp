@@ -21,6 +21,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,8 +33,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
-import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -46,7 +47,9 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -55,10 +58,10 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.primesys.VehicalTracking.Activity.DateTimeActivity;
 import com.primesys.VehicalTracking.Activity.Home;
 import com.primesys.VehicalTracking.Activity.LoginActivity;
-import com.primesys.VehicalTracking.Db.DBHelper;
-import com.primesys.VehicalTracking.Dto.GmapDetais;
+import com.primesys.VehicalTracking.Dto.DeviceDataDTO;
 import com.primesys.VehicalTracking.Dto.LocationData;
 import com.primesys.VehicalTracking.MyAdpter.HistoryMapAdapter;
+import com.primesys.VehicalTracking.PrimesysTrack;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.Common;
 import com.wangjie.androidbucket.utils.ABTextUtil;
@@ -85,7 +88,7 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 /**
  * Created by root on 19/4/16.
  */
-public class historyFragment extends Fragment implements RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener
+public class historyFragment extends Fragment implements OnMapReadyCallback,RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener
 {
 
     private static double HistoryDistance=0;
@@ -109,12 +112,11 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
     static int totalCount;
     String defaultImage;
     public static Boolean Updatestatus=false;
-    ArrayList<GmapDetais> arr=new ArrayList<GmapDetais>();
+    ArrayList<DeviceDataDTO> arr=new ArrayList<DeviceDataDTO>();
     int cnt=0;
     ImageLoader imageLoader;
     static RequestQueue RecordSyncQueue;
     HistoryMapAdapter myAdapter;
-    private static DBHelper helper= DBHelper.getInstance(historyContext);
     private MapView mapViewhistory;
     private static View rootView;
     public  static List<LatLng> directionPoint=new ArrayList<>();
@@ -126,7 +128,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
     private RapidFloatingActionHelper rfabHelper;
     private RapidFloatingActionContentLabelList rfaContent;
     private ListView personlist;
-    private ArrayList<GmapDetais> tracklist=new ArrayList<GmapDetais>();
+    private ArrayList<DeviceDataDTO> tracklist=new ArrayList<DeviceDataDTO>();
     private RequestQueue reuestQueue;
     StringRequest stringRequest;
     private FloatingActionButton fab_date;
@@ -139,6 +141,8 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
     static Button Pause,Resume;
     public static TextView datetime,speed,distance;
     public static int polycount=0;
+    private SupportMapFragment mapFragment;
+    private ToggleButton togglelist;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -154,19 +158,19 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
         if (!isGooglePlayServicesAvailable()) {
             Common.showToast("Google Play services not available !", historyContext);
         }
-        mapViewhistory = (MapView) rootView.findViewById(R.id.gmaphistoty);
-        mapViewhistory.onCreate(savedInstanceState);
-
+        
         findviewbyid();
+
         try {
-            ShowMapFragment.CDT.cancel();
+            if (ShowMapFragment.CDT!=null)
+                ShowMapFragment.CDT.cancel();
             Home.tabLayout.setVisibility(View.VISIBLE);
         }catch (Exception e){
             e.printStackTrace();
         }
 
 
-        if (Common.getConnectivityStatus(historyContext)&& helper.Show_Device_list().size()==0) {
+        if (Common.getConnectivityStatus(historyContext)&& PrimesysTrack.mDbHelper.Show_Device_list().size()==0) {
             // Call Api to get track information
             try {
                 GetAllTrackperson();
@@ -181,7 +185,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
                 if (myAdapter != null)
                     myAdapter.clear();
             }
-            tracklist = helper.Show_Device_list();
+            tracklist = PrimesysTrack.mDbHelper.Show_Device_list();
 
             if (tracklist.size() > 0) {
                 myAdapter = new HistoryMapAdapter(historyContext, R.layout.fragment_mapsidebar, tracklist, imageLoader);
@@ -199,25 +203,14 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
             //Fab Button listner
         rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
 
-        try {
-            // Loading map
-            initilizeMap();
-           if (Common.Location_getting)
-            addDefaultLocations();
-         /*   else
-               Common.ShowSweetAlert(historyContext,"Can't get location.Please try again.");*/
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-                personlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        personlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         try {
-                            //	ShowMapFragment gmap=new ShowMapFragment();
+                            //	GShowMapFragment gmap=new GShowMapFragment();
                             //	gmap.flag=0;
                             DateTimeActivity.selStatus = true;
-                            GmapDetais user1 = tracklist.get(position);
+                            DeviceDataDTO user1 = tracklist.get(position);
                             historyFragment.StudentId = Integer.parseInt(user1.getId());
                             Log.e("History studid---------", historyFragment.StudentId + "----"+position);
 
@@ -244,7 +237,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
                 if (historyFragment.StudentId!=0){
                     clearHistoryData();
                     Intent i=new Intent(historyContext,DateTimeActivity.class);
-                    //	Log.e("History studid  menu---------", ShowGmapClient.StudentId+"  "+HistoryMapAdapter.user1.getType());
+                    //	Log.e("History studid  menu---------", ShowGmapClient.StudentId+"  "+GHistoryMapAdapter.user1.getType());
 
                     i.putExtra("StudentId", historyFragment.StudentId);
                     if (HistoryMapAdapter.user1!=null)
@@ -284,20 +277,31 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
         return rootView;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(data!=null&&requestCode==REQ_DATETIME&&resultCode== Activity.RESULT_OK)
-        {
 
+
+    @Override
+    public void onMapReady(GoogleMap Map) {
+       this.googleMap = Map;
+
+        try {
+            // Loading map
+            initilizeMap();
+            if (Common.Location_getting)
+                addDefaultLocations();
+         /*   else
+               Common.ShowSweetAlert(historyContext,"Can't get location.Please try again.");*/
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+
     }
+
 
     //History Child
     String makeJSONHistoryChild(String date,String Id)
     {
-        DBHelper helper= DBHelper.getInstance(historyContext);
-        helper.truncateTables("db_history");
+        PrimesysTrack.mDbHelper.truncateTables("db_history");
         String trackSTring="{}";
         try{
             JSONObject jo=new JSONObject();
@@ -312,6 +316,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
         catch(Exception e)
         {
 
+            e.printStackTrace();
         }
         return trackSTring;
     }
@@ -333,6 +338,13 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
 
         Pause=(Button)rootView.findViewById(R.id.btn_pause);
         Resume=(Button)rootView.findViewById(R.id.btn_resume);
+
+        mapFragment = (SupportMapFragment) getChildFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync((OnMapReadyCallback) this);
+        togglelist = (ToggleButton) rootView.findViewById(R.id.tooglelist);
+        togglelist.setChecked(true);
+
         List<RFACLabelItem> items = new ArrayList<>();
         items.add(new RFACLabelItem<Integer>()
                 .setLabel("Normal View")
@@ -381,24 +393,42 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
         ).build();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        mapViewhistory.onResume();
+
+        if(getView() == null){
+            return;
+        }
+
+        getView().setFocusableInTouchMode(true);
+        getView().requestFocus();
+        getView().setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+                if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK){
+                    Home.viewPager.setCurrentItem(0);
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+
     private void initilizeMap() {
 
         try
         {
-
-
             if (ContextCompat.checkSelfPermission(historyContext, Manifest.permission.ACCESS_FINE_LOCATION) ==
                     PackageManager.PERMISSION_GRANTED &&
                     ContextCompat.checkSelfPermission(historyContext, Manifest.permission.ACCESS_COARSE_LOCATION) ==
                             PackageManager.PERMISSION_GRANTED) {
-                if (googleMap == null) {
-                    // Gets to GoogleMap from the MapView and does initialization stuff
-                    googleMap = ((MapView) rootView.findViewById(R.id.gmaphistoty)).getMap();
-                }
+
                 googleMap.getUiSettings().setMyLocationButtonEnabled(true);
                 googleMap.setMyLocationEnabled(true);
-                //  mapView.getMapAsync(this);
-
                 if (googleMap == null) {
                     Toast.makeText(getActivity().getApplicationContext(),
                             "Sorry! unable to create maps", Toast.LENGTH_SHORT)
@@ -413,9 +443,6 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
                         TAG_CODE_PERMISSION_LOCATION);
             }
 
-
-
-
         } catch (Exception e) { ;
             // TODO: handle exception
             e.printStackTrace();
@@ -428,18 +455,6 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
 
     //get Set
 
-    /**
-     * function to load map If map is not created it will create it for you
-     * */
-    /*private void initilizeMap() {
-        if (googleMap == null) {
-            googleMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.gmap)).getMap();
-            // check if map is created successfully or not
-            if (googleMap == null) {
-                Common.showToast("Sorry! unable to create maps", historyContext);
-            }
-        }
-    }*/
     private boolean isGooglePlayServicesAvailable() {
         int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(historyContext);
         if (ConnectionResult.SUCCESS == status) {
@@ -451,11 +466,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
     }
 
 
-    @Override
-    public void onResume() {
-        mapViewhistory.onResume();
-        super.onResume();
-    }
+
 
     /*  @Override
       public void onDestroy() {
@@ -474,8 +485,11 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        String formattedDate = new SimpleDateFormat("dd MMM yyyy hh:mm:ss").format(new Date());
-        LoginActivity.mClient.sendMessage(makeJSONHistory(formattedDate));
+        if (LoginActivity.mClient!=null){
+            String formattedDate = new SimpleDateFormat("dd MMM yyyy hh:mm:ss").format(new Date());
+            LoginActivity.mClient.sendMessage(makeJSONHistory(formattedDate));
+        }
+
     }
 
     @Override
@@ -498,7 +512,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
 
     // JSON request to get the history
     static String makeJSONHistory(String date) {
-        helper.truncateTables("db_history");
+        PrimesysTrack.mDbHelper.truncateTables("db_history");
         String trackSTring = "{}";
         try {
             JSONObject jo = new JSONObject();
@@ -516,18 +530,10 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
     }
     //add Default Location
     public static void addDefaultLocations() {
-
-
-        if (googleMap == null) {
-            googleMap = ((MapView) rootView.findViewById(R.id.gmaphistoty)).getMap();
-        }
-
         clearMarkers();
         LocationData_list=new ArrayList<LocationData>();
-        DBHelper dbH= DBHelper.getInstance(historyContext);
-        LocationData_list=dbH.showDetails();
+        LocationData_list= PrimesysTrack.mDbHelper.showDetails();
         totalCount=LocationData_list.size();
-        Log.e("-----addDefaultLocations-------","addDefaultLocations"+"--------"+LocationData_list.size());
 
 	/*	if(totalCount==0)
 			Common.showToast(getResources().getString(R.string.history_msg), historyContext);*/
@@ -706,62 +712,21 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
 
         LatLng prev = null,current=null;
          if(currentPt++ < directionPoint.size() ) {
-
-
-             Log.e("dgjjjdincar--------------","111111111111111111111111---------------------"+currentPt+"   directionPoint  --"+directionPoint.size());
              current = directionPoint.get(currentPt);
 
-            /* if (currentPt>1)
-             prev = directionPoint.get(currentPt - 1);
-             current = directionPoint.get(currentPt);
-             Log.e("dgjjjdincar-------------------------------","888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888");
-
-             Location Prevloc = null, Currloc = null;
-             if (prev != null && current != null) {
-                 Prevloc = new Location(LocationManager.GPS_PROVIDER);
-                 Prevloc.setLatitude(prev.latitude);
-                 Prevloc.setLongitude(prev.longitude);
-                 Currloc = new Location(LocationManager.GPS_PROVIDER);
-                 Currloc.setLatitude(current.latitude);
-                 Currloc.setLongitude(current.longitude);
-             }
-
-
-             if (Currloc != null && Prevloc != null) {
-                 // mMap.clear();
-                 bearing = Prevloc.bearingTo(Currloc);
-                 polylineOptions = new PolylineOptions();
-                 polylineOptions.width(5);
-                 polylineOptions.geodesic(true);
-                 polylineOptions.color(R.color.colorPrimaryDark);
-                 polylineOptions.add(prev, current);
-
-                 googleMap.addPolyline(polylineOptions);
-             }
-*/
              MarkerOptions mp = new MarkerOptions();
              mp.position(current).icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(historyContext, customMarker())));
              mp.rotation(bearing);
              mp.snippet("Latitude : " + String.format("%.6f", current.latitude) + "\t" + "Longitude : " + String.format("%.6f", current.longitude));
-             //   mp.title("Speed : " + speed + " km/h" + "\t" + "Date : " + date + "\n" + "");
-             Log.e("Map Frgment in matrker----------------", googleMap + "***");
-             if (googleMap == null) {
-                 googleMap = ((MapView) rootView.findViewById(R.id.mapview)).getMap();
-             }
+             //mp.title("Speed : " + speed + " km/h" + "\t" + "Date : " + date + "\n" + "");
 
              final Marker marker = googleMap.addMarker(mp);
-
-            // googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(directionPoint.get(0), 18));
-
-
              googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(directionPoint.get(0), 18), new GoogleMap.CancelableCallback() {
 
                  @Override
                  public void onFinish() {
                      animateMarker(googleMap, marker, directionPoint);
-
                  }
-
                  @Override
                  public void onCancel() {
                  }
@@ -788,9 +753,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
         final long duration = 1500*directionPoint.size();
      //   final long duration = 30000;
         ClearFlag=true;
-        Log.e("animateMarker--------------","---animateMarker------------------"+currentPt+" directionPoint--"+directionPoint.size());
         googleMap.getUiSettings().setAllGesturesEnabled(false);
-
         final Interpolator interpolator = new LinearInterpolator();
 
         handler.post(RunnAnim=new Runnable() {
@@ -831,20 +794,16 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
                             else
                             {
                                 marker.setRotation(rand.nextFloat() * (maxX - minX) + minX);
-                                Log.e("animateMarker--------------","----Inside 0.0 bearing000000000000000000-----------------"+bearing+"");
-
                             }
 
                             myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(directionPoint.get(i), 18));
-                            Log.e("animateMarker--------------","----bearing-----------------"+bearing+"");
-
                             if (Currloc != null && Prevloc != null) {
                                 // mMap.clear();
                                 bearing = Prevloc.bearingTo(Currloc);
                                 double caldistdiff = distance(directionPoint.get(i).latitude, directionPoint.get(i).longitude, directionPoint.get(i + 1).latitude, directionPoint.get(i + 1).longitude, "K");
                                 Log.e("polylineOptions========",""+caldistdiff*1000);
 
-                                if (caldistdiff*1000<Common.PolylineDistLimit&&polycount!=1) {
+                                if (caldistdiff*1000<Common.PolylineDistLimit) {
                                     polylineOptions = new PolylineOptions();
                                     polylineOptions.width(5);
                                     polylineOptions.geodesic(true);
@@ -854,10 +813,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
 
                                     googleMap.addPolyline(polylineOptions);
                                 }
-                                if (caldistdiff*1000>Common.PolylineDistLimit)
-                                {   polycount++;
 
-                                }
                             }
 
                             caldist = distance(directionPoint.get(i).latitude,directionPoint.get(i).longitude,directionPoint.get(i+1).latitude,directionPoint.get(i+1).longitude, "K");
@@ -870,16 +826,12 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
                     }catch (Exception e){
                         e.printStackTrace();
                     }
-
-
                 } else {
                     if (hideMarker) {
                         marker.setVisible(false);
                     } else {
                         marker.setVisible(true);
                     }
-                    Log.e("animateMarker--------------","----------else-----------"+i+"");
-
                 }
 
 
@@ -887,10 +839,16 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
 
              //   Log.e("animateMarker--------------",LocationData_list.get(i).getTimestamp()+"  - "+LocationData_list.get(i).getSpeed()+"  - "+HistoryDistance);
 
-                datetime.setText(Common.getDateCurrentTimeZone(LocationData_list.get(i).getTimestamp())+"");
-                speed.setText("Speed:"+LocationData_list.get(i).getSpeed()+" km/h");
+                try{
 
-                distance.setText("Distance:"+String.format("%.2f",HistoryDistance)+" km");
+                    datetime.setText(Common.getDateCurrentTimeZone(LocationData_list.get(i).getTimestamp())+"");
+                    speed.setText("Speed:"+LocationData_list.get(i).getSpeed()+" km/h");
+
+                    distance.setText("Distance:"+String.format("%.2f",HistoryDistance)+" km");
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
                 i++;
 
 
@@ -900,8 +858,6 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
                     Pause.setVisibility(View.INVISIBLE);Resume.setVisibility(View.INVISIBLE);
 
                 }
-                Log.e("animateMarker--------------","----------run-----------"+i+"");
-
             }
         });
         googleMap.getUiSettings().setAllGesturesEnabled(true);
@@ -936,8 +892,8 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
         pDialog.setTitleText("Loading");
         pDialog.setCancelable(false);
         pDialog.show();
-        //JSon object request for reading the json data
-        stringRequest = new StringRequest(Request.Method.POST, Common.URL + "ParentAPI.asmx/GetTrackInfo", new Response.Listener<String>() {
+
+        stringRequest = new StringRequest(Request.Method.POST,Common.URL+"ParentAPI.asmx/GetTrackInfo" , new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
@@ -969,7 +925,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
             }
         };
         stringRequest.setTag(TAG);
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(300000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest.setRetryPolicy(Common.vollyRetryPolicy);
         // Adding request to request queue
         reuestQueue.add(stringRequest);
 
@@ -990,7 +946,7 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
             JSONArray joArray = new JSONArray(result);
             for (int i = 0; i < joArray.length(); i++) {
                 JSONObject joObject = joArray.getJSONObject(i);
-                GmapDetais dmDetails = new GmapDetais();
+                DeviceDataDTO dmDetails = new DeviceDataDTO();
                 if (i <= 0) {
                     defaultImage = joObject.getString("Photo").replaceAll("~", "").trim();
                     if (Common.roleid.contains("5")) {
@@ -1034,7 +990,6 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
 
     @Override
     public void onRFACItemLabelClick(int position, RFACLabelItem item) {
-        googleMap = ((MapView) rootView.findViewById(R.id.gmaphistoty)).getMap();
         switch (position) {
 
             case 0:
@@ -1060,7 +1015,6 @@ public class historyFragment extends Fragment implements RapidFloatingActionCont
 
     @Override
     public void onRFACItemIconClick(int position, RFACLabelItem item) {
-        googleMap = ((MapView) rootView.findViewById(R.id.gmaphistoty)).getMap();
         switch (position) {
             case 0:
                 googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);

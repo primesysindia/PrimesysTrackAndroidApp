@@ -5,7 +5,7 @@ import com.nineoldandroids.animation.AnimatorSet;
 import com.wangjie.rapidfloatingactionbutton.listener.OnRapidFloatingActionListener;
 
 /**
- * Author: wangjie
+ * Author: wangjierfaContent
  * Email: tiantian.china.2@gmail.com
  * Date: 4/29/15.
  */

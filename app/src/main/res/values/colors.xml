@@ -23,10 +23,8 @@
 
 
     <color name="red">#F44336</color>
-    <color name="pink">#FF4081</color>
     <color name="purple">#9C27B0</color>
     <color name="deepblue">#7C4DFF</color>
-    <color name="indigo">#3F51B5</color>
     <color name="blue">#448AFF</color>
     <color name="lightblue">#03A9F4</color>
     <color name="cyan">#00BCD4</color>
@@ -53,4 +51,56 @@
     <color name="green_theme_pink">#AF3F3F</color>
     <color name="card_color">#0097A7</color>
     <color name="button_color">#0097A7</color>
+    <color name="persian_green_primary">#0DAC8F</color>
+    <color name="persian_green_dark">#0A927A</color>
+    <color name="persian_green_accent">#0A927A</color>
+    <color name="pink_primary">#EB1E63</color>
+    <color name="pink_dark">#C0175C</color>
+    <color name="pink_accent">#C0175C</color>
+    <color name="royal_blue_primary">#4C63E2</color>
+    <color name="royal_blue_dark">#4055BF</color>
+    <color name="royal_blue_accent">#4055BF</color>
+    <color name="purple_primary">#9C28B1</color>
+    <color name="purple_dark">#7A1FA2</color>
+    <color name="purple_accent">#7A1FA2</color>
+    <color name="orange_accent">#F3A62E</color>
+    <color name="indigo">#3E50AE</color>
+    <color name="pink">#FF427C</color>
+
+    <color name="Quiztextcolor">#CC6698</color>
+    <color name="icons">#FFFFFF</color>
+    <color name="track_color">#b34a7d</color>
+    <color name="disabled_background_color">#10181818</color>
+    <color name="disabled_text_color">#aaa</color>
+
+    <color name="from">#000000</color>
+    <color name="bg_action_mode">#757575</color>
+    <color name="bg_circle_default">#666666</color>
+    <color name="message">#7a7a7a</color>
+    <color name="row_activated">#e0e0e0</color>
+    <color name="row_divider">#e0e0e0</color>
+
+    <!-- General -->
+    <color name="about_item_icon_color">#313131</color>
+
+    <!-- Social -->
+    <color name="about_facebook_color">#3b5998</color>
+    <color name="about_twitter_color">#55acee</color>
+    <color name="about_instagram_color">#3f729b</color>
+    <color name="about_play_store_color">#45BBC2</color>
+    <color name="about_youtube_color">#cd201f</color>
+    <color name="about_github_color">#333333</color>
+    <!-- General -->
+    <color name="about_background_color">#FFFFFF</color>
+    <color name="about_separator_color">#e1e1e1</color>
+
+    <!-- Text -->
+    <color name="about_description_text_color">#595959</color>
+    <color name="about_item_text_color">#7c7c7c</color>
+    <color name="about_text_color">#595959</color>
+    <string name="copy_right" translatable="false">Copyrights © %1$d</string>
+    <color name="greenyellow">#ADFF2F</color>
+    <color name="light_yellow">#FFFF66</color>
+
 </resources>
+

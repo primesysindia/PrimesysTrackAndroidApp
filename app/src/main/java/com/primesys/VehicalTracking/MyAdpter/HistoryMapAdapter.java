@@ -1,22 +1,5 @@
 package com.primesys.VehicalTracking.MyAdpter;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-
-import org.json.JSONObject;
-
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.ImageLoader;
-
-import com.primesys.VehicalTracking.Db.DBHelper;
-import com.primesys.VehicalTracking.Dto.GmapDetais;
-import com.primesys.VehicalTracking.R;
-import com.primesys.VehicalTracking.Utility.CircleTransform;
-import com.primesys.VehicalTracking.Utility.CircularNetworkImageView;
-import com.primesys.VehicalTracking.Utility.Common;
-import com.squareup.picasso.Picasso;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -29,26 +12,46 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class HistoryMapAdapter  extends ArrayAdapter<GmapDetais>{
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.primesys.VehicalTracking.Dto.DeviceDataDTO;
+import com.primesys.VehicalTracking.PrimesysTrack;
+import com.primesys.VehicalTracking.R;
+import com.primesys.VehicalTracking.Utility.CircleTransform;
+import com.primesys.VehicalTracking.Utility.CircularNetworkImageView;
+import com.primesys.VehicalTracking.Utility.Common;
+import com.squareup.picasso.Picasso;
+
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+
+public class HistoryMapAdapter  extends ArrayAdapter<DeviceDataDTO>{
 
 	TextView txtchild,txtcar,txtpet;
 	Context context;
 	ImageLoader imageLoader;
 	int layoutResourceId;
-	ArrayList<GmapDetais> datal;
+	ArrayList<DeviceDataDTO> deviceList;
+	ArrayList<DeviceDataDTO>deviceListCopy;
+
 	String timestamp;
 	LinearLayout laychild,laypet,layCar;
 	Bitmap bitmap;
 	static RequestQueue RecordsSyncQueue;
-	public static GmapDetais user1;
+	public static DeviceDataDTO user1;
 	public HistoryMapAdapter(Context context, int layoutResourceId,
-			ArrayList<GmapDetais> data, ImageLoader imageLoader2) {
+			ArrayList<DeviceDataDTO> data, ImageLoader imageLoader2) {
 		super(context, layoutResourceId,data);
 		this.layoutResourceId = layoutResourceId;
 		this.context = context;
-		this.datal = data;
+		this.deviceList = data;
 		this.imageLoader=imageLoader2;
-
+		this.deviceListCopy = new ArrayList<>();
+		this.deviceListCopy.addAll(deviceList);
 
 	}
 
@@ -63,7 +66,7 @@ public class HistoryMapAdapter  extends ArrayAdapter<GmapDetais>{
 		try {
 			//final SimpleDateFormat mFormatter = new SimpleDateFormat("dd-MM-yyyy hh:mm aa");
 			final String formattedDate = new SimpleDateFormat("dd MMM yyyy hh:mm:ss").format(new Date());
-			GmapDetais gp = datal.get(position);
+			DeviceDataDTO gp = deviceList.get(position);
 			final LinearLayout lay = (LinearLayout) convertView.findViewById(R.id.lay_main);
 			final CircularNetworkImageView imgchild = (CircularNetworkImageView) convertView.findViewById(R.id.img_child);
 			txtchild = (TextView) convertView.findViewById(R.id.txt_child);
@@ -86,6 +89,7 @@ public class HistoryMapAdapter  extends ArrayAdapter<GmapDetais>{
 						.into(imgchild);
 
 			} catch (Exception e) {
+				e.printStackTrace();
 
 			}
 
@@ -95,18 +99,18 @@ public class HistoryMapAdapter  extends ArrayAdapter<GmapDetais>{
 				@Override
 				public void onClick(View v) {
 					try {
-						//	ShowMapFragment gmap=new ShowMapFragment();
+						//	GShowMapFragment gmap=new GShowMapFragment();
 						//	gmap.flag=0;
 						DateTimeActivity.selStatus = true;
 						user1 = datal.get((Integer) txtchild.getTag());
-						historyFragment.StudentId = Integer.parseInt(user1.getId());
-						Log.e("History studid---------", historyFragment.StudentId + "");
+						GhistoryFragment.StudentId = Integer.parseInt(user1.getId());
+						Log.e("History studid---------", GhistoryFragment.StudentId + "");
 
-						ShowMapFragment.Updatestatus = true;
+						GShowMapFragment.Updatestatus = true;
 						BitmapDrawable bitmap_draw = (BitmapDrawable) imgchild.getDrawable();
 						Bitmap bmp = bitmap_draw.getBitmap();
-						ShowMapFragment.bmp1 = bmp;
-						LoginActivity.mClient.sendMessage(makeJSONHistoryChild(formattedDate,historyFragment.StudentId+""));
+						GShowMapFragment.bmp1 = bmp;
+						LoginActivity.mClient.sendMessage(makeJSONHistoryChild(formattedDate,GhistoryFragment.StudentId+""));
 
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -151,8 +155,7 @@ public class HistoryMapAdapter  extends ArrayAdapter<GmapDetais>{
 	//History Child
 	String makeJSONHistoryChild(String date,String Id)
 	{
-		DBHelper helper=DBHelper.getInstance(context);
-		helper.truncateTables("db_history");
+		PrimesysTrack.mDbHelper.truncateTables("db_history");
 		String trackSTring="{}";
 		try{
 			JSONObject jo=new JSONObject();
@@ -169,6 +172,23 @@ public class HistoryMapAdapter  extends ArrayAdapter<GmapDetais>{
 
 		}
 		return trackSTring;
+	}
+
+	// Filter Class
+	public void filter(String charText) {
+		charText = charText.toLowerCase(Locale.getDefault());
+		deviceList.clear();
+		if (charText.length() == 0) {
+			deviceList.addAll(deviceListCopy);
+		} else {
+			for (DeviceDataDTO wp : deviceListCopy) {
+				if (wp.getName().toLowerCase(Locale.getDefault())
+						.contains(charText)) {
+					deviceList.add(wp);
+				}
+			}
+		}
+		notifyDataSetChanged();
 	}
 
 }

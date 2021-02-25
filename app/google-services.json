@@ -15,20 +15,20 @@
       },
       "oauth_client": [
         {
-          "client_id": "210941390350-edmkh1p74o7r06jhqidi78soum0r0n2i.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.google.samples.quickstart.signin",
-            "certificate_hash": "f4704c00bc554d09060c4a71016a0f787ebb8186"
-          }
-        },
-        {
           "client_id": "210941390350-agm27usn4iot2ibetjkv7jr3utsl1hv6.apps.googleusercontent.com",
           "client_type": 3
         },
         {
           "client_id": "210941390350-jejdep6bje5vsdas1sdt6c9vj55oemsk.apps.googleusercontent.com",
           "client_type": 3
+        },
+        {
+          "client_id": "210941390350-edmkh1p74o7r06jhqidi78soum0r0n2i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.google.samples.quickstart.signin",
+            "certificate_hash": "f4704c00bc554d09060c4a71016a0f787ebb8186"
+          }
         }
       ],
       "api_key": [
@@ -71,16 +71,16 @@
           }
         },
         {
+          "client_id": "210941390350-agm27usn4iot2ibetjkv7jr3utsl1hv6.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
           "client_id": "210941390350-pbc6khgtdk3dofkp1ieocq6aso5msepk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.primesys.VehicalTracking",
             "certificate_hash": "f399982e5a8f52040288cb8f54271b4ff39637e0"
           }
-        },
-        {
-          "client_id": "210941390350-agm27usn4iot2ibetjkv7jr3utsl1hv6.apps.googleusercontent.com",
-          "client_type": 3
         },
         {
           "client_id": "210941390350-jejdep6bje5vsdas1sdt6c9vj55oemsk.apps.googleusercontent.com",

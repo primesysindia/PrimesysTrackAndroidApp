@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 import com.example.datetimepicker.SlideDateTimeListener;
 import com.example.datetimepicker.SlideDateTimePicker;
-import com.primesys.VehicalTracking.Db.DBHelper;
+import com.primesys.VehicalTracking.PrimesysTrack;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.Common;
 
@@ -53,8 +53,7 @@ public class DateTimeActivity extends FragmentActivity
 	String makeJSONHistory(String timestamp)
 	{
 
-		DBHelper helper= DBHelper.getInstance(DateTimeActivity.this);
-		helper.truncateTables("db_history");
+		PrimesysTrack.mDbHelper.truncateTables("db_history");
 		String trackSTring="{}";
 		try{
 			JSONObject jo=new JSONObject();

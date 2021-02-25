@@ -16,16 +16,15 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -41,11 +40,12 @@ import com.google.gson.Gson;
 import com.primesys.VehicalTracking.Activity.Home;
 import com.primesys.VehicalTracking.Activity.LoginActivity;
 import com.primesys.VehicalTracking.Db.DBHelper;
-import com.primesys.VehicalTracking.Dto.GmapDetais;
+import com.primesys.VehicalTracking.Dto.DeviceDataDTO;
 import com.primesys.VehicalTracking.Dto.SpeedalertDTO;
 import com.primesys.VehicalTracking.Dto.VehicalTrackingSMSCmdDTO;
 import com.primesys.VehicalTracking.MyAdpter.StudentListAdpter;
 import com.primesys.VehicalTracking.MyAdpter.VhehicalReportlistAdpter;
+import com.primesys.VehicalTracking.PrimesysTrack;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.Common;
 
@@ -82,7 +82,7 @@ public class ACCReport extends Fragment {
     SweetAlertDialog pDialog;
     public StudentListAdpter padapter;
     DBHelper helper;
-    private ArrayList<GmapDetais> childlist=new ArrayList<>();
+    private ArrayList<DeviceDataDTO> childlist=new ArrayList<>();
     public static String StudentId="0";
     public static String StudentName="";
 
@@ -97,7 +97,7 @@ public class ACCReport extends Fragment {
     public String DeviceSimNo="";
     private TextView tv_msg;
     private Dialog EditVsNumberDialog;
-    private String TAG="SMSFuction";
+    private String TAG="GSMSFuction";
     private String updated_simno="";
     public static String DeviceImieNo="";
 
@@ -107,18 +107,18 @@ public class ACCReport extends Fragment {
         // TODO Auto-generated method stub
         rootView = inflater.inflate(R.layout.acc_function, container, false);
         context = container.getContext();
-        helper = DBHelper.getInstance(context);
        acclist = (RecyclerView) rootView.findViewById(R.id.acclistfunction);
         acclist.setLayoutManager(new LinearLayoutManager(context));
         acclist.setItemAnimator(new DefaultItemAnimator());
         acclist.setHasFixedSize(true);
         findById();
-        if (helper.Show_AccReport().size()>0)
+        if (PrimesysTrack.mDbHelper.Show_AccReport().size()>0)
             SetreportListData();
         else
             GetVehReportlist();
 
         try {
+            if (ShowMapFragment.CDT!=null)
             ShowMapFragment.CDT.cancel();
             Home.tabLayout.setVisibility(View.VISIBLE);
         }catch (Exception e){
@@ -141,7 +141,7 @@ public class ACCReport extends Fragment {
 
 
 
-       /* mAdpter = new VhehicalSMSlistAdpter(acclistdata, R.layout.row_acclist, context);
+       /* mAdpter = new GVhehicalSMSlistAdpter(acclistdata, R.layout.row_acclist, context);
         acclist.setAdapter(mAdpter);*/
 
     }
@@ -149,9 +149,8 @@ public class ACCReport extends Fragment {
 
 
     public void CheckStudent(Context context1) {
-        helper = DBHelper.getInstance(context1);
 
-        if (Common.getConnectivityStatus(context1)&& helper.Show_Device_list().size()==0) {
+        if (Common.getConnectivityStatus(context1)&& PrimesysTrack.mDbHelper.Show_Device_list().size()==0) {
             // Call Api to get track information
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -165,7 +164,7 @@ public class ACCReport extends Fragment {
                 ex.printStackTrace();
             }
         }else {
-            childlist=helper.Show_Device_list();
+            childlist=PrimesysTrack.mDbHelper.Show_Device_list();
 
             if (childlist.size()>1)
                 ShowListofStudent();
@@ -200,8 +199,7 @@ public class ACCReport extends Fragment {
         // custom dialog
         try {
             final Dialog dialog = new Dialog(this.context);
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
+            dialog.setTitle(context.getResources().getString(R.string.select_device)+" For Report");
             dialog.setContentView(R.layout.dialog_studentlist);
             dialog.setCancelable(false);
             dialog.closeOptionsMenu();
@@ -209,8 +207,15 @@ public class ACCReport extends Fragment {
             // dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialog.show();
             listStudent = (ListView) dialog.findViewById(R.id.student_list);
-            ImageView close = (ImageView) dialog.findViewById(R.id.imageView_close);
-
+            Button cancel = (Button) dialog.findViewById(R.id.d_cancel);
+            cancel.setVisibility(View.VISIBLE);
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Home.viewPager.setCurrentItem(0);
+                    dialog.dismiss();
+                }
+            });
 //		StudentId=Integer.parseInt(myAdapter.getItem(0).getId());
             padapter = new StudentListAdpter(context, R.layout.fragment_mapsidebar, childlist);
             listStudent.setAdapter(padapter);
@@ -227,23 +232,14 @@ public class ACCReport extends Fragment {
 
                     DeviceImieNo=childlist.get(position).getImei_no();
 
-                    Log.e("=================================================",""+StudentId+"   "+DeviceImieNo);
+                    Log.e("===============",""+StudentId+"   "+DeviceImieNo);
                     if (!checkPermission())
                         requestPermission();
 
                     dialog.dismiss();
                 }
             });
-            close.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
 
-                    Home.viewPager.setCurrentItem(0);
-                    dialog.dismiss();
-
-                }
-
-            });
 
             dialog.show();
         }catch (Exception e){
@@ -265,7 +261,9 @@ public class ACCReport extends Fragment {
             String result="";
             try{
                 HttpClient httpclient=new DefaultHttpClient();
-                HttpPost httpost=new HttpPost(Common.URL+"ParentAPI.asmx/GetTrackInfo");
+
+                HttpPost   httpost=new HttpPost(Common.URL+"ParentAPI.asmx/GetTrackInfo");
+
                 List<NameValuePair> param=new ArrayList<NameValuePair>(1);
                 param.add(new BasicNameValuePair("ParentId", Common.userid));
                 httpost.setEntity(new UrlEncodedFormEntity(param));
@@ -292,7 +290,7 @@ public class ACCReport extends Fragment {
             JSONArray joArray=new JSONArray(result);
             for (int i = 0; i < joArray.length(); i++) {
                 JSONObject joObject =joArray.getJSONObject(i);
-                GmapDetais dmDetails=new GmapDetais();
+                DeviceDataDTO dmDetails=new DeviceDataDTO();
                 dmDetails.setId(joObject.getString("StudentID"));
                 dmDetails.setName(joObject.getString("Name"));
 
@@ -313,7 +311,7 @@ public class ACCReport extends Fragment {
             if (childlist.size()>0) {
 
                 //Insert Offeline data
-                helper.Insert_Device_list(childlist);
+                PrimesysTrack.mDbHelper.Insert_Device_list(childlist);
                 if (childlist.size()>1)
                     ShowListofStudent();
                 else
@@ -372,6 +370,28 @@ public class ACCReport extends Fragment {
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if(getView() == null){
+            return;
+        }
+
+        getView().setFocusableInTouchMode(true);
+        getView().requestFocus();
+        getView().setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+                if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK){
+                    Home.viewPager.setCurrentItem(0);
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
 
 
     public void Show_speedalert_dilog() {
@@ -681,7 +701,7 @@ public class ACCReport extends Fragment {
             }
         };
         stringRequest.setTag(TAG);
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(300000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(300000, 2, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         // Adding request to request queue
         reuestQueue.add(stringRequest);
 
@@ -709,7 +729,7 @@ public class ACCReport extends Fragment {
 
                 }
 
-                helper.insertAccReport(smslistdata);
+                PrimesysTrack.mDbHelper.insertAccReport(smslistdata);
 
 
             }else Common.ShowSweetAlert(context,"Error in fetching data.Please try again.");
@@ -728,7 +748,7 @@ public class ACCReport extends Fragment {
     private void SetreportListData() {
 
         ArrayList<VehicalTrackingSMSCmdDTO> smslistdata=new ArrayList<>();
-        smslistdata=helper.Show_AccReport();
+        smslistdata=PrimesysTrack.mDbHelper.Show_AccReport();
         mAdpter = new VhehicalReportlistAdpter(smslistdata, R.layout.row_smslist, context);
         acclist.setAdapter(mAdpter);
     }
@@ -740,16 +760,22 @@ public class ACCReport extends Fragment {
     }
 
     public boolean checkPermission(){
+        Boolean permission=false;
+        try{
         int result = ContextCompat.checkSelfPermission(context, android.Manifest.permission.SEND_SMS);
         if (result == PackageManager.PERMISSION_GRANTED){
 
-            return true;
+            permission= true;
 
         } else {
 
-            return false;
+            permission=false;
 
         }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return permission;
     }
 
 

@@ -1,9 +1,5 @@
 package com.primesys.VehicalTracking.MyAdpter;
 
-import java.util.ArrayList;
-
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -12,45 +8,50 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.TextView;
-
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
-
-import com.primesys.VehicalTracking.Dto.GmapDetais;
+import com.primesys.VehicalTracking.Dto.DeviceDataDTO;
 import com.primesys.VehicalTracking.R;
 import com.primesys.VehicalTracking.Utility.CircleTransform;
 import com.primesys.VehicalTracking.Utility.CircularNetworkImageView;
 import com.primesys.VehicalTracking.Utility.Common;
 import com.squareup.picasso.Picasso;
 
-public class ShowMapAdapter  extends ArrayAdapter<GmapDetais> {
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Locale;
+
+public class ShowMapAdapter  extends ArrayAdapter<DeviceDataDTO> {
 
 	TextView txtchild,txtcar,txtpet;
 	Context context;
 	ImageLoader imageLoader;
 	int layoutResourceId;
-	ArrayList<GmapDetais> datal;
+	ArrayList<DeviceDataDTO> deviceList=new ArrayList<>();
+	ArrayList<DeviceDataDTO>deviceListCopy;
+
 	public static Boolean trackInfo=false;
 	LinearLayout laychild,laypet,layCar;
 	Bitmap bitmap;
 	static RequestQueue RecordSyncQueue;
-	public static GmapDetais gp;
+	public static DeviceDataDTO gp;
 	LinearLayout lay_main;
 	View veh_status;
 	public ShowMapAdapter(Context context, int layoutResourceId,
-			ArrayList<GmapDetais> data, ImageLoader imageLoader2) {
+			ArrayList<DeviceDataDTO> data, ImageLoader imageLoader2) {
 		super(context, layoutResourceId,data);
 		this.layoutResourceId = layoutResourceId;
 		this.context = context;
-		this.datal = data;
+		this.deviceList = data;
+		this.deviceListCopy = new ArrayList<>();
+		this.deviceListCopy.addAll(deviceList);
 		this.imageLoader=imageLoader2;
 		trackInfo=false;
-	//	ShowMapFragment.StudentId=Integer.parseInt(data.get(0).getId());
+	//	GShowMapFragment.StudentId=Integer.parseInt(data.get(0).getId());
 
 	}
 
@@ -65,7 +66,7 @@ public class ShowMapAdapter  extends ArrayAdapter<GmapDetais> {
 
 		try {
 
-			gp = datal.get(position);
+			gp = deviceList.get(position);
 			final LinearLayout lay = (LinearLayout) convertView.findViewById(R.id.lay_main);
 			final CircularNetworkImageView imgchild = (CircularNetworkImageView) convertView.findViewById(R.id.img_child);
 			txtchild = (TextView) convertView.findViewById(R.id.txt_child);
@@ -90,15 +91,16 @@ public class ShowMapAdapter  extends ArrayAdapter<GmapDetais> {
 				;
 
 			} catch (Exception ex) {
+				ex.printStackTrace();
 
 			}
 		/*	convertView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					ShowMapFragment.flag = 0;
-					GmapDetais user = datal.get((Integer) imgchild.getTag());
-					ShowMapFragment.StudentId = Integer.parseInt(user.getId());
-					ShowMapFragment.Photo = user.getPath().replaceAll(" ", "%20");
+					GShowMapFragment.flag = 0;
+					DeviceDataDTO user = deviceList.get((Integer) imgchild.getTag());
+					GShowMapFragment.StudentId = Integer.parseInt(user.getId());
+					GShowMapFragment.Photo = user.getPath().replaceAll(" ", "%20");
 
 					trackInfo = false;
 
@@ -178,6 +180,23 @@ public class ShowMapAdapter  extends ArrayAdapter<GmapDetais> {
 		return trackSTring;
 		// TODO Auto-generated method stub
 
+	}
+
+	// Filter Class
+	public void filter(String charText) {
+		charText = charText.toLowerCase(Locale.getDefault());
+		deviceList.clear();
+		if (charText.length() == 0) {
+			deviceList.addAll(deviceListCopy);
+		} else {
+			for (DeviceDataDTO wp : deviceListCopy) {
+				if (wp.getName().toLowerCase(Locale.getDefault())
+						.contains(charText)) {
+					deviceList.add(wp);
+				}
+			}
+		}
+		notifyDataSetChanged();
 	}
 
 

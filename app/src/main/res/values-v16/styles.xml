@@ -8,4 +8,5 @@
     <style name="TimesNewRomanTextViewStyle" parent="android:Widget.TextView">
         <item name="android:fontFamily">@string/font_family_times_new_roman</item>
     </style>
+
 </resources>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:padding="1dp" >
+
+
+ <!--   <include layout="@layout/app_bar_home" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:id="@+id/tool1" />
+-->
+        
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="10"
+        android:id="@+id/info"
+
+        android:padding="5dp"
+        android:background="@drawable/capsulshapebutton">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:id="@+id/datetime"
+            android:textColor="@color/white"
+            android:layout_weight="5"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+
+            android:id="@+id/historyspeed"
+
+            android:textColor="@color/white"
+            android:layout_weight="2.5"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:id="@+id/distance"
+
+            android:textColor="@color/white"
+            android:layout_weight="2.5"/>
+
+
+
+
+    </LinearLayout>
+
+
+
+        <FrameLayout
+            android:id="@+id/fragment"
+
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@+id/info"
+          >
+
+            <fragment
+                android:id="@+id/gmaphistoty"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+             />
+
+
+
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:weightSum="100"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="50dp"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
+
+                <ListView
+                    android:id="@+id/User_list"
+                    android:layout_width="0dp"
+                    android:layout_weight="30"
+                    android:layout_height="wrap_content"
+                    android:choiceMode="singleChoice"
+                    android:layout_gravity="center_vertical"
+                    android:listSelector="@color/colorPrimaryDark"
+                    >
+                </ListView>
+
+                <ToggleButton
+                    android:id="@+id/tooglelist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:button="@drawable/checktoggle"
+                    android:background="@null"
+                    android:layout_gravity="center"
+                    android:textOn=""
+                    android:textOff=""/>
+
+
+            </LinearLayout>
+
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center_vertical"
+                android:layout_margin="@dimen/fab_margin"
+                android:src="@drawable/ic_calender" />
+
+
+            <com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout
+                xmlns:rfal="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/label_list_sample_rfal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                rfal:rfal_frame_color="#ffffff"
+                rfal:rfal_frame_alpha="0.7"
+                android:layout_gravity="right|center_vertical">
+
+            <com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton
+                xmlns:rfab="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/label_list_sample_rfab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+
+                android:padding="8dp"
+                rfab:rfab_size="normal"
+                rfab:rfab_drawable="@drawable/rfab__drawable_rfab_default"
+                rfab:rfab_color_normal="@color/colorPrimaryDark"
+                rfab:rfab_color_pressed="@color/colorPrimary"
+                rfab:rfab_shadow_radius="7dp"
+                rfab:rfab_shadow_color="#999999"
+                rfab:rfab_shadow_dx="0dp"
+                rfab:rfab_shadow_dy="5dp"
+                android:layout_gravity="right|bottom" />
+            </com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:id="@+id/anim"
+                android:layout_marginTop="50dp"
+                android:layout_alignParentRight="true"
+                android:padding="5dp"
+                android:layout_gravity="right|top">
+
+
+                <Button
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:id="@+id/btn_pause"
+                    android:background="@drawable/ic_pause"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:visibility="invisible"
+                    android:layout_marginBottom="5dp"
+                    android:textColor="@color/white"
+                   />
+                <Button
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/ic_play"
+                    android:id="@+id/btn_resume"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:visibility="invisible"
+                    android:textColor="@color/white"
+                    />
+
+
+
+
+            </LinearLayout>
+
+            <SearchView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/edit_search_device"
+                android:layout_gravity="top|left"
+                android:gravity="center"
+                android:background="@color/white"
+                android:layout_marginTop="5dp"
+                ></SearchView>
+        </FrameLayout>
+
+
+</RelativeLayout>

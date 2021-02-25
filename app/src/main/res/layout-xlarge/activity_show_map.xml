@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fitsSystemWindows="true">
+
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="horizontal"
+            android:layout_below="@+id/rg_views">
+
+            <FrameLayout
+                android:id="@+id/fragment"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                >
+
+
+                <fragment
+                     android:layout_width="match_parent"
+                     android:layout_below="@+id/rg_views"
+                     android:layout_height="match_parent"
+                     android:id="@+id/mapfragment"
+                     class="com.google.android.gms.maps.SupportMapFragment"/>
+
+
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:layout_marginTop="100dp"
+                    android:layout_marginRight="10dp"
+
+                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:id="@+id/img_battery"
+                        android:src="@drawable/battery_alert"
+                        android:visibility="gone"
+
+                        />
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:id="@+id/img_network"
+                        android:visibility="gone"
+                        android:layout_marginTop="@dimen/mid_margin"
+                        android:src="@drawable/cellular_0"
+                        />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:layout_marginTop="50dp"
+                        android:layout_marginBottom="50dp"
+                        android:orientation="vertical">
+                    <ListView
+                        android:id="@+id/User_list"
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:choiceMode="singleChoice"
+                        android:listSelector="@color/colorPrimaryDark"
+                        android:orientation="horizontal"
+                        android:layout_gravity="center"
+
+                        >
+                    </ListView>
+
+                    </LinearLayout>
+                    <ToggleButton
+                        android:id="@+id/tooglelist"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:button="@drawable/checktoggle"
+                        android:background="@null"
+                        android:layout_gravity="center"
+                        android:textOn=""
+                        android:textOff=""/>
+                </LinearLayout>
+
+
+                <com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout
+                    xmlns:rfal="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/label_list_sample_rfal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    rfal:rfal_frame_color="#ffffff"
+                    rfal:rfal_frame_alpha="0.7"
+                    >
+                    <com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton
+                        xmlns:rfab="http://schemas.android.com/apk/res-auto"
+                        android:id="@+id/label_list_sample_rfab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentBottom="true"
+                        android:padding="8dp"
+                        rfab:rfab_size="normal"
+                        rfab:rfab_drawable="@drawable/rfab__drawable_rfab_default"
+                        rfab:rfab_color_normal="@color/colorPrimaryDark"
+                        rfab:rfab_color_pressed="@color/colorPrimary"
+                        rfab:rfab_shadow_radius="7dp"
+                        rfab:rfab_shadow_dx="0dp"
+                        rfab:rfab_shadow_dy="5dp"
+                        />
+                </com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout>
+
+                <!--     <com.github.anastr.speedviewlib.DeluxeSpeedView
+                         android:id="@+id/deluxeSpeedView"
+                         android:layout_width="150sp"
+                         android:layout_gravity="right"
+                         android:layout_height="wrap_content" />-->
+                <com.github.anastr.speedviewlib.SpeedView
+                    android:id="@+id/speedView"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_gravity="right"
+                    app:indicatorWidth="5dp"
+                    app:maxSpeed="180"
+                    android:layout_marginTop="50dp"
+
+                    app:speedTextSize="12sp"
+                    android:visibility="gone"
+                    app:speedometerWidth="5dp"
+                    app:unitTextSize="10sp" />
+
+
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/fab_all_device"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|right"
+                    android:layout_margin="@dimen/fab_margin"
+                    android:padding="@dimen/mid_margin"
+                    android:visibility="gone"
+
+                    android:src="@drawable/ic_all_location" />
+                <SearchView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/edit_search_device"
+                    android:layout_gravity="top|start"
+                    android:gravity="center"
+                    android:layout_marginTop="5dp"
+                    android:hint="@string/hint_seach_device"
+                    android:background="@color/white"
+
+                    />
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txt_on_off_device"
+                    android:layout_gravity="top|center_horizontal"
+                    android:gravity="center"
+                    android:background="@color/white"
+                    android:layout_marginTop="5dp"
+                    android:visibility="gone"
+                    android:textSize="15sp"
+                    android:padding="5dp"
+                    android:textColor="@color/black"
+                    ></TextView>
+
+            </FrameLayout>
+        </LinearLayout>
+
+
+
+
+</RelativeLayout>

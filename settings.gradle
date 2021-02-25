@@ -1,2 +1,2 @@
-include ':app', ':fablibrary'
+include ':app', ':fablibrary', ':AppUpadtelibrary', ':Updtaeapplibrary', ':PaytmSDK', ':PGSDK_V2.1'
 include ':dateTimePicker'

@@ -3,8 +3,6 @@ package com.primesys.VehicalTracking.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.TextView;
@@ -20,6 +18,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.primesys.VehicalTracking.Db.DBHelper;
 import com.primesys.VehicalTracking.Dto.SmsNotificationDTO;
+import com.primesys.VehicalTracking.PrimesysTrack;
 import com.primesys.VehicalTracking.R;
 
 public class ShowLocationOfCar extends FragmentActivity implements OnMapReadyCallback {
@@ -34,7 +33,6 @@ public class ShowLocationOfCar extends FragmentActivity implements OnMapReadyCal
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_location_show);
-        helper=DBHelper.getInstance(this.getApplicationContext());
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -110,7 +108,7 @@ public class ShowLocationOfCar extends FragmentActivity implements OnMapReadyCal
             TextView alarm_type = ((TextView)myContentsView.findViewById(R.id.alarmtype));
             TextView alarm_time = ((TextView)myContentsView.findViewById(R.id.alarmtime));
 
-            veh_name.setText(helper.getdevice_name(marker.getTitle()));
+            veh_name.setText(PrimesysTrack.mDbHelper.getdevice_name(marker.getTitle()));
             alarm_type.setText(smsdata.getNotify_Title());
             if (smsdata.getTime()!=null&&smsdata.getTime()!=null)
             alarm_time.setText(smsdata.getDate()+" " +smsdata.getTime());

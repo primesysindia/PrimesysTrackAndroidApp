@@ -18,7 +18,7 @@ package com.primesys.VehicalTracking.Activity;
 	static RequestQueue RecordSyncQueue;
 	ListView gmapList;
 	String defaultImage;
-	ShowMapAdapter myAdapter;
+	GShowMapAdapter myAdapter;
 	static String TAG="ShowGMap";
 	ShowGmapClient contextMap=ShowGmapClient.this;
 	long freeSize = 0L;
@@ -31,7 +31,7 @@ package com.primesys.VehicalTracking.Activity;
 	private static RequestQueue reuestQueue;
 	private static StringRequest stringRequest;
 	public static Boolean Updatestatus=false,menuSelct;
-	ArrayList<GmapDetais> arr=new ArrayList<GmapDetais>();
+	ArrayList<DeviceDataDTO> arr=new ArrayList<DeviceDataDTO>();
 	int cnt=0;
 	int cntMap=0;
 	public static Boolean PostLocationflag=true;
@@ -70,7 +70,7 @@ package com.primesys.VehicalTracking.Activity;
 					imageLoader = new ImageLoader(
 							RecordSyncQueue, imageCache);
 					imageLoader = new ImageLoader(Volley.newRequestQueue(contextMap), imageCache);
-					ShowMapAdapter.trackInfo=false;
+					GShowMapAdapter.trackInfo=false;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -87,7 +87,7 @@ package com.primesys.VehicalTracking.Activity;
 
 							if (cnt<=0) {
 								gmapList.setVisibility(View.VISIBLE);
-								myAdapter=new ShowMapAdapter(ShowGmapClient.this, R.layout.fragment_mapsidebar, arr,imageLoader);
+								myAdapter=new GShowMapAdapter(ShowGmapClient.this, R.layout.fragment_mapsidebar, arr,imageLoader);
 								gmapList.setAdapter(myAdapter);
 								overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
 								gmapList.setSelection(0);
@@ -104,7 +104,7 @@ package com.primesys.VehicalTracking.Activity;
 					}
 				});
 
-				if (Common.getConnectivityStatus(trackContext)&& helper.Show_Device_list().size()==0) {
+				if (Common.getConnectivityStatus(trackContext)&& PrimesysTrack.mDbHelper.Show_Device_list().size()==0) {
 					// Call Api to get track information
 					try {
 						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -121,8 +121,8 @@ package com.primesys.VehicalTracking.Activity;
 					
 					//SEt OFfline List
 					gmapList=(ListView)findViewById(R.id.list);
-					arr=helper.Show_Device_list();
-					myAdapter=new ShowMapAdapter(ShowGmapClient.this, R.layout.fragment_mapsidebar, arr,imageLoader);
+					arr=PrimesysTrack.mDbHelper.Show_Device_list();
+					myAdapter=new GShowMapAdapter(ShowGmapClient.this, R.layout.fragment_mapsidebar, arr,imageLoader);
 					gmapList.setAdapter(myAdapter);
 					overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
 					gmapList.setSelection(0);
@@ -508,7 +508,7 @@ package com.primesys.VehicalTracking.Activity;
 	// JSON request to get the history
 	static String makeJSONHistory(String date)
 	{
-		helper.truncateTables("db_history");
+		PrimesysTrack.mDbHelper.truncateTables("db_history");
 		String trackSTring="{}";
 		try{
 			JSONObject jo=new JSONObject();
@@ -563,7 +563,7 @@ package com.primesys.VehicalTracking.Activity;
 			JSONArray joArray=new JSONArray(result);
 			for (int i = 0; i < joArray.length(); i++) {
 				JSONObject joObject =joArray.getJSONObject(i);
-				GmapDetais dmDetails=new GmapDetais();
+				DeviceDataDTO dmDetails=new DeviceDataDTO();
 				if (i<=0) {
 					defaultImage=joObject.getString("Photo").replaceAll("~", "").trim();
 					if (Common.roleid.contains("5")) {
@@ -590,9 +590,9 @@ package com.primesys.VehicalTracking.Activity;
 				
 				//Insert Offeline data
 				
-				helper.Insert_Device_list(arr);
+				PrimesysTrack.mDbHelper.Insert_Device_list(arr);
 				gmapList=(ListView)findViewById(R.id.list);
-				myAdapter=new ShowMapAdapter(ShowGmapClient.this, R.layout.fragment_mapsidebar, arr,imageLoader);
+				myAdapter=new GShowMapAdapter(ShowGmapClient.this, R.layout.fragment_mapsidebar, arr,imageLoader);
 				gmapList.setAdapter(myAdapter);
 				overridePendingTransition(R.anim.slide_in_up, R.anim.slide_in_out);
 				gmapList.setSelection(0);
@@ -758,10 +758,10 @@ package com.primesys.VehicalTracking.Activity;
 				Map<String, String> param = new HashMap<String, String>();
 				try {
 					int Track_id=0;
-					if ( ShowMapAdapter.gp==null)
+					if ( GShowMapAdapter.gp==null)
 						 Track_id=StudentId;
 					else {
-						 Track_id=Integer.parseInt(ShowMapAdapter.gp.getId());
+						 Track_id=Integer.parseInt(GShowMapAdapter.gp.getId());
 
 					}
 
